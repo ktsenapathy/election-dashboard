@@ -2724,32 +2724,77 @@ function _download(name,content,type){
    CONSTITUENCY DETAIL MODAL
    ══════════════════════════════════════════════════ */
 
-function openModal(acNo){
-  const r=ALL.find(x=>x.ac_no===acNo);
-  if(!r) return;
+/* ── Fetch live data for one constituency ──────────
+   Fetches the party lead page for the leader's party and extracts
+   the CURRENT (real-time) total_votes, margin, round for acNo.
+   Total Votes on ECI party lead pages = all candidates combined.    */
+async function fetchLiveConstituencyData(r){
+  const code=r.leader_code||partyCode('',r.leader_party)||'';
+  // Find partyId from TALLY (match by code)
+  const t=TALLY.find(t=>
+    code.toUpperCase().includes(t.code.toUpperCase())||
+    t.code.toUpperCase().includes(code.toUpperCase())
+  );
+  if(!t?.partyId) return null;
+  try{
+    const html=await withTimeout(10000,
+      fetch(`${BASE}/partywiseleadresult-${t.partyId}S22.htm`,{mode:'cors'})
+        .then(res=>res.ok?res.text():Promise.reject(new Error(`HTTP ${res.status}`)))
+    );
+    // Match this constituency row: after </a> the link's <td> closes,
+    // then candidate name td, total votes td, margin td, round td follow
+    const pat=new RegExp(
+      `href=['"]candidateswise-S22${r.ac_no}\\.htm['"][^>]*>[^<]+</a></td>\\s*`+
+      `<td[^>]*>([^<]+)</td>\\s*`+    // candidate name
+      `<td[^>]*>([\\d,]+)</td>\\s*`+  // Total Votes (all candidates)
+      `<td[^>]*>([\\d,]+)</td>\\s*`+  // Margin
+      `<td[^>]*>([^<]+)</td>`,        // Round
+      'si'
+    );
+    const m=html.match(pat);
+    if(!m) return null;
+    return{
+      total_votes: parseInt(m[2].replace(/,/g,''),10)||0,
+      margin:      parseInt(m[3].replace(/,/g,''),10)||0,
+      round:       m[4].trim(),
+    };
+  }catch{ return null; }
+}
 
-  const overlay=document.getElementById('modal-overlay');
-  document.getElementById('modal-ac-no').textContent=`Constituency #${r.ac_no}`;
-  document.getElementById('modal-title').textContent=r.name;
+/* ── Build modal body HTML ─────────────────────── */
+function buildModalBody(r, live){
+  // live overrides cached data when available
+  const totalVotes  = live?.total_votes ?? r.total_votes;
+  const margin      = live?.margin      ?? r.margin;
+  const round       = live?.round       ?? r.round;
+  const isLive      = !!live;
 
-  const region=TN_REGIONS.find(rg=>r.ac_no>=rg.lo&&r.ac_no<=rg.hi)?.name||'—';
-  const rp=roundProgress(r.round);
-  const color=r.color||pColor(r.leader_code||r.leader_party);
-  const lpc=partyCode(r.leader_code,r.leader_party);
-  const rpc=partyCode('',r.runner_party);
-  const rcolor=pColor(rpc||r.runner_party);
-
-  // Estimate individual vote counts
-  let leaderEst=0,runnerEst=0;
-  if(r.total_votes>0&&r.margin>0){
-    leaderEst=Math.round((r.total_votes+r.margin)/2);
-    runnerEst=Math.round((r.total_votes-r.margin)/2);
-  }
-
-  const statusColor=/declared|won/i.test(r.status||'')?'var(--green)'
+  const region    = TN_REGIONS.find(rg=>r.ac_no>=rg.lo&&r.ac_no<=rg.hi)?.name||'—';
+  const rp        = roundProgress(round);
+  const color     = r.color||pColor(r.leader_code||r.leader_party);
+  const lpc       = partyCode(r.leader_code,r.leader_party);
+  const rpc       = partyCode('',r.runner_party);
+  const rcolor    = pColor(rpc||r.runner_party);
+  const statusColor= /declared|won/i.test(r.status||'')?'var(--green)'
     :/progress/i.test(r.status||'')?'var(--yellow)':'var(--muted)';
 
-  document.getElementById('modal-body').innerHTML=`
+  // Individual vote estimates: all-candidate total is confirmed ECI column meaning
+  // leader_votes ≈ (total + margin) / 2  (exact for 2-candidate race)
+  let leaderEst=0, runnerEst=0, projectedTotal=0;
+  if(totalVotes>0&&margin>0){
+    leaderEst    = Math.round((totalVotes+margin)/2);
+    runnerEst    = Math.round((totalVotes-margin)/2);
+  }
+  if(totalVotes>0&&rp&&rp.done>0){
+    projectedTotal = Math.round(totalVotes*(rp.total/rp.done));
+  }
+
+  const dataSource = isLive
+    ? `<span style="color:var(--green);font-size:.65rem">● Live data just fetched</span>`
+    : `<span style="color:var(--muted);font-size:.65rem">From last auto-refresh · may be 0–30s old</span>`;
+
+  return `
+    <div style="margin-bottom:8px">${dataSource}</div>
     <div class="modal-row">
       <span class="ml">Region</span>
       <span class="mv">${region}</span>
@@ -2759,30 +2804,38 @@ function openModal(acNo){
       <span class="mv" style="color:${statusColor}">${r.status||'—'}</span>
     </div>
     <div class="modal-row">
-      <span class="ml">Counting Progress</span>
-      <span class="mv">${rp?`${rp.done}/${rp.total} rounds (${rp.pct}%)`:'—'}</span>
+      <span class="ml">Counting Round</span>
+      <span class="mv">${rp?`${rp.done} of ${rp.total} rounds (${rp.pct}% done)`:'—'}</span>
     </div>
-    <div class="modal-row">
-      <span class="ml">Total Votes Counted</span>
-      <span class="mv">${r.total_votes>0?fmt(r.total_votes):'—'}</span>
+    <div class="modal-row" style="background:${isLive?'#3fb95008':''}">
+      <span class="ml">Votes Counted<br><span style="font-size:.6rem;color:var(--muted)">all candidates</span></span>
+      <span class="mv" style="font-size:1rem;font-weight:700;color:${isLive?'var(--green)':'var(--text)'}">
+        ${totalVotes>0?fmt(totalVotes):'—'}
+      </span>
     </div>
+    ${projectedTotal>0?`<div class="modal-row">
+      <span class="ml">Projected Final<br><span style="font-size:.6rem;color:var(--muted)">at current pace</span></span>
+      <span class="mv" style="color:var(--muted)">≈ ${fmt(projectedTotal)}</span>
+    </div>`:''}
     <div class="modal-row">
       <span class="ml">Lead Margin</span>
-      <span class="mv" style="color:${marginColor(r.margin)}">${r.margin>0?fmt(r.margin)+' votes':' —'}</span>
+      <span class="mv" style="color:${marginColor(margin)}">${margin>0?fmt(margin)+' votes':'—'}</span>
     </div>
     ${isFlipRisk(r)?`<div class="modal-row">
       <span class="ml">Flip Risk</span>
-      <span class="mv" style="color:var(--red)">⚡ Yes — result may change next round</span>
+      <span class="mv" style="color:var(--red)">⚡ Yes — can change next round</span>
     </div>`:''}
     <div class="cand-block" style="margin-top:10px">
-      <div class="cand-block-title">Candidates (estimated votes)</div>
+      <div class="cand-block-title">Candidate vote estimates
+        <span style="font-weight:400;font-size:.6rem;opacity:.7"> (2-candidate formula)</span>
+      </div>
       <div class="cand-entry">
         <span class="ce-rank">1</span>
         <span class="ce-name">${r.leader||'—'}</span>
         <span class="ce-party" style="background:${color}">${lpc}</span>
         <span class="ce-votes" style="color:var(--green)">
           ${leaderEst>0?fmt(leaderEst):'—'}
-          ${leaderEst>0?'<span class="ce-est">est.</span>':''}
+          ${leaderEst>0?'<span class="ce-est"> est.</span>':''}
         </span>
       </div>
       ${r.runner?`<div class="cand-entry">
@@ -2791,21 +2844,61 @@ function openModal(acNo){
         <span class="ce-party" style="background:${rcolor}">${rpc}</span>
         <span class="ce-votes" style="color:var(--yellow)">
           ${runnerEst>0?fmt(runnerEst):'—'}
-          ${runnerEst>0?'<span class="ce-est">est.</span>':''}
+          ${runnerEst>0?'<span class="ce-est"> est.</span>':''}
         </span>
       </div>`:''}
-      ${r.total_votes>0&&leaderEst>0?`<div style="font-size:.62rem;color:var(--muted);
-        margin-top:6px;padding-top:5px;border-top:1px solid var(--border)">
-        Estimates based on leader_votes ≈ (total_votes + margin) / 2.
-        For full candidate list visit ECI ↗
-      </div>`:''}
+      <div style="font-size:.6rem;color:var(--muted);margin-top:6px;
+        padding-top:5px;border-top:1px solid var(--border)">
+        Formula: leader ≈ (total_votes + margin) / 2 · runner ≈ (total_votes − margin) / 2<br>
+        Slight overcount when minor candidates take votes. Click ECI ↗ for exact breakdown.
+      </div>
+    </div>`;
+}
+
+function openModal(acNo){
+  const r=ALL.find(x=>x.ac_no===acNo);
+  if(!r) return;
+
+  document.getElementById('modal-ac-no').textContent=`Constituency #${r.ac_no}`;
+  document.getElementById('modal-title').textContent=r.name;
+
+  const body=document.getElementById('modal-body');
+
+  // 1. Show cached data immediately (instant open)
+  body.innerHTML=buildModalBody(r,null)+
+    `<div id="modal-live-status" style="font-size:.68rem;color:var(--muted);
+      margin-top:8px;display:flex;align-items:center;gap:6px">
+      <span style="animation:spin .8s linear infinite;display:inline-block">⟳</span>
+      Fetching live data from ECI…
     </div>`;
 
   const eciLink=document.getElementById('modal-eci-link');
   if(eciLink) eciLink.href=`https://results.eci.gov.in/ResultAcGenMay2026/candidateswise-S22${acNo}.htm`;
 
-  overlay.classList.add('open');
+  document.getElementById('modal-overlay').classList.add('open');
   document.addEventListener('keydown',_modalEsc);
+
+  // 2. Fetch live data in background, update modal when done
+  fetchLiveConstituencyData(r).then(live=>{
+    // Only update if this modal is still open for the same constituency
+    const stillOpen=document.getElementById('modal-overlay').classList.contains('open')&&
+      document.getElementById('modal-ac-no').textContent===`Constituency #${r.ac_no}`;
+    if(!stillOpen) return;
+
+    if(live){
+      body.innerHTML=buildModalBody(r,live);
+      // Update r in ALL for consistency
+      const idx=ALL.findIndex(x=>x.ac_no===acNo);
+      if(idx>=0){
+        ALL[idx].total_votes=live.total_votes;
+        ALL[idx].margin=live.margin;
+        ALL[idx].round=live.round;
+      }
+    }else{
+      const st=document.getElementById('modal-live-status');
+      if(st) st.textContent='Could not fetch live data — showing cached values';
+    }
+  });
 }
 
 function closeModal(){
