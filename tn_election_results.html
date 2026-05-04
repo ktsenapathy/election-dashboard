@@ -71,11 +71,7 @@ header{
 .stat .v{font-size:1.35rem;font-weight:700;margin-top:1px}
 
 /* ── Visual panel (charts) ──────── */
-.visual-panel{
-  display:none;gap:12px;padding:12px 20px;
-  border-bottom:1px solid var(--border);flex-wrap:wrap;
-}
-.visual-panel.show{display:flex}
+.visual-panel{gap:12px;padding:12px 20px;border-bottom:1px solid var(--border);flex-wrap:wrap}
 .vp-card{background:var(--surface);border:1px solid var(--border);
   border-radius:var(--radius);padding:12px;flex:1;min-width:200px}
 .vp-title{font-size:.65rem;color:var(--muted);text-transform:uppercase;
@@ -600,6 +596,60 @@ tbody tr:hover td{background:#161b22}
 .btn-analyse.on{background:linear-gradient(135deg,#1f6feb,#1a4a8a);color:#fff;
   border-color:var(--blue)}
 
+/* ── Verdict strip (sticky, below header) ──── */
+#verdict-strip{
+  position:sticky;top:54px;z-index:190;
+  background:#0d1f33;border-bottom:1px solid #1f3a5f;
+  padding:5px 20px;display:none;align-items:center;
+  gap:0;font-size:.75rem;flex-wrap:wrap;line-height:1.8;
+}
+#verdict-strip.visible{display:flex}
+
+/* ── Overflow ⋯ menu ─────────────── */
+.overflow-wrap{position:relative}
+.overflow-dropdown{
+  display:none;position:absolute;right:0;top:calc(100% + 4px);
+  background:#1e2736;border:1px solid var(--border);border-radius:8px;
+  z-index:500;min-width:175px;padding:4px 0;
+  box-shadow:0 4px 18px #0009;
+}
+.overflow-dropdown.open{display:block}
+.overflow-dropdown button,.overflow-dropdown a{
+  display:flex;align-items:center;gap:9px;width:100%;padding:8px 14px;
+  background:none;border:none;color:var(--text);text-align:left;
+  cursor:pointer;font-size:.82rem;text-decoration:none;
+}
+.overflow-dropdown button:hover,.overflow-dropdown a:hover{background:var(--surface2)}
+
+/* ── Accordion sections (below data) ───────── */
+.acc-section{border-top:1px solid var(--border)}
+.acc-header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:11px 20px;cursor:pointer;user-select:none;
+  background:var(--bg);transition:background .12s;
+}
+.acc-header:hover{background:var(--surface)}
+.acc-title{font-size:.8rem;font-weight:700;display:flex;align-items:center;gap:7px;color:var(--text)}
+.acc-icon{font-size:.75rem;color:var(--muted);transition:transform .2s;flex-shrink:0}
+.acc-icon.open{transform:rotate(90deg)}
+.acc-body{display:none}
+.acc-body.open{display:block}
+/* visual panel lives inside accordion — always flex when visible */
+.acc-body .visual-panel{display:flex}
+
+/* ── More-filters popup ──────────── */
+#more-filters-wrap{position:relative}
+#more-filters-popup{
+  display:none;position:absolute;left:0;top:calc(100% + 4px);
+  background:#1e2736;border:1px solid var(--border);border-radius:8px;
+  z-index:400;min-width:220px;padding:10px 14px;
+  box-shadow:0 4px 18px #0009;
+}
+#more-filters-popup.open{display:flex;flex-direction:column;gap:8px}
+#more-filters-popup label{font-size:.7rem;color:var(--muted);margin-bottom:2px;display:block;
+  text-transform:uppercase;letter-spacing:.05em}
+#more-filters-popup select{width:100%}
+
 /* ── Footer ──────────────────────── */
 footer{padding:12px 20px;border-top:1px solid var(--border);
   text-align:center;font-size:.68rem;color:var(--muted)}
@@ -674,15 +724,14 @@ footer a:hover{text-decoration:underline}
       </button>
     </div>
 
-    <button class="btn-share" onclick="copyShareText()" title="Copy results for WhatsApp/chat">
-      📤 <span>Share</span>
-    </button>
-    <button class="btn-export" onclick="downloadCSV()" title="Download as CSV">
-      ⬇ <span>CSV</span>
-    </button>
-    <button class="btn-analyse" id="btn-analyse" onclick="toggleAnalysis()">
-      🔍 Analyse
-    </button>
+    <div class="overflow-wrap" id="overflow-wrap">
+      <button class="btn btn-ghost" onclick="toggleOverflow()" title="More actions">⋯</button>
+      <div class="overflow-dropdown" id="overflow-dropdown">
+        <button onclick="copyShareText();closeOverflow()">📤 Share Results</button>
+        <button onclick="downloadCSV();closeOverflow()">⬇ Download CSV</button>
+        <button onclick="toggleAnalysis();closeOverflow()" id="overflow-analyse">🔍 Analysis Panel</button>
+      </div>
+    </div>
     <button class="btn btn-ghost" onclick="forceRefresh()">
       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
         <polyline points="23 4 23 10 17 10"/>
@@ -694,6 +743,9 @@ footer a:hover{text-decoration:underline}
     <div class="live-pill"><div class="live-dot"></div> LIVE</div>
   </div>
 </header>
+
+<!-- Verdict strip (sticky, 1-line who's leading) -->
+<div id="verdict-strip"></div>
 
 <!-- Error banner -->
 <div id="error-banner">
@@ -785,101 +837,28 @@ footer a:hover{text-decoration:underline}
 <!-- Main UI (inserted after load) -->
 <template id="tpl">
 
-  <!-- Summary stats -->
+  <!-- ① Compact stat bar — dynamic values only (no static 234/118) -->
   <div class="summary">
-    <div class="stat"><div class="l">Total Seats</div><div class="v">234</div></div>
-    <div class="stat"><div class="l">Results Declared</div>
+    <div class="stat"><div class="l">Declared</div>
       <div class="v" id="s-dec" style="color:var(--green)">–</div></div>
-    <div class="stat"><div class="l">Counting in Progress</div>
+    <div class="stat"><div class="l">Counting</div>
       <div class="v" id="s-cnt" style="color:var(--yellow)">–</div></div>
-    <div class="stat hide-m"><div class="l">Yet to Start</div>
-      <div class="v" id="s-pend" style="color:var(--blue)">–</div></div>
-    <div class="stat hide-m"><div class="l">Majority Mark</div>
-      <div class="v" style="color:var(--red)">118</div></div>
-    <div class="stat hide-m"><div class="l">Total Votes Counted</div>
-      <div class="v" id="s-votes" style="color:var(--purple);font-size:1.05rem">–</div></div>
-    <div class="stat hide-m"><div class="l">Counting Complete</div>
-      <div class="v" id="s-complete" style="color:var(--blue);font-size:1.05rem">–</div></div>
+    <div class="stat hide-m"><div class="l">Yet to Count</div>
+      <div class="v" id="s-pend" style="color:var(--muted)">–</div></div>
+    <div class="stat hide-m"><div class="l">Votes Counted</div>
+      <div class="v" id="s-votes" style="color:var(--purple);font-size:1rem">–</div></div>
+    <div class="stat hide-m"><div class="l">Counting Done</div>
+      <div class="v" id="s-complete" style="color:var(--blue);font-size:1rem">–</div></div>
   </div>
 
-  <!-- Who's Winning banner -->
-  <div id="who-wins">
-    <div class="ww-headline">🏛 Government Formation · Majority = 118 seats</div>
-    <div class="ww-grid">
-      <div class="ww-left" id="ww-race"></div>
-      <div class="ww-mid"  id="ww-coalition"></div>
-      <div class="ww-right" id="ww-alerts"></div>
-    </div>
-  </div>
-
-  <!-- Alliance blocs -->
-  <div class="alliance-section">
-    <div class="alliance-row" id="alliance-row"></div>
-  </div>
-
-  <!-- Watch These Next -->
-  <div id="watch-next">
-    <div class="wn-header">
-      <div class="wn-title">🕐 Watch These Next — finishing soon, result uncertain</div>
-      <div class="wn-subtitle" id="wn-subtitle"></div>
-    </div>
-    <div class="wn-list" id="wn-list"></div>
-  </div>
-
-  <!-- Vote share panel -->
-  <div id="vote-panel" style="padding:10px 20px;border-bottom:1px solid var(--border)">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-      <div class="section-title" style="margin:0">
-        Party-wise Votes Cast &amp; Vote Share
-      </div>
-      <div id="vote-grand-total" style="font-size:.75rem;color:var(--muted)"></div>
-    </div>
-    <div id="vote-share-bars" style="display:flex;flex-direction:column;gap:6px"></div>
-    <div style="margin-top:10px;border-top:1px solid var(--border);padding-top:8px">
-      <div class="section-title" style="margin-bottom:6px">Votes Counted per Constituency</div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap" id="vote-con-stats"></div>
-    </div>
-  </div>
-
-  <!-- Visual charts panel -->
-  <div class="visual-panel" id="visual-panel">
-
-    <!-- Donut chart -->
-    <div class="vp-card" style="min-width:220px;max-width:280px">
-      <div class="vp-title">Seat Distribution</div>
-      <div class="donut-wrap">
-        <svg id="donut-svg" width="110" height="110" viewBox="0 0 110 110" style="flex-shrink:0"></svg>
-        <div class="donut-legend" id="donut-legend"></div>
-      </div>
-    </div>
-
-    <!-- Seat mini-map -->
-    <div class="vp-card" style="flex:2;min-width:220px">
-      <div class="vp-title">Constituency Map — 234 Seats (hover for details)</div>
-      <div class="seat-map" id="seat-map"></div>
-    </div>
-
-    <!-- Margin histogram -->
-    <div class="vp-card" style="min-width:200px;max-width:260px">
-      <div class="vp-title">Lead Margin Distribution</div>
-      <div class="hist-rows" id="hist-rows"></div>
-    </div>
-
-  </div>
-
-  <!-- Party tally -->
-  <div class="section">
-    <div class="section-title">
-      Party-wise Tally
-      <span style="font-weight:400;text-transform:none;opacity:.6">(click to filter)</span>
-    </div>
+  <!-- ② Party tally + Alliance (compact, always above data) -->
+  <div style="padding:8px 20px;border-bottom:1px solid var(--border);background:var(--bg)">
+    <div class="alliance-row" id="alliance-row" style="margin-bottom:6px"></div>
     <div class="party-grid" id="party-grid"></div>
   </div>
 
-  <!-- Controls -->
+  <!-- ③ Simplified controls -->
   <div class="controls">
-    <span style="font-size:.65rem;color:var(--muted);text-transform:uppercase;
-      letter-spacing:.06em;font-weight:600;flex-shrink:0">Filter:</span>
     <div class="search-wrap">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
            style="position:absolute;left:9px;top:50%;transform:translateY(-50%);
@@ -896,43 +875,59 @@ footer a:hover{text-decoration:underline}
       <option value="declared">Result Declared</option>
       <option value="pending">Pending</option>
     </select>
-    <select id="filter-margin" onchange="renderAll()">
-      <option value="">All Margins</option>
-      <option value="0-500">Very Close (0–500)</option>
-      <option value="500-2000">Close (500–2K)</option>
-      <option value="2000-10000">Comfortable (2K–10K)</option>
-      <option value="10000-">Safe (10K+)</option>
-    </select>
     <select id="sort-sel" onchange="renderAll()">
-      <option value="ac_no">Sort: Constituency #</option>
-      <option value="name">Sort: Name A–Z</option>
-      <option value="margin_desc">Sort: Highest Margin</option>
-      <option value="margin_asc">Sort: Closest Contest</option>
-      <option value="total_votes_desc">Sort: Most Votes Counted</option>
-      <option value="round_desc">Sort: Most Rounds Done</option>
-      <option value="flip">Sort: Flip Risk First</option>
-      <option value="status">Sort: Status</option>
+      <option value="ac_no">Sort: #</option>
+      <option value="name">A–Z</option>
+      <option value="margin_desc">Highest Margin</option>
+      <option value="margin_asc">Closest Contest</option>
+      <option value="total_votes_desc">Most Votes</option>
+      <option value="round_desc">Most Rounds</option>
+      <option value="flip">Flip Risk First</option>
+      <option value="status">Status</option>
     </select>
-    <select id="filter-flip" onchange="renderAll()">
-      <option value="">All Seats</option>
-      <option value="flip">⚡ Flip Risk Only</option>
-      <option value="safe">🟢 Safe Only (10K+)</option>
-    </select>
-    <select id="filter-region" onchange="renderAll()">
-      <option value="">All Regions</option>
-      <option value="1-40">Chennai Metro</option>
-      <option value="41-90">Northern TN</option>
-      <option value="91-135">Central TN</option>
-      <option value="136-180">Cauvery Delta</option>
-      <option value="181-210">Western TN</option>
-      <option value="211-234">Southern TN</option>
-    </select>
-    <span style="width:1px;height:22px;background:var(--border);flex-shrink:0;align-self:center;margin:0 2px"></span>
-    <button class="btn btn-ghost" onclick="clearFilters()">✕ Clear</button>
+    <!-- More filters popup -->
+    <div id="more-filters-wrap">
+      <button class="btn btn-ghost" id="more-filters-btn" onclick="toggleMoreFilters()">
+        ⚡ More ▾
+      </button>
+      <div id="more-filters-popup">
+        <div>
+          <label>Margin range</label>
+          <select id="filter-margin" onchange="renderAll()">
+            <option value="">All Margins</option>
+            <option value="0-500">Very Close (0–500)</option>
+            <option value="500-2000">Close (500–2K)</option>
+            <option value="2000-10000">Comfortable (2K–10K)</option>
+            <option value="10000-">Safe (10K+)</option>
+          </select>
+        </div>
+        <div>
+          <label>Special filter</label>
+          <select id="filter-flip" onchange="renderAll()">
+            <option value="">All Seats</option>
+            <option value="flip">⚡ Flip Risk Only</option>
+            <option value="safe">🟢 Safe Only</option>
+          </select>
+        </div>
+        <div>
+          <label>Region</label>
+          <select id="filter-region" onchange="renderAll()">
+            <option value="">All Regions</option>
+            <option value="1-40">Chennai Metro</option>
+            <option value="41-90">Northern TN</option>
+            <option value="91-135">Central TN</option>
+            <option value="136-180">Cauvery Delta</option>
+            <option value="181-210">Western TN</option>
+            <option value="211-234">Southern TN</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <button class="btn btn-ghost" onclick="clearFilters()">✕</button>
     <div class="row-count" id="row-count"></div>
   </div>
 
-  <!-- Content area -->
+  <!-- ④ CONTENT AREA — DATA FIRST -->
   <div id="content-area" class="mode-table">
 
     <!-- Card panel -->
@@ -941,8 +936,8 @@ footer a:hover{text-decoration:underline}
         <div class="card-size-bar">
           <span>Card size:</span>
           <button class="cs-btn" id="cs-compact" onclick="setCardSize('compact')">Compact</button>
-          <button class="cs-btn active" id="cs-normal"  onclick="setCardSize('normal')">Normal</button>
-          <button class="cs-btn" id="cs-detail"  onclick="setCardSize('detail')">Detailed</button>
+          <button class="cs-btn active" id="cs-normal" onclick="setCardSize('normal')">Normal</button>
+          <button class="cs-btn" id="cs-detail" onclick="setCardSize('detail')">Detailed</button>
         </div>
       </div>
       <div id="card-grid" class="card-grid sz-normal" style="padding:0 20px"></div>
@@ -958,7 +953,7 @@ footer a:hover{text-decoration:underline}
             <th data-k="leader">    Leader / Runner-up <span class="si">↕</span></th>
             <th data-k="leader_party"> Party <span class="si">↕</span></th>
             <th data-k="margin">       Margin <span class="si">↕</span></th>
-            <th data-k="total_votes" class="hide-m"> Votes Counted <span class="si">↕</span></th>
+            <th data-k="total_votes" class="hide-m"> Leader Votes <span class="si">↕</span></th>
             <th data-k="round" class="hide-m">       Round <span class="si">↕</span></th>
             <th data-k="status">       Status <span class="si">↕</span></th>
           </tr>
@@ -967,6 +962,79 @@ footer a:hover{text-decoration:underline}
       </table>
     </div>
 
+  </div>
+
+  <!-- ⑤ Below-fold accordions -->
+
+  <!-- A: Watch These Next -->
+  <div class="acc-section">
+    <div class="acc-header" onclick="toggleAcc('watch')">
+      <span class="acc-title">🕐 Watch These Next <span id="wn-subtitle"
+        style="font-weight:400;opacity:.7;font-size:.72rem;margin-left:6px"></span></span>
+      <span class="acc-icon" id="acc-icon-watch">▶</span>
+    </div>
+    <div class="acc-body" id="acc-body-watch">
+      <div style="padding:8px 20px 14px">
+        <div class="wn-list" id="wn-list"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- B: Vote Share & Charts -->
+  <div class="acc-section">
+    <div class="acc-header" onclick="toggleAcc('charts')">
+      <span class="acc-title">📊 Vote Share &amp; Charts</span>
+      <span class="acc-icon" id="acc-icon-charts">▶</span>
+    </div>
+    <div class="acc-body" id="acc-body-charts">
+      <!-- Vote share panel -->
+      <div id="vote-panel" style="padding:10px 20px;border-bottom:1px solid var(--border)">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+          <div class="section-title" style="margin:0">Party-wise Votes Cast &amp; Vote Share</div>
+          <div id="vote-grand-total" style="font-size:.75rem;color:var(--muted)"></div>
+        </div>
+        <div id="vote-share-bars" style="display:flex;flex-direction:column;gap:6px"></div>
+        <div style="margin-top:10px;border-top:1px solid var(--border);padding-top:8px">
+          <div class="section-title" style="margin-bottom:6px">Votes Counted per Constituency</div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap" id="vote-con-stats"></div>
+        </div>
+      </div>
+      <!-- Visual charts -->
+      <div class="visual-panel" id="visual-panel" style="gap:12px;padding:12px 20px;border-bottom:1px solid var(--border);flex-wrap:wrap">
+        <div class="vp-card" style="min-width:220px;max-width:280px">
+          <div class="vp-title">Seat Distribution</div>
+          <div class="donut-wrap">
+            <svg id="donut-svg" width="110" height="110" viewBox="0 0 110 110" style="flex-shrink:0"></svg>
+            <div class="donut-legend" id="donut-legend"></div>
+          </div>
+        </div>
+        <div class="vp-card" style="flex:2;min-width:220px">
+          <div class="vp-title">Constituency Map — 234 Seats (hover for details)</div>
+          <div class="seat-map" id="seat-map"></div>
+        </div>
+        <div class="vp-card" style="min-width:200px;max-width:260px">
+          <div class="vp-title">Lead Margin Distribution</div>
+          <div class="hist-rows" id="hist-rows"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- C: Government Formation -->
+  <div class="acc-section">
+    <div class="acc-header" onclick="toggleAcc('govt')">
+      <span class="acc-title">🏛 Government Formation &amp; Coalitions</span>
+      <span class="acc-icon" id="acc-icon-govt">▶</span>
+    </div>
+    <div class="acc-body" id="acc-body-govt">
+      <div id="who-wins" style="padding-top:12px">
+        <div class="ww-grid">
+          <div class="ww-left" id="ww-race"></div>
+          <div class="ww-mid"  id="ww-coalition"></div>
+          <div class="ww-right" id="ww-alerts"></div>
+        </div>
+      </div>
+    </div>
   </div>
 
 </template>
@@ -1573,8 +1641,7 @@ function setView(v){
   });
   const ca=document.getElementById('content-area');
   if(ca) ca.className=`mode-${v}`;
-  const vp=document.getElementById('visual-panel');
-  if(vp) vp.classList.toggle('show',v!=='table');
+  // visual-panel now lives inside accordion — accordion controls its visibility
   renderAll();
 }
 
@@ -1859,8 +1926,11 @@ async function refresh(){
     const{all,tally,voteShare,grandVotes,totals}=await fetchAll();
     ALL=all;TALLY=tally;TOTALS=totals;VOTE_SHARE=voteShare||[];GRAND_VOTES=grandVotes||0;
     detectChanges();   // compare new state to snapshot
+    const firstLoad=!ready;
     bootstrap();
+    if(firstLoad) initAccordions();
     updateStats();
+    renderVerdictStrip();
     renderWhoWins();
     renderWatchNext();
     renderVotePanel();
@@ -1871,6 +1941,7 @@ async function refresh(){
     const ts=new Date().toLocaleTimeString('en-IN');
     setMeta(`results.eci.gov.in · Updated ${ts} · ${ALL.length} constituencies · Auto-refresh ${RFRSH}s`);
     document.getElementById('error-banner').style.display='none';
+    renderVerdictStrip();
     renderWhoWins();
     renderWatchNext();
     renderVotePanel();
@@ -2992,6 +3063,101 @@ document.addEventListener('click',e=>{
     if(sugg) sugg.classList.remove('open');
   }
 });
+
+/* ══════════════════════════════════════════════════
+   OPTION A: VERDICT STRIP + OVERFLOW + ACCORDIONS
+   ══════════════════════════════════════════════════ */
+
+/* ── Verdict strip ─────────────────────────────── */
+function renderVerdictStrip(){
+  const el=document.getElementById('verdict-strip');
+  if(!el||!TALLY.length) return;
+  const SEP=`<span style="color:#1f3a5f;margin:0 6px">·</span>`;
+  const top=TALLY.slice(0,3).map(p=>
+    `<span style="color:${p.color};font-weight:700">${p.code}&thinsp;${p.total}</span>`
+  ).join(SEP);
+  const leader=TALLY[0];
+  const need=leader?118-leader.total:0;
+  const knife=ALL.filter(r=>r.margin>0&&r.margin<500).length;
+  const flip=ALL.filter(r=>isFlipRisk(r)).length;
+  const status=need>0
+    ?`<span style="color:var(--yellow)">${leader.code} needs +${need}</span>`
+    :`<span style="color:var(--green)">${leader?.code} has majority ✓</span>`;
+  const alerts=[];
+  if(knife>0) alerts.push(`<span style="color:var(--red)">⚠&thinsp;${knife} knife-edge</span>`);
+  if(flip>knife) alerts.push(`<span style="color:var(--yellow)">⚡&thinsp;${flip} flip risk</span>`);
+  el.innerHTML=top+SEP+status+(alerts.length?SEP+alerts.join(SEP):'');
+  el.classList.add('visible');
+}
+
+/* ── Overflow ⋯ menu ───────────────────────────── */
+function toggleOverflow(){
+  document.getElementById('overflow-dropdown')?.classList.toggle('open');
+}
+function closeOverflow(){
+  document.getElementById('overflow-dropdown')?.classList.remove('open');
+}
+
+/* ── More-filters popup ────────────────────────── */
+function toggleMoreFilters(){
+  const pp=document.getElementById('more-filters-popup');
+  if(pp) pp.classList.toggle('open');
+  // highlight button when any more-filter is active
+  const btn=document.getElementById('more-filters-btn');
+  if(btn){
+    const anyActive=
+      document.getElementById('filter-margin')?.value||
+      document.getElementById('filter-flip')?.value||
+      document.getElementById('filter-region')?.value;
+    btn.style.borderColor=anyActive?'var(--blue)':'';
+    btn.style.color=anyActive?'var(--blue)':'';
+  }
+}
+
+/* ── Accordion sections ────────────────────────── */
+function toggleAcc(id){
+  const body=document.getElementById('acc-body-'+id);
+  const icon=document.getElementById('acc-icon-'+id);
+  if(!body) return;
+  const opening=!body.classList.contains('open');
+  body.classList.toggle('open',opening);
+  if(icon) icon.classList.toggle('open',opening);
+  localStorage.setItem('acc-'+id,opening?'1':'0');
+  // Render charts on first open
+  if(opening&&id==='charts'){
+    renderDonut(); renderHistogram(); renderSeatMap();
+  }
+}
+
+function initAccordions(){
+  // Default: watch=open, charts=closed, govt=closed
+  const defaults={watch:true,charts:false,govt:false};
+  Object.entries(defaults).forEach(([id,def])=>{
+    const saved=localStorage.getItem('acc-'+id);
+    const open=saved!==null?saved==='1':def;
+    if(open){
+      document.getElementById('acc-body-'+id)?.classList.add('open');
+      document.getElementById('acc-icon-'+id)?.classList.add('open');
+    }
+  });
+}
+
+/* ── Close dropdowns on outside click ─────────── */
+document.addEventListener('click',e=>{
+  if(!document.getElementById('overflow-wrap')?.contains(e.target))
+    closeOverflow();
+  const mw=document.getElementById('more-filters-wrap');
+  if(mw&&!mw.contains(e.target))
+    document.getElementById('more-filters-popup')?.classList.remove('open');
+});
+
+/* ── Update More▾ button highlight on clear ────── */
+const _origClear=clearFilters;
+clearFilters=function(){
+  _origClear();
+  const btn=document.getElementById('more-filters-btn');
+  if(btn){btn.style.borderColor='';btn.style.color='';}
+};
 
 /* ── Start ─────────────────────────────────────── */
 refresh();
