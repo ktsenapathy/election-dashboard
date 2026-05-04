@@ -488,7 +488,7 @@ tbody tr:hover td{background:#161b22}
 .vs-votes{width:80px;text-align:right;font-variant-numeric:tabular-nums;
   font-size:.72rem;color:var(--muted);flex-shrink:0}
 .vs-pct{width:40px;text-align:right;font-weight:700;flex-shrink:0;font-size:.72rem}
-.vs-seats{width:32px;text-align:right;font-size:.7rem;color:var(--muted);flex-shrink:0}
+.vs-seats{width:52px;text-align:right;font-size:.7rem;color:var(--muted);flex-shrink:0;white-space:nowrap}
 .con-stat-chip{background:var(--surface);border:1px solid var(--border);
   border-radius:6px;padding:6px 10px;font-size:.72rem;min-width:140px}
 .con-stat-chip .csc-label{color:var(--muted);font-size:.62rem;text-transform:uppercase;
@@ -2466,7 +2466,7 @@ function renderAnalysis(){
       <span style="flex:1">Vote share bar</span>
       <span style="width:40px;text-align:right">Share</span>
       <span style="width:70px;text-align:right">Votes</span>
-      <span style="width:28px;text-align:right">Seats</span>
+      <span style="width:52px;text-align:right">Seats</span>
     </div>` +
     VOTE_SHARE.map(vs=>{
       const code  = vsC(vs.party);
@@ -2483,7 +2483,7 @@ function renderAnalysis(){
         </div>
         <div class="vs-pct" style="color:${color};width:40px">${vs.pct}</div>
         <div class="vs-votes" style="width:70px">${vStr}</div>
-        <div class="vs-seats" style="width:28px">${seats>0?seats+'🪑':''}</div>
+        <div class="vs-seats" style="width:52px">${seats>0?seats+'🪑':''}</div>
       </div>`;
     }).join('');
   }
