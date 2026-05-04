@@ -670,10 +670,41 @@ footer a:hover{text-decoration:underline}
 
 /* ── Responsive ──────────────────── */
 @media(max-width:640px){
-  .h-title h1{font-size:.95rem}
-  .summary{gap:5px}
+  /* Header — single compact line */
+  header{padding:6px 10px;gap:6px}
+  .h-title{min-width:0;flex:1}
+  .h-title h1{font-size:.82rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .h-sub{display:none}
+  #back-to-home{font-size:.68rem;padding:2px 6px}
+  .h-right{gap:5px}
+  .live-pill{padding:3px 7px;font-size:.65rem}
+
+  /* Stats */
+  .summary{gap:4px;padding:8px 10px}
   .stat .v{font-size:1.1rem}
   .hide-m{display:none}
+
+  /* Party tally — scroll horizontally instead of wrapping */
+  .party-grid{flex-wrap:nowrap;overflow-x:auto;padding-bottom:4px}
+
+  /* Visual panels — hide constituency map (10px squares unusable on phone) */
+  .visual-panel{padding:8px 10px;gap:8px}
+  #visual-panel .vp-card:nth-child(2){display:none}
+
+  /* Controls — search full-width top row, filters + view toggle below */
+  .controls{padding:6px 10px;gap:5px}
+  .search-wrap{max-width:100%;min-width:0;width:100%}
+  .row-count{margin-left:0}
+  .view-toggle{margin-left:auto}
+
+  /* Cards default on mobile (table needs horizontal scroll) */
+  .vt-btn{padding:4px 9px;font-size:.73rem}
+  .vt-btn svg{width:11px;height:11px}
+
+  /* Home screen — tighter padding */
+  .home-wrap{padding:10px}
+  .home-title{padding:12px 0 16px}
+  .sc{padding:12px}
 }
 
 /* ══════════════════════════════════
@@ -1163,7 +1194,7 @@ const PC = {
 
 /* ── App state ─────────────────────────────────── */
 let ALL=[], TALLY=[], TOTALS={}, VOTE_SHARE=[], GRAND_VOTES=0;
-let VIEW='table', CARD_SIZE='normal';
+let VIEW=window.innerWidth<640?'cards':'table', CARD_SIZE='normal';
 let SORT_KEY='ac_no', SORT_DIR=1;
 let SEL_PARTY='', HIST_FILTER='', SEL_REGION='';
 let countdown=RFRSH, fetching=false, ready=false;
