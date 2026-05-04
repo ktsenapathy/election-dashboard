@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Tamil Nadu Live Election Results 2026</title>
+<style>
+/* ── Reset & Variables ───────────────────────────── */
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0d1117;--surface:#161b22;--surface2:#21262d;
+  --border:#30363d;--text:#e6edf3;--muted:#8b949e;
+  --green:#3fb950;--yellow:#d29922;--blue:#58a6ff;
+  --red:#f85149;--purple:#bc8cff;
+}
+html{scroll-behavior:smooth}
+body{
+  background:var(--bg);color:var(--text);
+  font-family:'Segoe UI',system-ui,-apple-system,sans-serif;
+  font-size:14px;line-height:1.5;min-height:100vh;
+}
+
+/* ── Header ─────────────────────────────────────── */
+header{
+  background:linear-gradient(135deg,#0d2137 0%,#0d1117 100%);
+  padding:16px 20px;border-bottom:1px solid var(--border);
+  display:flex;justify-content:space-between;align-items:center;
+  flex-wrap:wrap;gap:12px;position:sticky;top:0;z-index:200;
+}
+.header-title h1{font-size:1.15rem;font-weight:700;line-height:1.3}
+.header-title h1 span{color:var(--blue)}
+.header-sub{font-size:.72rem;color:var(--muted);margin-top:2px}
+.header-right{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+
+/* Live pill */
+.live-pill{
+  display:flex;align-items:center;gap:6px;padding:4px 12px;
+  background:#3fb95015;border:1px solid #3fb95040;
+  border-radius:99px;font-size:.75rem;color:var(--green);
+  white-space:nowrap;
+}
+.live-dot{
+  width:7px;height:7px;border-radius:50%;
+  background:var(--green);flex-shrink:0;
+  animation:blink 1.6s ease-in-out infinite;
+}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+
+/* Countdown */
+.countdown{font-size:.72rem;color:var(--muted)}
+
+/* ── Error Banner ────────────────────────────────── */
+#error-banner{
+  display:none;background:#f8514915;border:1px solid #f8514940;
+  color:var(--red);padding:12px 20px;font-size:.83rem;
+}
+#error-banner code{
+  background:#0d1117;padding:2px 6px;border-radius:4px;font-size:.8rem;
+}
+
+/* ── Loading Overlay ─────────────────────────────── */
+#loading{
+  display:flex;flex-direction:column;align-items:center;
+  justify-content:center;min-height:300px;gap:16px;color:var(--muted);
+}
+.spinner{
+  width:36px;height:36px;border:3px solid var(--border);
+  border-top-color:var(--blue);border-radius:50%;
+  animation:spin .8s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+.load-steps{font-size:.8rem;text-align:center}
+
+/* ── Summary Bar ─────────────────────────────────── */
+.summary{
+  display:flex;gap:8px;padding:12px 20px;
+  border-bottom:1px solid var(--border);
+  background:var(--bg);flex-wrap:wrap;
+}
+.stat{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:8px;padding:10px 16px;flex:1;min-width:120px;
+}
+.stat .l{
+  font-size:.68rem;color:var(--muted);text-transform:uppercase;
+  letter-spacing:.06em;
+}
+.stat .v{font-size:1.4rem;font-weight:700;margin-top:2px}
+
+/* ── Section ─────────────────────────────────────── */
+.section{padding:14px 20px}
+.section-title{
+  font-size:.68rem;color:var(--muted);text-transform:uppercase;
+  letter-spacing:.08em;margin-bottom:10px;font-weight:600;
+}
+
+/* ── Party Grid ──────────────────────────────────── */
+.party-grid{display:flex;flex-wrap:wrap;gap:7px}
+.party-chip{
+  display:flex;align-items:center;gap:8px;
+  padding:6px 12px;background:var(--surface);
+  border:1px solid var(--border);border-radius:8px;
+  font-size:.8rem;cursor:pointer;transition:border-color .15s,background .15s;
+  min-width:140px;
+}
+.party-chip:hover{border-color:var(--blue)}
+.party-chip.active{border-color:var(--blue);background:#192a3e}
+.p-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+.p-code{font-weight:700;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.p-total{font-weight:700;font-size:.92rem}
+.p-sub{display:flex;gap:5px;font-size:.7rem}
+.p-won{color:var(--green)}
+.p-lead{color:var(--yellow)}
+
+/* ── Controls ────────────────────────────────────── */
+.controls{
+  display:flex;gap:8px;padding:0 20px 12px;
+  flex-wrap:wrap;align-items:center;
+}
+.search-wrap{position:relative;flex:1;min-width:200px;max-width:340px}
+.search-wrap svg{
+  position:absolute;left:10px;top:50%;transform:translateY(-50%);
+  width:14px;height:14px;color:var(--muted);pointer-events:none;
+}
+input[type=search]{
+  width:100%;background:var(--surface);border:1px solid var(--border);
+  color:var(--text);border-radius:6px;padding:6px 10px 6px 32px;
+  font-size:.83rem;outline:none;-webkit-appearance:none;
+}
+input[type=search]:focus{border-color:var(--blue)}
+input[type=search]::placeholder{color:var(--muted)}
+select{
+  background:var(--surface);border:1px solid var(--border);
+  color:var(--text);border-radius:6px;padding:6px 10px;
+  font-size:.83rem;outline:none;cursor:pointer;
+}
+select:focus{border-color:var(--blue)}
+.btn{
+  border:none;padding:6px 14px;border-radius:6px;
+  cursor:pointer;font-size:.8rem;font-weight:600;
+  display:flex;align-items:center;gap:5px;white-space:nowrap;
+}
+.btn-primary{background:var(--blue);color:#0d1117}
+.btn-primary:hover{background:#79c0ff}
+.btn-ghost{
+  background:var(--surface);color:var(--text);
+  border:1px solid var(--border);
+}
+.btn-ghost:hover{border-color:var(--blue)}
+.row-count{font-size:.75rem;color:var(--muted)}
+
+/* ── Table ───────────────────────────────────────── */
+.table-wrap{overflow-x:auto;padding:0 20px 20px}
+table{width:100%;border-collapse:collapse;font-size:.83rem}
+thead th{
+  text-align:left;padding:8px 10px;
+  color:var(--muted);font-weight:600;font-size:.68rem;
+  text-transform:uppercase;letter-spacing:.06em;
+  border-bottom:2px solid var(--border);
+  white-space:nowrap;cursor:pointer;user-select:none;
+  position:sticky;top:0;background:var(--bg);
+}
+thead th:hover{color:var(--text)}
+thead th .sort-icon{margin-left:3px;font-size:.6rem;opacity:.5}
+thead th.sorted .sort-icon{opacity:1;color:var(--blue)}
+tbody td{
+  padding:8px 10px;border-bottom:1px solid #21262d;
+  vertical-align:middle;
+}
+tbody tr:hover td{background:#161b22}
+
+/* Table cell styles */
+.ac-no{color:var(--muted);font-size:.75rem;font-variant-numeric:tabular-nums}
+.con-name{font-weight:600}
+.cand-lead{font-weight:500}
+.cand-trail{color:var(--muted);font-size:.77rem;margin-top:1px}
+.party-tag{
+  display:inline-block;padding:2px 8px;border-radius:4px;
+  font-size:.7rem;font-weight:700;color:#fff;white-space:nowrap;
+  text-shadow:0 1px 2px rgba(0,0,0,.4);
+}
+.party-tag-sm{
+  display:inline-block;padding:1px 6px;border-radius:4px;
+  font-size:.67rem;font-weight:600;color:#fff;
+  text-shadow:0 1px 2px rgba(0,0,0,.4);opacity:.75;
+  margin-top:2px;
+}
+.margin-cell{
+  font-weight:700;font-variant-numeric:tabular-nums;
+  color:var(--blue);
+}
+.round-cell{color:var(--muted);font-size:.78rem;font-variant-numeric:tabular-nums}
+.status-badge{
+  display:inline-flex;align-items:center;gap:4px;
+  padding:2px 8px;border-radius:99px;
+  font-size:.68rem;font-weight:600;white-space:nowrap;
+}
+.s-progress{background:#d2992215;color:var(--yellow);border:1px solid #d2992235}
+.s-declared{background:#3fb95015;color:var(--green);border:1px solid #3fb95035}
+.s-pending{background:#58a6ff15;color:var(--blue);border:1px solid #58a6ff35}
+
+/* ── Footer ──────────────────────────────────────── */
+footer{
+  padding:14px 20px;border-top:1px solid var(--border);
+  text-align:center;font-size:.72rem;color:var(--muted);
+}
+footer a{color:var(--blue);text-decoration:none}
+footer a:hover{text-decoration:underline}
+
+/* ── Responsive ──────────────────────────────────── */
+@media(max-width:640px){
+  .header-title h1{font-size:1rem}
+  .summary{gap:6px}
+  .stat .v{font-size:1.2rem}
+  .hide-mobile{display:none}
+}
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<header>
+  <div class="header-title">
+    <h1>Tamil Nadu — <span>Live Election Results 2026</span></h1>
+    <div class="header-sub" id="meta">Connecting to results.eci.gov.in…</div>
+  </div>
+  <div class="header-right">
+    <div class="countdown" id="countdown"></div>
+    <button class="btn btn-ghost" onclick="forceRefresh()">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+      Refresh
+    </button>
+    <div class="live-pill"><div class="live-dot"></div> LIVE</div>
+  </div>
+</header>
+
+<!-- Error Banner -->
+<div id="error-banner">
+  ⚠ Could not fetch data. If you opened this file directly from disk, try serving it:
+  <code>python3 -m http.server 8080</code> then open
+  <code>http://localhost:8080/tn_election_results.html</code>
+  <span id="error-detail"></span>
+</div>
+
+<!-- Main content -->
+<div id="app">
+  <div id="loading">
+    <div class="spinner"></div>
+    <div class="load-steps" id="load-steps">Fetching live data from ECI…</div>
+  </div>
+</div>
+
+<!-- Results template (hidden until loaded) -->
+<template id="results-tpl">
+
+  <!-- Summary bar -->
+  <div class="summary">
+    <div class="stat">
+      <div class="l">Total Seats</div>
+      <div class="v">234</div>
+    </div>
+    <div class="stat">
+      <div class="l">Results Declared</div>
+      <div class="v" id="s-dec" style="color:var(--green)">–</div>
+    </div>
+    <div class="stat">
+      <div class="l">Counting in Progress</div>
+      <div class="v" id="s-cnt" style="color:var(--yellow)">–</div>
+    </div>
+    <div class="stat">
+      <div class="l">Yet to Start</div>
+      <div class="v" id="s-pend" style="color:var(--blue)">–</div>
+    </div>
+    <div class="stat hide-mobile">
+      <div class="l">Majority Mark</div>
+      <div class="v" style="color:var(--red)">118</div>
+    </div>
+  </div>
+
+  <!-- Party tally -->
+  <div class="section">
+    <div class="section-title">Party-wise Tally <span style="font-weight:400;text-transform:none;opacity:.7">(click to filter)</span></div>
+    <div class="party-grid" id="party-grid"></div>
+  </div>
+
+  <!-- Controls -->
+  <div class="controls">
+    <div class="search-wrap">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+      </svg>
+      <input type="search" id="search" placeholder="Search constituency, candidate, party…" oninput="renderTable()">
+    </div>
+    <select id="filter-status" onchange="renderTable()">
+      <option value="">All Status</option>
+      <option value="progress">Counting in Progress</option>
+      <option value="declared">Result Declared</option>
+      <option value="pending">Pending / No Data</option>
+    </select>
+    <button class="btn btn-ghost" onclick="clearFilters()">Clear</button>
+    <div class="row-count" id="row-count"></div>
+  </div>
+
+  <!-- Table -->
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th onclick="sortBy('ac_no')"># <span class="sort-icon" id="sort-ac_no">↕</span></th>
+          <th onclick="sortBy('name')">Constituency <span class="sort-icon" id="sort-name">↕</span></th>
+          <th onclick="sortBy('leader')">Leader → Runner-up <span class="sort-icon" id="sort-leader">↕</span></th>
+          <th onclick="sortBy('leader_party')">Party <span class="sort-icon" id="sort-leader_party">↕</span></th>
+          <th onclick="sortBy('margin')">Lead Margin <span class="sort-icon" id="sort-margin">↕</span></th>
+          <th onclick="sortBy('round')" class="hide-mobile">Round <span class="sort-icon" id="sort-round">↕</span></th>
+          <th onclick="sortBy('status')">Status <span class="sort-icon" id="sort-status">↕</span></th>
+        </tr>
+      </thead>
+      <tbody id="tbody"></tbody>
+    </table>
+  </div>
+
+</template>
+
+<footer>
+  Data source: <a href="https://results.eci.gov.in" target="_blank" rel="noopener">results.eci.gov.in</a>
+  &nbsp;·&nbsp; Auto-refreshes every 30 seconds &nbsp;·&nbsp; Tamil Nadu Assembly Elections May 2026
+</footer>
+
+<script>
+'use strict';
+
+/* ── Constants ──────────────────────────────────────────────── */
+const BASE   = 'https://results.eci.gov.in/ResultAcGenMay2026';
+const PAGES  = 12;
+const RFRSH  = 30;   // seconds
+
+const PARTY_COLORS = {
+  TVK:'#e72bd9', ADMK:'#A08547', DMK:'#05F86E', PMK:'#5D672B',
+  INC:'#19AAED', 'CPI(M)':'#FF1D15', VCK:'#729E31', BJP:'#ff944d',
+  IUML:'#006600', CPI:'#cc0000', DMDK:'#ff6600', NTK:'#cc5500',
+};
+
+/* ── State ──────────────────────────────────────────────────── */
+let ALL       = [];   // all 234 constituency objects
+let TALLY     = [];   // party tally rows
+let TOTALS    = {};   // {declared, counting, pending}
+let SORT_KEY  = 'ac_no';
+let SORT_DIR  = 1;
+let SEL_PARTY = '';
+let countdown = RFRSH;
+let fetching  = false;
+let appReady  = false;
+let tickTimer, refreshTimer;
+
+/* ── Fetch helpers ──────────────────────────────────────────── */
+function withTimeout(ms, promise) {
+  return Promise.race([
+    promise,
+    new Promise((_, rej) => setTimeout(() => rej(new Error('Timeout')), ms))
+  ]);
+}
+async function getText(url) {
+  const res = await withTimeout(12000, fetch(url, { mode: 'cors' }));
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  return res.text();
+}
+
+/* ── Parse live JSON ────────────────────────────────────────── */
+async function fetchLiveJson() {
+  const raw  = await getText(`${BASE}/election-json-S22-live.json`);
+  const data = JSON.parse(raw);
+  const map  = {};
+  for (const item of (data.S22?.chartData || [])) {
+    if (item.length >= 5) {
+      map[item[2]] = { party: item[0], candidate: item[3], color: item[4] };
+    }
+  }
+  return map;
+}
+
+/* ── Parse one statewise HTML page ─────────────────────────── */
+function parseStatewisePage(html) {
+  const doc   = new DOMParser().parseFromString(html, 'text/html');
+  // The outer table tbody is the first one on the page
+  const tbodies = doc.querySelectorAll('table > tbody');
+  let outerTbody = null;
+  for (const tb of tbodies) {
+    const directRows = [...tb.children].filter(el => el.tagName === 'TR');
+    if (directRows.length > 0) { outerTbody = tb; break; }
+  }
+  if (!outerTbody) return [];
+
+  const rows = [];
+  for (const tr of outerTbody.querySelectorAll(':scope > tr')) {
+    // Direct child <td>s only (not nested)
+    const tds = [...tr.children].filter(el => el.tagName === 'TD');
+    if (tds.length < 9) continue;
+
+    const name   = tds[0].textContent.trim();
+    const acNo   = parseInt(tds[1].textContent.trim(), 10);
+    const leader = tds[2].textContent.trim();
+
+    // Party cells contain nested tables; grab first td[align=left]
+    const leaderPartyEl = tds[3].querySelector('td[align="left"]');
+    const leaderParty   = leaderPartyEl?.childNodes[0]?.textContent?.trim() || '';
+
+    const runner     = tds[4].textContent.trim();
+    const runnerPEl  = tds[5].querySelector('td[align="left"]');
+    const runnerParty= runnerPEl?.childNodes[0]?.textContent?.trim() || '';
+
+    const margin = parseInt(tds[6].textContent.trim().replace(/,/g, ''), 10) || 0;
+    const round  = tds[7].textContent.trim();
+    const status = tds[8].textContent.trim();
+
+    if (name && acNo) {
+      rows.push({ name, ac_no: acNo, leader, leader_party: leaderParty,
+                  runner, runner_party: runnerParty, margin, round, status,
+                  color: '#888', leader_code: '' });
+    }
+  }
+  return rows;
+}
+
+/* ── Parse party tally page ─────────────────────────────────── */
+async function fetchPartyTally() {
+  const html = await getText(`${BASE}/partywiseresult-S22.htm`);
+  const doc  = new DOMParser().parseFromString(html, 'text/html');
+  const tally = [];
+  for (const tr of doc.querySelectorAll('tr.tr')) {
+    const tds = tr.querySelectorAll('td');
+    if (tds.length < 4) continue;
+    const fullName = tds[0].textContent.trim();
+    const won      = parseInt(tds[1].textContent.trim(), 10) || 0;
+    const leadLink = tds[2].querySelector('a');
+    const leading  = parseInt(leadLink?.textContent?.trim() || '0', 10) || 0;
+    const total    = won + leading;
+    if (total === 0) continue;
+    // Extract short code: "Full Party Name - CODE"
+    const codeM = fullName.match(/[-–]\s*([A-Z()\d]+)\s*$/);
+    const code  = codeM ? codeM[1] : fullName.split(/\s+/)[0];
+    tally.push({ party: fullName, code, won, leading, total,
+                 color: partyColor(code) });
+  }
+  return tally.sort((a, b) => b.total - a.total);
+}
+
+/* ── Merge everything ───────────────────────────────────────── */
+async function fetchAll() {
+  setLoadStep('Fetching live results JSON…');
+  const [liveMap, partyTally] = await Promise.all([
+    fetchLiveJson(),
+    fetchPartyTally(),
+  ]);
+
+  setLoadStep(`Fetching all ${PAGES} constituency pages…`);
+  const pageResults = await Promise.all(
+    Array.from({ length: PAGES }, (_, i) =>
+      getText(`${BASE}/statewiseS22${i + 1}.htm`)
+        .then(parseStatewisePage)
+        .catch(() => [])
+    )
+  );
+
+  const all = pageResults.flat();
+  for (const c of all) {
+    const lv = liveMap[c.ac_no] || {};
+    c.color       = lv.color  || '#888';
+    c.leader_code = lv.party  || '';
+  }
+  all.sort((a, b) => a.ac_no - b.ac_no);
+
+  const declared = all.filter(r => /declared|won/i.test(r.status)).length;
+  const counting = all.filter(r => /progress|counting/i.test(r.status)).length;
+  const pending  = all.length - declared - counting;
+
+  return { all, partyTally, totals: { declared, counting, pending } };
+}
+
+/* ── Colour helper ──────────────────────────────────────────── */
+function partyColor(codeOrFull) {
+  for (const [k, v] of Object.entries(PARTY_COLORS)) {
+    if ((codeOrFull || '').toUpperCase().includes(k)) return v;
+  }
+  // Deterministic fallback colour from string hash
+  let h = 0;
+  for (let i = 0; i < codeOrFull.length; i++) h = (h * 31 + codeOrFull.charCodeAt(i)) | 0;
+  return `hsl(${Math.abs(h) % 360},55%,45%)`;
+}
+
+/* ── Number formatter ───────────────────────────────────────── */
+const fmt = n => Number(n).toLocaleString('en-IN');
+
+/* ── Status badge ───────────────────────────────────────────── */
+function statusBadge(s) {
+  if (!s || s === '—') return `<span class="status-badge s-pending">⏳ Pending</span>`;
+  if (/declared|won/i.test(s))      return `<span class="status-badge s-declared">✓ Declared</span>`;
+  if (/progress|counting/i.test(s)) return `<span class="status-badge s-progress">⟳ Counting</span>`;
+  return `<span class="status-badge s-pending">${s}</span>`;
+}
+
+/* ── Render party grid ──────────────────────────────────────── */
+function renderPartyGrid() {
+  const g = document.getElementById('party-grid');
+  if (!g) return;
+  g.innerHTML = TALLY.map(p => `
+    <div class="party-chip ${SEL_PARTY === p.code ? 'active' : ''}"
+         onclick="toggleParty('${p.code}')" title="${p.party}">
+      <span class="p-dot" style="background:${p.color}"></span>
+      <span class="p-code">${p.code}</span>
+      <span class="p-total">${p.total}</span>
+      <span class="p-sub">
+        ${p.won > 0 ? `<span class="p-won">✓${p.won}</span>` : ''}
+        ${p.leading > 0 ? `<span class="p-lead">▲${p.leading}</span>` : ''}
+      </span>
+    </div>`).join('');
+}
+
+/* ── Render table ───────────────────────────────────────────── */
+function renderTable() {
+  const q  = (document.getElementById('search')?.value || '').toLowerCase();
+  const sf = (document.getElementById('filter-status')?.value || '').toLowerCase();
+
+  let list = ALL.filter(r => {
+    const s = (r.status || '').toLowerCase();
+    if (sf === 'progress' && !s.includes('progress') && !s.includes('counting')) return false;
+    if (sf === 'declared' && !/declared|won/.test(s)) return false;
+    if (sf === 'pending' && (s.includes('progress') || s.includes('counting') || /declared|won/.test(s))) return false;
+    if (SEL_PARTY) {
+      const code = (r.leader_code || r.leader_party || '').toUpperCase();
+      if (!code.includes(SEL_PARTY)) return false;
+    }
+    if (q) {
+      const hay = `${r.name} ${r.leader} ${r.runner} ${r.leader_party} ${r.runner_party}`.toLowerCase();
+      if (!hay.includes(q)) return false;
+    }
+    return true;
+  });
+
+  // Sort
+  list.sort((a, b) => {
+    let av = a[SORT_KEY] ?? '', bv = b[SORT_KEY] ?? '';
+    if (SORT_KEY === 'margin' || SORT_KEY === 'ac_no') {
+      av = +av || 0; bv = +bv || 0;
+    } else if (SORT_KEY === 'round') {
+      av = av ? parseInt(av.split('/')[0], 10) || 0 : 0;
+      bv = bv ? parseInt(bv.split('/')[0], 10) || 0 : 0;
+    } else {
+      av = String(av).toLowerCase(); bv = String(bv).toLowerCase();
+    }
+    return av < bv ? -SORT_DIR : av > bv ? SORT_DIR : 0;
+  });
+
+  const rcEl = document.getElementById('row-count');
+  if (rcEl) rcEl.textContent = `${list.length} of 234 constituencies`;
+
+  const tbody = document.getElementById('tbody');
+  if (!tbody) return;
+
+  if (!list.length) {
+    tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:40px;color:var(--muted)">
+      No constituencies match your filter.</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = list.map(r => {
+    const color  = r.color || partyColor(r.leader_code || r.leader_party);
+    const lpFull = r.leader_party;
+    const lpCode = r.leader_code || lpFull.match(/[-–]\s*([A-Z()\d]+)\s*$/)?.[1] || lpFull.slice(0, 6);
+    const rpFull = r.runner_party;
+    const rpCode = rpFull.match(/[-–]\s*([A-Z()\d]+)\s*$/)?.[1] || rpFull.slice(0, 6);
+    const rpColor= partyColor(rpCode || rpFull);
+    return `
+    <tr>
+      <td class="ac-no">${r.ac_no}</td>
+      <td class="con-name">${r.name}</td>
+      <td>
+        <div class="cand-lead">${r.leader || '—'}</div>
+        ${r.runner ? `<div class="cand-trail">vs ${r.runner}</div>` : ''}
+      </td>
+      <td>
+        <span class="party-tag" style="background:${color}" title="${lpFull}">${lpCode}</span>
+        ${rpCode ? `<br><span class="party-tag-sm" style="background:${rpColor}" title="${rpFull}">${rpCode}</span>` : ''}
+      </td>
+      <td class="margin-cell">${r.margin > 0 ? fmt(r.margin) : '—'}</td>
+      <td class="round-cell hide-mobile">${r.round || '—'}</td>
+      <td>${statusBadge(r.status)}</td>
+    </tr>`;
+  }).join('');
+}
+
+/* ── Sort ───────────────────────────────────────────────────── */
+function sortBy(key) {
+  if (SORT_KEY === key) SORT_DIR = -SORT_DIR;
+  else { SORT_KEY = key; SORT_DIR = 1; }
+  document.querySelectorAll('thead th').forEach(th => th.classList.remove('sorted'));
+  const icons = ['ac_no','name','leader','leader_party','margin','round','status'];
+  icons.forEach(k => {
+    const el = document.getElementById(`sort-${k}`);
+    if (el) el.textContent = '↕';
+  });
+  const el = document.getElementById(`sort-${key}`);
+  if (el) {
+    el.textContent = SORT_DIR === 1 ? '▲' : '▼';
+    el.parentElement.classList.add('sorted');
+  }
+  renderTable();
+}
+
+/* ── Filter helpers ─────────────────────────────────────────── */
+function toggleParty(code) {
+  SEL_PARTY = SEL_PARTY === code ? '' : code;
+  renderPartyGrid();
+  renderTable();
+}
+function clearFilters() {
+  const s = document.getElementById('search');
+  if (s) s.value = '';
+  const f = document.getElementById('filter-status');
+  if (f) f.value = '';
+  SEL_PARTY = '';
+  renderPartyGrid();
+  renderTable();
+}
+
+/* ── Load steps helper ──────────────────────────────────────── */
+function setLoadStep(msg) {
+  const el = document.getElementById('load-steps');
+  if (el) el.textContent = msg;
+}
+
+/* ── Bootstrap results UI (first time) ─────────────────────── */
+function bootstrapUI() {
+  if (appReady) return;
+  const tpl = document.getElementById('results-tpl').content.cloneNode(true);
+  const app = document.getElementById('app');
+  app.innerHTML = '';
+  app.appendChild(tpl);
+  appReady = true;
+}
+
+/* ── Update summary stats ───────────────────────────────────── */
+function updateStats() {
+  const set = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+  set('s-dec',  TOTALS.declared ?? '–');
+  set('s-cnt',  TOTALS.counting ?? '–');
+  set('s-pend', TOTALS.pending  ?? '–');
+}
+
+/* ── Meta line ──────────────────────────────────────────────── */
+function updateMeta(msg) {
+  const el = document.getElementById('meta');
+  if (el) el.textContent = msg;
+}
+
+/* ── Main refresh ───────────────────────────────────────────── */
+async function refresh() {
+  if (fetching) return;
+  fetching  = true;
+  countdown = RFRSH;
+
+  try {
+    const { all, partyTally, totals } = await fetchAll();
+    ALL    = all;
+    TALLY  = partyTally;
+    TOTALS = totals;
+
+    bootstrapUI();
+    updateStats();
+    renderPartyGrid();
+    renderTable();
+
+    const now = new Date().toLocaleTimeString('en-IN');
+    updateMeta(`Source: results.eci.gov.in · Updated: ${now} · ${ALL.length} constituencies · Auto-refreshes every ${RFRSH}s`);
+    document.getElementById('error-banner').style.display = 'none';
+  } catch (err) {
+    console.error('[ECI Fetch Error]', err);
+    const banner = document.getElementById('error-banner');
+    banner.style.display = 'block';
+    document.getElementById('error-detail').textContent = ' (' + err.message + ')';
+    updateMeta('Failed to fetch — will retry in ' + countdown + 's');
+    if (!appReady) {
+      // Replace spinner with error
+      document.getElementById('loading').innerHTML =
+        `<div style="color:var(--red);text-align:center;padding:20px">
+           Failed to load data. Check the yellow banner above for instructions.
+         </div>`;
+    }
+  } finally {
+    fetching = false;
+  }
+}
+
+/* ── Countdown ticker ───────────────────────────────────────── */
+function tick() {
+  countdown--;
+  const el = document.getElementById('countdown');
+  if (el) el.textContent = countdown > 0 ? `Refreshes in ${countdown}s` : 'Refreshing…';
+  if (countdown <= 0) { countdown = RFRSH; refresh(); }
+}
+
+/* ── Force refresh ──────────────────────────────────────────── */
+function forceRefresh() { countdown = 0; }
+
+/* ── Keyboard shortcut ──────────────────────────────────────── */
+document.addEventListener('keydown', e => {
+  if ((e.key === 'r' || e.key === 'R') && !e.ctrlKey && !e.metaKey
+       && document.activeElement.tagName !== 'INPUT') {
+    forceRefresh();
+  }
+});
+
+/* ── Start ──────────────────────────────────────────────────── */
+refresh();
+tickTimer = setInterval(tick, 1000);
+</script>
+</body>
+</html>
