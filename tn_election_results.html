@@ -858,7 +858,7 @@ footer{
 </div>
 
 <!-- Analysis panel (always in DOM, toggled) -->
-<div id="analysis-panel">
+<div id="analysis-panel" class="open">
   <div class="ap-header">
     <div class="ap-title"><span class="ai-icon">🔍</span> Intelligent Analysis</div>
     <button class="ap-close" onclick="toggleAnalysis()">✕</button>
@@ -2453,7 +2453,7 @@ function renderWhoWins(){
    ══════════════════════════════════════════════════ */
 
 // MAJORITY is now a global let (set per state above)
-let ANALYSIS_OPEN = false;
+let ANALYSIS_OPEN = true;
 
 function toggleAnalysis(){
   ANALYSIS_OPEN = !ANALYSIS_OPEN;
