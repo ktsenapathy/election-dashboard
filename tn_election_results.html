@@ -1669,26 +1669,35 @@ function renderVotePanel(){
     return name.slice(0,8);
   }
 
-  // ── Inject TVK estimate into the vote-share list ──
-  // ECI lumps TVK into "Others". We estimate TVK votes from
-  // constituency data: leader_votes ≈ (total_votes + margin) / 2
-  const tvkEst = estimateTVKVotes();
+  // ── TVK vote share ─────────────────────────────────────────────
+  // ECI may or may not classify TVK separately in voteshareresult.
+  // Check first: if TVK is already in the data, use it as-is.
+  // Only inject our estimate when ECI still lumps TVK into "Others".
+  const tvkInData = VOTE_SHARE.some(vs =>
+    /\bTVK\b/i.test(vs.party) || /tamilaga\s+vettri/i.test(vs.party)
+  );
+  const tvkEst = tvkInData ? 0 : estimateTVKVotes();
   let displayVS = [...VOTE_SHARE];
-  if(tvkEst > 0){
+
+  if(!tvkInData && tvkEst > 0){
+    // TVK not yet in ECI data — inject our constituency-based estimate
     const othersIdx = displayVS.findIndex(v=>/^other/i.test(v.party));
     const grandT = displayVS[0]?.grandTotal || GRAND_VOTES || 1;
     const tvkPct = ((tvkEst/grandT)*100).toFixed(1)+'%';
-    // Insert TVK before Others
     const tvkEntry = {party:'Tamilaga Vettri Kazhagam',pct:tvkPct+'*',votes:tvkEst,
       color:PC['TVK']||'#e72bd9',grandTotal:grandT,_isTVKEst:true};
     if(othersIdx>=0){
       displayVS.splice(othersIdx,0,tvkEntry);
-      // Update Others label
       displayVS[othersIdx+1]={...displayVS[othersIdx+1],party:'Other parties',_othersNote:true};
     } else {
       displayVS.unshift(tvkEntry);
     }
     displayVS.sort((a,b)=>b.votes-a.votes);
+  } else {
+    // TVK is in ECI data directly — just rename "Other" row cleanly
+    const othersIdx = displayVS.findIndex(v=>/^other/i.test(v.party));
+    if(othersIdx>=0)
+      displayVS[othersIdx]={...displayVS[othersIdx],party:'Other parties',_othersNote:true};
   }
 
   // Collapse minor parties (<0.5% share, no seats) into a single row
@@ -1754,11 +1763,14 @@ function renderVotePanel(){
     <div style="font-size:.65rem;color:var(--blue);cursor:pointer;margin-top:4px"
          onclick="toggleVsExpand()">▲ Collapse minor parties</div>` : '';
 
+  const footnote = (!tvkInData && tvkEst>0)
+    ? `* TVK estimate: ECI classifies TVK under "Others". Estimated from constituency data using
+       leader_votes ≈ (total_votes + margin) / 2. Slight overcount in multi-candidate seats.<br>`
+    : (tvkInData ? `TVK vote share sourced directly from ECI voteshareresult page.<br>` : '');
+
   barsEl.innerHTML = visibleVS.map(vsRow).join('')+minorRow+collapseRow+
   `<div style="font-size:.62rem;color:var(--muted);margin-top:6px;line-height:1.7">
-    * TVK estimate: ECI classifies TVK under "Others". Estimated from constituency data using
-    leader_votes ≈ (total_votes + margin) / 2. Slight overcount in multi-candidate seats.<br>
-    † Remaining small parties, independents, and NOTA
+    ${footnote}† Other registered parties, independents, and NOTA
   </div>`;
 
   if(!statsEl) return;
@@ -2117,10 +2129,17 @@ function renderWhoWins(){
     const extra=flipSeats.length-knifeSeats.length;
     alerts.push({cls:'yellow',icon:'🔄',title:`${extra} more seats at flip risk`,sub:`Small margin + counting <70% complete`});
   }
-  const tvkEst=estimateTVKVotes();
-  if(tvkEst>0){
-    const pct=((tvkEst/(VOTE_SHARE[0]?.grandTotal||GRAND_VOTES||1))*100).toFixed(1);
-    alerts.push({cls:'',icon:'🗳️',title:`TVK est. vote share: ~${pct}%`,sub:`≈${fmt(tvkEst)} votes (ECI classifies TVK under "Others")`});
+  const tvkAlreadyInData=VOTE_SHARE.some(vs=>/\bTVK\b/i.test(vs.party)||/tamilaga\s+vettri/i.test(vs.party));
+  const tvkEstVotes=tvkAlreadyInData
+    ? (VOTE_SHARE.find(vs=>/\bTVK\b/i.test(vs.party))?.votes||0)
+    : estimateTVKVotes();
+  if(tvkEstVotes>0){
+    const grandT=VOTE_SHARE[0]?.grandTotal||GRAND_VOTES||1;
+    const pct=((tvkEstVotes/grandT)*100).toFixed(1);
+    const sub=tvkAlreadyInData
+      ? `${fmt(tvkEstVotes)} votes · sourced from ECI voteshare data`
+      : `≈${fmt(tvkEstVotes)} votes (ECI classifies TVK under "Others" — est. from constituency data)`;
+    alerts.push({cls:'',icon:'🗳️',title:`TVK vote share: ${pct}%`,sub});
   }
 
   altEl.innerHTML=alerts.map(a=>`
