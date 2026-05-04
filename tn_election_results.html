@@ -863,15 +863,13 @@ function filtered(){
     if(sf==='progress'&&!s.includes('progress')&&!s.includes('counting')) return false;
     if(sf==='declared'&&!/declared|won/.test(s)) return false;
     if(sf==='pending'&&(s.includes('progress')||s.includes('counting')||/declared|won/.test(s))) return false;
-    if(SEL_PARTY||(HIST_FILTER&&!mf?HIST_FILTER:'')){
-      if(SEL_PARTY){const c=(r.leader_code||r.leader_party||'').toUpperCase();if(!c.includes(SEL_PARTY))return false;}
-    }
     if(SEL_PARTY){const c=(r.leader_code||r.leader_party||'').toUpperCase();if(!c.includes(SEL_PARTY))return false;}
     const activeMarginFilter=mf||HIST_FILTER;
     if(activeMarginFilter){
-      const[lo,hi]=activeMarginFilter.split('-').map(Number);
-      if(isNaN(hi)){if(r.margin<lo)return false;}
-      else{if(r.margin<lo||r.margin>=hi)return false;}
+      const parts=activeMarginFilter.split('-');
+      const lo=Number(parts[0])||0;
+      const hi=(parts[1]!==undefined&&parts[1]!=='')?Number(parts[1]):Infinity;
+      if(r.margin<lo||r.margin>=hi)return false;
     }
     if(q){
       const hay=`${r.name} ${r.leader} ${r.runner} ${r.leader_party} ${r.runner_party}`.toLowerCase();
@@ -1016,7 +1014,10 @@ function renderHistogram(){
 }
 
 function histFilter(key){
-  HIST_FILTER=HIST_FILTER===key?'':key;
+  // key is band name ('knife'|'close'|'comfy'|'safe'); convert to numeric range string
+  const MAP={knife:'0-500',close:'500-2000',comfy:'2000-10000',safe:'10000-'};
+  const numKey=MAP[key]||key;
+  HIST_FILTER=HIST_FILTER===numKey?'':numKey;
   const mf=document.getElementById('filter-margin');
   if(mf) mf.value='';
   renderHistogram();
