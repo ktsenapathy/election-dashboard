@@ -1642,7 +1642,10 @@ function updateStats(){
   set('s-dec',TOTALS.declared??'–');
   set('s-cnt',TOTALS.counting??'–');
   set('s-pend',TOTALS.pending??'–');
-  set('s-votes',GRAND_VOTES>0?fmt(GRAND_VOTES):'–');
+  // Use voteshare grand total (authoritative ECI figure) not GRAND_VOTES
+  // GRAND_VOTES = sum of leader votes from party lead pages (not all-candidate total)
+  const vsG=VOTE_SHARE[0]?.grandTotal||0;
+  set('s-votes',vsG>0?fmt(vsG):'–');
   // Counting completeness: average round % across all reporting seats
   const withRound=ALL.filter(r=>r.round&&r.round.includes('/'));
   if(withRound.length){
@@ -1804,13 +1807,13 @@ function renderVotePanel(){
   statsEl.innerHTML = `
   <div class="con-stat-chip">
     <div class="csc-label">Total Votes (TN)</div>
-    <div class="csc-val" style="color:var(--purple)">${fmt(GRAND_VOTES)}</div>
-    <div class="csc-name">${withV.length}/234 seats reporting</div>
+    <div class="csc-val" style="color:var(--purple)">${fmt(VOTE_SHARE[0]?.grandTotal||GRAND_VOTES)}</div>
+    <div class="csc-name">all parties · from ECI voteshare</div>
   </div>
   <div class="con-stat-chip">
-    <div class="csc-label">Avg per Constituency</div>
-    <div class="csc-val">${fmt(avg)}</div>
-    <div class="csc-name">votes counted</div>
+    <div class="csc-label">Avg Votes per Seat</div>
+    <div class="csc-val">${fmt(Math.round((VOTE_SHARE[0]?.grandTotal||GRAND_VOTES)/234))}</div>
+    <div class="csc-name">all candidates combined</div>
   </div>
   <div class="con-stat-chip" style="cursor:pointer" onclick="jumpTo(${highest.ac_no})">
     <div class="csc-label">Highest Turnout</div>
@@ -1956,17 +1959,13 @@ function roundBar(round,compact){
    TVK is classified under "Others" by ECI.
    For each TVK-leading seat we have total_votes (all candidates)
    and margin (leader − runner). Estimate:
-   leader_votes ≈ (total_votes + margin) / 2
-   (exact for 2-candidate race; slight overcount when minor
-    candidates are present, so we show it as "≈")          */
+   The "Total Votes" column on ECI party lead pages = the LEADING
+   CANDIDATE's personal vote count (not all candidates combined).
+   So r.total_votes IS already the leader's votes directly.           */
 function estimateTVKVotes(){
   return ALL
     .filter(r=>(r.leader_code||partyCode('',r.leader_party)||'').toUpperCase().includes('TVK'))
-    .reduce((sum,r)=>{
-      if(r.total_votes>0&&r.margin>0)
-        return sum+Math.round((r.total_votes+r.margin)/2);
-      return sum;
-    },0);
+    .reduce((sum,r)=>sum+(r.total_votes||0),0);
 }
 
 /* ══════════════════════════════════════════════════
@@ -2043,7 +2042,7 @@ function computeVoteEfficiency(){
     if(!r.total_votes||!r.margin) continue;
     const code=r.leader_code||partyCode('',r.leader_party)||'?';
     if(!partyData[code]) partyData[code]={estVotes:0,seats:0,color:r.color||pColor(code)};
-    partyData[code].estVotes+=Math.round((r.total_votes+r.margin)/2);
+    partyData[code].estVotes+=(r.total_votes||0); // total_votes = leader's votes directly
     partyData[code].seats++;
   }
   return Object.entries(partyData)
@@ -2457,9 +2456,9 @@ function renderAnalysis(){
         <div class="csc-name">${ALL.filter(r=>r.total_votes>0).length} / 234 constituencies reporting</div>
       </div>
       <div class="con-stat-chip">
-        <div class="csc-label">Average Votes per Seat</div>
-        <div class="csc-val">${ALL.filter(r=>r.total_votes>0).length?fmt(Math.round(GRAND_VOTES/ALL.filter(r=>r.total_votes>0).length)):'–'}</div>
-        <div class="csc-name">across reporting constituencies</div>
+        <div class="csc-label">Average per Seat</div>
+        <div class="csc-val">${fmt(Math.round(vsGrand/234))}</div>
+        <div class="csc-name">all candidates · all 234 seats</div>
       </div>
     </div>
     <div style="display:flex;align-items:center;gap:6px;font-size:.65rem;color:var(--muted);margin-bottom:6px;padding-bottom:4px;border-bottom:1px solid var(--border)">
@@ -2812,12 +2811,12 @@ function buildModalBody(r, live){
   const statusColor= /declared|won/i.test(r.status||'')?'var(--green)'
     :/progress/i.test(r.status||'')?'var(--yellow)':'var(--muted)';
 
-  // Individual vote estimates: all-candidate total is confirmed ECI column meaning
-  // leader_votes ≈ (total + margin) / 2  (exact for 2-candidate race)
+  // ECI party lead pages "Total Votes" column = leader's personal vote count.
+  // So totalVotes IS the leader's votes directly. Runner = leader - margin.
   let leaderEst=0, runnerEst=0, projectedTotal=0;
-  if(totalVotes>0&&margin>0){
-    leaderEst    = Math.round((totalVotes+margin)/2);
-    runnerEst    = Math.round((totalVotes-margin)/2);
+  if(totalVotes>0){
+    leaderEst = totalVotes;                          // direct — no estimation needed
+    runnerEst = margin>0 ? totalVotes - margin : 0;  // runner = leader − margin
   }
   if(totalVotes>0&&rp&&rp.done>0){
     projectedTotal = Math.round(totalVotes*(rp.total/rp.done));
@@ -2842,7 +2841,7 @@ function buildModalBody(r, live){
       <span class="mv">${rp?`${rp.done} of ${rp.total} rounds (${rp.pct}% done)`:'—'}</span>
     </div>
     <div class="modal-row" style="background:${isLive?'#3fb95008':''}">
-      <span class="ml">Votes Counted<br><span style="font-size:.6rem;color:var(--muted)">all candidates</span></span>
+      <span class="ml">Leader's Votes<br><span style="font-size:.6rem;color:var(--muted)">at this round</span></span>
       <span class="mv" style="font-size:1rem;font-weight:700;color:${isLive?'var(--green)':'var(--text)'}">
         ${totalVotes>0?fmt(totalVotes):'—'}
       </span>
@@ -2869,7 +2868,6 @@ function buildModalBody(r, live){
         <span class="ce-party" style="background:${color}">${lpc}</span>
         <span class="ce-votes" style="color:var(--green)">
           ${leaderEst>0?fmt(leaderEst):'—'}
-          ${leaderEst>0?'<span class="ce-est"> est.</span>':''}
         </span>
       </div>
       ${r.runner?`<div class="cand-entry">
@@ -2883,8 +2881,8 @@ function buildModalBody(r, live){
       </div>`:''}
       <div style="font-size:.6rem;color:var(--muted);margin-top:6px;
         padding-top:5px;border-top:1px solid var(--border)">
-        Formula: leader ≈ (total_votes + margin) / 2 · runner ≈ (total_votes − margin) / 2<br>
-        Slight overcount when minor candidates take votes. Click ECI ↗ for exact breakdown.
+        ECI lead pages show leader's vote count directly. Runner est. = leader − margin.<br>
+        For all other candidates, click ECI ↗
       </div>
     </div>`;
 }
