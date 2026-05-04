@@ -670,12 +670,15 @@ footer a:hover{text-decoration:underline}
 
 /* ── Responsive ──────────────────── */
 @media(max-width:640px){
-  /* Header — single compact line */
+  /* Header — true single line */
   header{padding:6px 10px;gap:6px}
-  .h-title{min-width:0;flex:1}
-  .h-title h1{font-size:.82rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .h-sub{display:none}
-  #back-to-home{font-size:.68rem;padding:2px 6px}
+  /* h-title is a flex row: [← btn] [title block] */
+  .h-title{display:flex;align-items:center;gap:6px;flex:1;min-width:0;overflow:hidden}
+  .h-title-text{flex:1;min-width:0;overflow:hidden}
+  .h-title h1{font-size:.88rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .h-title-sub{display:none}   /* hide "— Live Results 2026" on mobile */
+  .h-sub{display:none}         /* hide subtitle entirely on mobile */
+  #back-to-home{flex-shrink:0;font-size:.68rem;padding:2px 6px}
   .h-right{gap:5px}
   .live-pill{padding:3px 7px;font-size:.65rem}
 
@@ -819,8 +822,10 @@ footer{
 <header>
   <div class="h-title">
     <button id="back-to-home" onclick="showHomeScreen()">← All States</button>
-    <h1 id="page-title">India Elections — <em>Live Results 2026</em></h1>
-    <div class="h-sub" id="meta">Loading state summaries…</div>
+    <div class="h-title-text">
+      <h1 id="page-title">India Elections<span class="h-title-sub"> — <em>Live Results 2026</em></span></h1>
+      <div class="h-sub" id="meta">Loading state summaries…</div>
+    </div>
   </div>
   <div class="h-right">
     <span id="state-controls" style="display:none">
@@ -3558,7 +3563,7 @@ async function switchState(code){
 
   // Update page title
   const h1=document.getElementById('page-title');
-  if(h1) h1.innerHTML=`${STATE_NAME} — <em>Live Election Results 2026</em>`;
+  if(h1) h1.innerHTML=`${STATE_NAME}<span class="h-title-sub"> — <em>Live Election Results 2026</em></span>`;
   document.title=`${STATE_NAME} Live Election Results 2026`;
 
   // Reset all data
@@ -3631,7 +3636,7 @@ async function showHomeScreen(){
   // Header: hide state controls, hide back button, show home title
   document.getElementById('state-controls').style.display='none';
   document.getElementById('back-to-home').style.display='none';
-  document.getElementById('page-title').innerHTML='India Elections — <em>Live Results 2026</em>';
+  document.getElementById('page-title').innerHTML='India Elections<span class="h-title-sub"> — <em>Live Results 2026</em></span>';
   document.title='India Elections — Live Results 2026';
   // Hide verdict strip
   const vs=document.getElementById('verdict-strip');
