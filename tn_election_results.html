@@ -310,6 +310,46 @@ tbody tr:hover td{background:#161b22}
   background:#f8514920;color:var(--red);font-weight:700;border:1px solid #f8514940;
   white-space:nowrap}
 
+/* ── Watch Next section ──────────── */
+#watch-next{padding:10px 20px 12px;border-bottom:1px solid var(--border);
+  background:#0d1117}
+.wn-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.wn-title{font-size:.65rem;color:var(--muted);text-transform:uppercase;
+  letter-spacing:.08em;font-weight:600}
+.wn-subtitle{font-size:.65rem;color:var(--muted)}
+.wn-list{display:flex;flex-direction:column;gap:4px}
+.wn-seat{display:flex;align-items:center;gap:8px;padding:6px 10px;
+  background:var(--surface);border:1px solid var(--border);border-radius:6px;
+  cursor:pointer;transition:border-color .15s}
+.wn-seat:hover{border-color:var(--blue)}
+.wn-seat.danger{border-color:#f8514940;background:#f8514908}
+.wn-no{font-size:.65rem;color:var(--muted);width:24px;flex-shrink:0;
+  font-variant-numeric:tabular-nums}
+.wn-main{flex:1;min-width:0}
+.wn-name{font-weight:600;font-size:.8rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wn-sub{font-size:.67rem;color:var(--muted);margin-top:1px;white-space:nowrap;
+  overflow:hidden;text-overflow:ellipsis}
+.wn-progress{width:54px;flex-shrink:0}
+.wn-pbar{height:4px;background:var(--surface2);border-radius:2px;overflow:hidden;margin-bottom:2px}
+.wn-pfill{height:100%;border-radius:2px;background:var(--blue)}
+.wn-ppct{font-size:.6rem;color:var(--muted);text-align:right}
+.wn-right{text-align:right;flex-shrink:0;min-width:80px}
+.wn-margin{font-size:.82rem;font-weight:700;font-variant-numeric:tabular-nums}
+.wn-rounds{font-size:.63rem;color:var(--muted)}
+.wn-flip{font-size:.6rem;color:var(--red);font-weight:700;margin-top:1px}
+
+/* ── Vote efficiency ─────────────── */
+.veff-row{display:flex;align-items:center;gap:8px;margin-bottom:5px;font-size:.78rem}
+.veff-party{width:48px;font-weight:700;flex-shrink:0;overflow:hidden;
+  text-overflow:ellipsis;white-space:nowrap}
+.veff-track{flex:1;background:var(--surface2);border-radius:3px;height:14px;overflow:hidden}
+.veff-bar{height:100%;border-radius:3px;display:flex;align-items:center;
+  padding-left:5px;font-size:.62rem;font-weight:700;color:#fff;
+  text-shadow:0 1px 2px #0005;transition:width .5s ease;white-space:nowrap}
+.veff-val{width:55px;text-align:right;font-size:.7rem;color:var(--muted);flex-shrink:0;
+  font-variant-numeric:tabular-nums}
+.veff-rank{width:16px;font-size:.7rem;color:var(--muted);text-align:center;flex-shrink:0}
+
 /* ── Regional seat map ───────────── */
 .region-block{margin-bottom:8px}
 .region-label{font-size:.6rem;color:var(--muted);text-transform:uppercase;
@@ -472,25 +512,25 @@ footer a:hover{text-decoration:underline}
 
     <!-- View toggle -->
     <div class="view-toggle">
-      <button class="vt-btn active" id="vt-table" onclick="setView('table')" title="Table only">
+      <button class="vt-btn active" id="vt-table" onclick="setView('table')" title="Table only (press T)">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/>
           <line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="9" x2="9" y2="21"/>
         </svg>
-        Table
+        Table <span style="opacity:.45;font-size:.65rem">T</span>
       </button>
-      <button class="vt-btn" id="vt-cards" onclick="setView('cards')" title="Cards only">
+      <button class="vt-btn" id="vt-cards" onclick="setView('cards')" title="Cards only (press C)">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
           <rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>
         </svg>
-        Cards
+        Cards <span style="opacity:.45;font-size:.65rem">C</span>
       </button>
-      <button class="vt-btn" id="vt-both" onclick="setView('both')" title="Side by side">
+      <button class="vt-btn" id="vt-both" onclick="setView('both')" title="Side by side (press B)">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <rect x="2" y="3" width="9" height="18" rx="1"/><rect x="13" y="3" width="9" height="18" rx="1"/>
         </svg>
-        Both
+        Both <span style="opacity:.45;font-size:.65rem">B</span>
       </button>
     </div>
 
@@ -570,6 +610,15 @@ footer a:hover{text-decoration:underline}
       <div id="ap-safe"></div>
     </div>
 
+    <!-- Vote efficiency -->
+    <div class="ap-card">
+      <div class="ap-card-title"><span class="icon">⚡</span> Vote Efficiency — Votes per Seat Won</div>
+      <div id="ap-efficiency"></div>
+      <div style="font-size:.62rem;color:var(--muted);margin-top:6px">
+        Lower = more geographically spread (efficient). Higher = concentrated in big-win seats.
+      </div>
+    </div>
+
     <!-- Vote counts -->
     <div class="ap-card" style="grid-column:1/-1">
       <div class="ap-card-title"><span class="icon">🗳️</span> Votes Cast vs Counted — Party-wise</div>
@@ -603,6 +652,8 @@ footer a:hover{text-decoration:underline}
       <div class="v" style="color:var(--red)">118</div></div>
     <div class="stat hide-m"><div class="l">Total Votes Counted</div>
       <div class="v" id="s-votes" style="color:var(--purple);font-size:1.05rem">–</div></div>
+    <div class="stat hide-m"><div class="l">Counting Complete</div>
+      <div class="v" id="s-complete" style="color:var(--blue);font-size:1.05rem">–</div></div>
   </div>
 
   <!-- Who's Winning banner -->
@@ -613,6 +664,15 @@ footer a:hover{text-decoration:underline}
       <div class="ww-mid"  id="ww-coalition"></div>
       <div class="ww-right" id="ww-alerts"></div>
     </div>
+  </div>
+
+  <!-- Watch These Next -->
+  <div id="watch-next">
+    <div class="wn-header">
+      <div class="wn-title">🕐 Watch These Next — finishing soon, result uncertain</div>
+      <div class="wn-subtitle" id="wn-subtitle"></div>
+    </div>
+    <div class="wn-list" id="wn-list"></div>
   </div>
 
   <!-- Vote share panel -->
@@ -667,6 +727,8 @@ footer a:hover{text-decoration:underline}
 
   <!-- Controls -->
   <div class="controls">
+    <span style="font-size:.65rem;color:var(--muted);text-transform:uppercase;
+      letter-spacing:.06em;font-weight:600;flex-shrink:0">Filter:</span>
     <div class="search-wrap">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
@@ -702,7 +764,8 @@ footer a:hover{text-decoration:underline}
       <option value="flip">⚡ Flip Risk Only</option>
       <option value="safe">🟢 Safe Only (10K+)</option>
     </select>
-    <button class="btn btn-ghost" onclick="clearFilters()">Clear</button>
+    <span style="width:1px;height:22px;background:var(--border);flex-shrink:0;align-self:center;margin:0 2px"></span>
+    <button class="btn btn-ghost" onclick="clearFilters()">✕ Clear</button>
     <div class="row-count" id="row-count"></div>
   </div>
 
@@ -1381,6 +1444,21 @@ function updateStats(){
   set('s-cnt',TOTALS.counting??'–');
   set('s-pend',TOTALS.pending??'–');
   set('s-votes',GRAND_VOTES>0?fmt(GRAND_VOTES):'–');
+  // Counting completeness: average round % across all reporting seats
+  const withRound=ALL.filter(r=>r.round&&r.round.includes('/'));
+  if(withRound.length){
+    const avgPct=withRound.reduce((s,r)=>{
+      const[d,t]=r.round.split('/').map(Number);
+      return s+(t>0?d/t:0);
+    },0)/withRound.length;
+    set('s-complete',Math.round(avgPct*100)+'%');
+  }
+}
+
+function toggleVsExpand(){
+  const cur=sessionStorage.getItem('vs_expanded')==='1';
+  sessionStorage.setItem('vs_expanded',cur?'0':'1');
+  renderVotePanel();
 }
 
 /* ── Vote panel ─────────────────────────────────── */
@@ -1425,8 +1503,26 @@ function renderVotePanel(){
     displayVS.sort((a,b)=>b.votes-a.votes);
   }
 
+  // Collapse minor parties (<0.5% share, no seats) into a single row
+  const VS_EXPAND_KEY = 'vs_expanded';
+  const vsExpanded = sessionStorage.getItem(VS_EXPAND_KEY)==='1';
+  const MINOR_THRESHOLD = 0.5;
+  const major = displayVS.filter(vs => {
+    const pctNum = parseFloat(vs.pct);
+    const code   = vsCode(vs.party);
+    const seats  = seatMap[code]||0;
+    return vs._isTVKEst || vs._othersNote || seats > 0 || pctNum >= MINOR_THRESHOLD;
+  });
+  const minor = displayVS.filter(vs => {
+    const pctNum = parseFloat(vs.pct);
+    const code   = vsCode(vs.party);
+    const seats  = seatMap[code]||0;
+    return !vs._isTVKEst && !vs._othersNote && seats === 0 && pctNum < MINOR_THRESHOLD;
+  });
+  const visibleVS = vsExpanded ? displayVS : major;
   const maxVotes = Math.max(...displayVS.map(v=>v.votes), 1);
-  barsEl.innerHTML = displayVS.map(vs=>{
+
+  function vsRow(vs){
     const code  = vsCode(vs.party);
     const seats = seatMap[code]||0;
     const barW  = Math.round(vs.votes/maxVotes*100);
@@ -1449,7 +1545,28 @@ function renderVotePanel(){
       <div class="vs-votes">${vStr}</div>
       <div class="vs-seats">${seats>0?seats+'🪑':''}</div>
     </div>`;
-  }).join('')+
+  }
+
+  const minorTotalVotes = minor.reduce((s,v)=>s+v.votes,0);
+  const minorRow = minor.length && !vsExpanded ? `
+    <div class="vs-row" style="opacity:.7">
+      <div class="vs-party" style="color:var(--muted)">+${minor.length}</div>
+      <div class="vs-track" style="cursor:pointer" onclick="toggleVsExpand()"
+           title="Click to expand minor parties">
+        <div class="vs-bar" style="width:${Math.round(minorTotalVotes/maxVotes*100)}%;background:var(--muted)">
+          ${minor.length} minor parties
+        </div>
+      </div>
+      <div class="vs-pct" style="color:var(--muted)">&lt;${(MINOR_THRESHOLD*minor.length).toFixed(0)}%</div>
+      <div class="vs-votes" style="cursor:pointer;color:var(--blue)" onclick="toggleVsExpand()">+ show</div>
+      <div class="vs-seats"></div>
+    </div>` : '';
+
+  const collapseRow = vsExpanded && minor.length ? `
+    <div style="font-size:.65rem;color:var(--blue);cursor:pointer;margin-top:4px"
+         onclick="toggleVsExpand()">▲ Collapse minor parties</div>` : '';
+
+  barsEl.innerHTML = visibleVS.map(vsRow).join('')+minorRow+collapseRow+
   `<div style="font-size:.62rem;color:var(--muted);margin-top:6px;line-height:1.7">
     * TVK estimate: ECI classifies TVK under "Others". Estimated from constituency data using
     leader_votes ≈ (total_votes + margin) / 2. Slight overcount in multi-candidate seats.<br>
@@ -1529,6 +1646,7 @@ async function refresh(){
     bootstrap();
     updateStats();
     renderWhoWins();
+    renderWatchNext();
     renderVotePanel();
     renderDonut();
     renderHistogram();
@@ -1538,6 +1656,7 @@ async function refresh(){
     setMeta(`results.eci.gov.in · Updated ${ts} · ${ALL.length} constituencies · Auto-refresh ${RFRSH}s`);
     document.getElementById('error-banner').style.display='none';
     renderWhoWins();
+    renderWatchNext();
     renderVotePanel();
     if(ANALYSIS_OPEN) renderAnalysis();
   }catch(err){
@@ -1635,6 +1754,90 @@ function estimateTVKVotes(){
         return sum+Math.round((r.total_votes+r.margin)/2);
       return sum;
     },0);
+}
+
+/* ══════════════════════════════════════════════════
+   WATCH THESE NEXT
+   ══════════════════════════════════════════════════ */
+
+function renderWatchNext(){
+  const listEl=document.getElementById('wn-list');
+  const subEl =document.getElementById('wn-subtitle');
+  if(!listEl) return;
+
+  // Seats: at least 50% counted AND margin < 5000 AND not yet declared
+  const candidates=ALL.filter(r=>{
+    const rp=roundProgress(r.round);
+    if(!rp||rp.pct<50) return false;
+    if(r.margin<=0) return false;
+    if(/declared|won/i.test(r.status||'')) return false;
+    return r.margin<5000;
+  }).map(r=>{
+    const rp=roundProgress(r.round);
+    const roundsLeft=rp.total-rp.done;
+    const votesPerRound=r.total_votes>0&&rp.total>0?r.total_votes/rp.total:0;
+    const canFlip=votesPerRound>0?r.margin<votesPerRound*roundsLeft:r.margin<1000;
+    // Urgency: higher % done = more urgent; small margin = more urgent
+    const urgency=rp.pct+(r.margin<500?30:r.margin<2000?15:0)+(canFlip?10:0);
+    return{...r,rp,roundsLeft,canFlip,urgency};
+  }).sort((a,b)=>b.urgency-a.urgency).slice(0,8);
+
+  if(subEl) subEl.textContent=candidates.length
+    ?`${candidates.length} seats to watch — click any to find in table/cards`
+    :'No contested seats finishing soon';
+
+  if(!candidates.length){
+    listEl.innerHTML=`<div style="color:var(--muted);font-size:.78rem;padding:4px 0">
+      No seats are both nearly-done and closely contested right now.</div>`;
+    return;
+  }
+
+  listEl.innerHTML=candidates.map(r=>{
+    const color=r.color||pColor(r.leader_code||r.leader_party);
+    const lpc  =partyCode(r.leader_code,r.leader_party);
+    const rpc  =partyCode('',r.runner_party);
+    const mcolor=marginColor(r.margin);
+    const danger=r.margin<500||r.canFlip;
+    return `
+    <div class="wn-seat${danger?' danger':''}" onclick="jumpTo(${r.ac_no})">
+      <div class="wn-no">#${r.ac_no}</div>
+      <div class="wn-main">
+        <div class="wn-name">${r.name}</div>
+        <div class="wn-sub">
+          <span style="color:${color};font-weight:700">${lpc}</span> ${r.leader}
+          <span style="opacity:.6"> vs ${rpc} ${r.runner}</span>
+        </div>
+      </div>
+      <div class="wn-progress">
+        <div class="wn-pbar"><div class="wn-pfill" style="width:${r.rp.pct}%"></div></div>
+        <div class="wn-ppct">${r.rp.pct}%</div>
+      </div>
+      <div class="wn-right">
+        <div class="wn-margin" style="color:${mcolor}">${fmt(r.margin)}</div>
+        <div class="wn-rounds">${r.roundsLeft} round${r.roundsLeft!==1?'s':''} left</div>
+        ${r.canFlip?`<div class="wn-flip">⚡ can flip</div>`:''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+/* ── Vote efficiency (votes per seat won) ────────── */
+function computeVoteEfficiency(){
+  // Per party: estimated leader votes per seat in constituencies they're leading
+  // Estimate: leader_votes ≈ (total_votes + margin) / 2
+  const partyData={};
+  for(const r of ALL){
+    if(!r.total_votes||!r.margin) continue;
+    const code=r.leader_code||partyCode('',r.leader_party)||'?';
+    if(!partyData[code]) partyData[code]={estVotes:0,seats:0,color:r.color||pColor(code)};
+    partyData[code].estVotes+=Math.round((r.total_votes+r.margin)/2);
+    partyData[code].seats++;
+  }
+  return Object.entries(partyData)
+    .filter(([,v])=>v.seats>=2)
+    .map(([code,v])=>({code,color:v.color,seats:v.seats,
+      votesPerSeat:Math.round(v.estVotes/v.seats)}))
+    .sort((a,b)=>a.votesPerSeat-b.votesPerSeat); // ascending: efficient first
 }
 
 /* ══════════════════════════════════════════════════
@@ -2079,6 +2282,39 @@ function renderAnalysis(){
   ) + `<div style="font-size:.65rem;color:var(--muted);margin-top:6px">
     ${A.bands.safe.length} of ${ALL.filter(r=>r.margin>0).length} seats have margin > 10,000
   </div>`;
+
+  // Vote efficiency
+  const effEl = document.getElementById('ap-efficiency');
+  if(effEl){
+    const eff = computeVoteEfficiency();
+    if(!eff.length){
+      effEl.innerHTML='<div style="color:var(--muted);font-size:.78rem">Loading…</div>';
+    } else {
+      // most efficient (lowest) gets 100% bar width
+      const maxV = Math.max(...eff.map(e=>e.votesPerSeat),1);
+      const minV = eff[0]?.votesPerSeat||0; // sorted asc, so first = most efficient
+      effEl.innerHTML=eff.map((e,i)=>{
+        const barW=Math.round(e.votesPerSeat/maxV*100);
+        const vStr=e.votesPerSeat>=1000?`${(e.votesPerSeat/1000).toFixed(1)}K`:e.votesPerSeat;
+        const medal=i===0?'🥇':i===1?'🥈':i===2?'🥉':'';
+        return `
+        <div class="veff-row">
+          <div class="veff-rank">${medal||i+1}</div>
+          <div class="veff-party" style="color:${e.color}">${e.code}</div>
+          <div class="veff-track">
+            <div class="veff-bar" style="width:${barW}%;background:${e.color}">
+              ${barW>15?vStr+'/seat':''}
+            </div>
+          </div>
+          <div class="veff-val">${vStr}/seat</div>
+        </div>`;
+      }).join('')+
+      `<div style="font-size:.62rem;color:var(--muted);margin-top:6px;border-top:1px solid var(--border);padding-top:5px">
+        ${eff[0]?.code} most efficient — fewest votes needed per seat.<br>
+        Estimates use (total_votes + margin) / 2 for leader's vote count.
+      </div>`;
+    }
+  }
 }
 
 /* ── Filter helpers for analysis panel ─────────── */
