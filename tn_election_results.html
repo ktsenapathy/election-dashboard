@@ -1152,12 +1152,13 @@ let countdown=RFRSH, fetching=false, ready=false;
 /* ── Fetch utils ───────────────────────────────── */
 const withTimeout = (ms,p) => Promise.race([p, new Promise((_,r)=>setTimeout(()=>r(new Error('Timeout')),ms))]);
 
-// Three access modes — auto-detected:
-//  1. file:// → iOS blocks cross-origin fetch. Show instructions immediately.
-//  2. localhost / LAN IP via serve.py → route through /proxy (Python fetches
-//     ECI server-side, no CORS involved). Works on iPhone over WiFi.
-//  3. HTTP/HTTPS remote → direct fetch + credentials:omit fixes Safari CORS.
+// Access mode detection:
+//  iOS file:// → bail immediately (Safari blocks cross-origin; no workaround).
+//  Android/Linux file:// → Chrome allows fetch with ACAO:* + credentials:omit.
+//  localhost / LAN via serve.py → route through /proxy endpoint.
+//  HTTP/HTTPS → direct fetch with credentials:omit (fixes Safari CORS conflict).
 const IS_FILE_PROTOCOL = location.protocol === 'file:';
+const IS_IOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
 const IS_LOCAL = !IS_FILE_PROTOCOL && (
   location.hostname === 'localhost' ||
   location.hostname === '127.0.0.1' ||
@@ -2031,10 +2032,9 @@ const setMeta=msg=>{const e=document.getElementById('meta');if(e)e.textContent=m
 
 /* ── Main refresh ──────────────────────────────── */
 async function refresh(){
-  // iOS Safari (and all browsers) cannot make cross-origin fetch() from file://.
-  // There is no client-side workaround — ECI also blocks all known CORS proxies.
-  // Show immediate, clear guidance instead of a 7-second hanging spinner.
-  if(IS_FILE_PROTOCOL){
+  // iOS Safari cannot make cross-origin fetch() from file:// — no workaround.
+  // Android/Linux Chrome can fetch with credentials:omit + ACAO:*, so let them try.
+  if(IS_FILE_PROTOCOL && IS_IOS){
     document.getElementById('app').innerHTML=`
       <div style="padding:24px 20px;max-width:420px;margin:0 auto;font-family:inherit">
         <div style="text-align:center;margin-bottom:16px">
