@@ -746,7 +746,7 @@ footer a:hover{text-decoration:underline}
 
     <!-- Round progress -->
     <div class="ap-card">
-      <div class="ap-card-title"><span class="icon">⏱️</span> Counting Progress</div>
+      <div class="ap-card-title"><span class="icon">⏱️</span> Counting Progress <span style="font-weight:400;font-size:.6rem;opacity:.6">(avg rounds completed)</span></div>
       <div id="ap-rounds"></div>
     </div>
 
@@ -1082,8 +1082,10 @@ async function fetchConstituencyVotes(tally){
         const acM=href.match(/candidateswise-S22(\d+)\.htm/);
         if(!acM) continue;
         const acNo=parseInt(acM[1],10);
-        const tv=parseInt(tds[3].textContent.trim().replace(/,/g,''),10)||0;
-        if(acNo&&tv) voteMap[acNo]={total_votes:tv,leader_party_code:p.code};
+        const tv  =parseInt(tds[3].textContent.trim().replace(/,/g,''),10)||0;
+        const mg  =parseInt((tds[4]?.textContent||'').trim().replace(/,/g,''),10)||0;
+        const rnd =(tds[5]?.textContent||'').trim();
+        if(acNo&&tv) voteMap[acNo]={total_votes:tv,margin:mg,round:rnd,leader_party_code:p.code};
       }
     })
   );
@@ -1138,6 +1140,15 @@ async function fetchAll(){
     // Enrich with vote counts from party lead pages
     const vm=voteMap[c.ac_no]||{};
     c.total_votes=vm.total_votes||0;
+    // Use party-lead-page margin when it shows more progress than statewise
+    // (party lead pages may update at different intervals from statewise pages)
+    if(vm.margin>0&&vm.margin>c.margin) c.margin=vm.margin;
+    // Use whichever round source is further along (higher done/total)
+    if(vm.round&&vm.round.includes('/')){
+      const vmRP=roundProgress(vm.round);
+      const crRP=roundProgress(c.round);
+      if(vmRP&&(!crRP||vmRP.pct>crRP.pct)) c.round=vm.round;
+    }
   }
   all.sort((a,b)=>a.ac_no-b.ac_no);
   const declared=all.filter(r=>/declared|won/i.test(r.status)).length;
@@ -2213,7 +2224,11 @@ function computeAnalysis(){
   });
   const avgPct = roundPcts.length
     ? roundPcts.reduce((s,x) => s + x.pct, 0) / roundPcts.length : 0;
-  const nearDone = roundPcts.filter(x => x.total > 0 && (x.total - x.done) <= 2).length;
+  // "finishing soon" = in-progress only (exclude fully declared), 1-2 rounds remaining
+  const nearDone = roundPcts.filter(x =>
+    x.total > 0 && (x.total - x.done) <= 2 && x.pct < 1 &&
+    !/declared|won/i.test(x.r.status||'')
+  ).length;
 
   function buildVerdict(){
     const leader = TALLY[0];
@@ -2415,7 +2430,7 @@ function renderAnalysis(){
     const avg  = pcts.length ? Math.round(pcts.reduce((s,x)=>s+x,0)/pcts.length*100) : 0;
     return `
     <div class="rp-row">
-      <div class="rp-label" style="color:${p.color}">${p.code} seats</div>
+      <div class="rp-label" style="color:${p.color}" title="Avg counting done in ${p.code}-leading seats">${p.code}-leading</div>
       <div class="rp-track">
         <div class="rp-fill" style="width:${avg}%;background:${p.color}"></div>
       </div>
