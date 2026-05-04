@@ -5,281 +5,386 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Tamil Nadu Live Election Results 2026</title>
 <style>
-/* ── Reset & Variables ───────────────────────────── */
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
   --bg:#0d1117;--surface:#161b22;--surface2:#21262d;
   --border:#30363d;--text:#e6edf3;--muted:#8b949e;
   --green:#3fb950;--yellow:#d29922;--blue:#58a6ff;
   --red:#f85149;--purple:#bc8cff;
+  --radius:8px;
 }
 html{scroll-behavior:smooth}
-body{
-  background:var(--bg);color:var(--text);
+body{background:var(--bg);color:var(--text);
   font-family:'Segoe UI',system-ui,-apple-system,sans-serif;
-  font-size:14px;line-height:1.5;min-height:100vh;
-}
+  font-size:14px;line-height:1.5;min-height:100vh}
 
-/* ── Header ─────────────────────────────────────── */
+/* ── Header ─────────────────────── */
 header{
-  background:linear-gradient(135deg,#0d2137 0%,#0d1117 100%);
-  padding:16px 20px;border-bottom:1px solid var(--border);
+  background:linear-gradient(135deg,#0d2137,#0d1117);
+  padding:12px 20px;border-bottom:1px solid var(--border);
   display:flex;justify-content:space-between;align-items:center;
-  flex-wrap:wrap;gap:12px;position:sticky;top:0;z-index:200;
+  flex-wrap:wrap;gap:10px;position:sticky;top:0;z-index:200;
 }
-.header-title h1{font-size:1.15rem;font-weight:700;line-height:1.3}
-.header-title h1 span{color:var(--blue)}
-.header-sub{font-size:.72rem;color:var(--muted);margin-top:2px}
-.header-right{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.h-title h1{font-size:1.1rem;font-weight:700}
+.h-title h1 em{color:var(--blue);font-style:normal}
+.h-sub{font-size:.68rem;color:var(--muted);margin-top:1px}
+.h-right{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+
+/* View toggle */
+.view-toggle{display:flex;background:var(--surface2);border:1px solid var(--border);
+  border-radius:var(--radius);overflow:hidden}
+.vt-btn{padding:5px 12px;border:none;background:transparent;color:var(--muted);
+  font-size:.78rem;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:5px;
+  white-space:nowrap;transition:background .15s,color .15s}
+.vt-btn:hover{color:var(--text)}
+.vt-btn.active{background:var(--blue);color:#0d1117}
+.vt-btn svg{width:12px;height:12px}
 
 /* Live pill */
-.live-pill{
-  display:flex;align-items:center;gap:6px;padding:4px 12px;
-  background:#3fb95015;border:1px solid #3fb95040;
-  border-radius:99px;font-size:.75rem;color:var(--green);
-  white-space:nowrap;
-}
-.live-dot{
-  width:7px;height:7px;border-radius:50%;
-  background:var(--green);flex-shrink:0;
-  animation:blink 1.6s ease-in-out infinite;
-}
-@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+.live-pill{display:flex;align-items:center;gap:5px;padding:4px 10px;
+  background:#3fb95015;border:1px solid #3fb95040;border-radius:99px;
+  font-size:.72rem;color:var(--green);white-space:nowrap}
+.live-dot{width:6px;height:6px;border-radius:50%;background:var(--green);
+  animation:blink 1.6s ease-in-out infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.25}}
+.countdown{font-size:.7rem;color:var(--muted)}
 
-/* Countdown */
-.countdown{font-size:.72rem;color:var(--muted)}
+/* ── Error banner ───────────────── */
+#error-banner{display:none;background:#f8514912;border-bottom:1px solid #f8514935;
+  color:var(--red);padding:10px 20px;font-size:.8rem}
+#error-banner code{background:#0d1117;padding:2px 6px;border-radius:4px}
 
-/* ── Error Banner ────────────────────────────────── */
-#error-banner{
-  display:none;background:#f8514915;border:1px solid #f8514940;
-  color:var(--red);padding:12px 20px;font-size:.83rem;
-}
-#error-banner code{
-  background:#0d1117;padding:2px 6px;border-radius:4px;font-size:.8rem;
-}
-
-/* ── Loading Overlay ─────────────────────────────── */
-#loading{
-  display:flex;flex-direction:column;align-items:center;
-  justify-content:center;min-height:300px;gap:16px;color:var(--muted);
-}
-.spinner{
-  width:36px;height:36px;border:3px solid var(--border);
-  border-top-color:var(--blue);border-radius:50%;
-  animation:spin .8s linear infinite;
-}
+/* ── Loading ────────────────────── */
+#loading{display:flex;flex-direction:column;align-items:center;
+  justify-content:center;min-height:300px;gap:14px;color:var(--muted)}
+.spinner{width:34px;height:34px;border:3px solid var(--border);
+  border-top-color:var(--blue);border-radius:50%;animation:spin .8s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
-.load-steps{font-size:.8rem;text-align:center}
+.load-step{font-size:.8rem}
 
-/* ── Summary Bar ─────────────────────────────────── */
-.summary{
-  display:flex;gap:8px;padding:12px 20px;
-  border-bottom:1px solid var(--border);
-  background:var(--bg);flex-wrap:wrap;
-}
-.stat{
-  background:var(--surface);border:1px solid var(--border);
-  border-radius:8px;padding:10px 16px;flex:1;min-width:120px;
-}
-.stat .l{
-  font-size:.68rem;color:var(--muted);text-transform:uppercase;
-  letter-spacing:.06em;
-}
-.stat .v{font-size:1.4rem;font-weight:700;margin-top:2px}
+/* ── Summary bar ────────────────── */
+.summary{display:flex;gap:7px;padding:10px 20px;
+  border-bottom:1px solid var(--border);flex-wrap:wrap}
+.stat{background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius);padding:8px 14px;flex:1;min-width:110px}
+.stat .l{font-size:.63rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.stat .v{font-size:1.35rem;font-weight:700;margin-top:1px}
 
-/* ── Section ─────────────────────────────────────── */
-.section{padding:14px 20px}
-.section-title{
-  font-size:.68rem;color:var(--muted);text-transform:uppercase;
-  letter-spacing:.08em;margin-bottom:10px;font-weight:600;
+/* ── Visual panel (charts) ──────── */
+.visual-panel{
+  display:none;gap:12px;padding:12px 20px;
+  border-bottom:1px solid var(--border);flex-wrap:wrap;
 }
+.visual-panel.show{display:flex}
+.vp-card{background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius);padding:12px;flex:1;min-width:200px}
+.vp-title{font-size:.65rem;color:var(--muted);text-transform:uppercase;
+  letter-spacing:.06em;margin-bottom:10px;font-weight:600}
 
-/* ── Party Grid ──────────────────────────────────── */
-.party-grid{display:flex;flex-wrap:wrap;gap:7px}
-.party-chip{
-  display:flex;align-items:center;gap:8px;
-  padding:6px 12px;background:var(--surface);
-  border:1px solid var(--border);border-radius:8px;
-  font-size:.8rem;cursor:pointer;transition:border-color .15s,background .15s;
-  min-width:140px;
-}
+/* Donut chart */
+.donut-wrap{display:flex;align-items:center;gap:16px}
+.donut-legend{display:flex;flex-direction:column;gap:5px;font-size:.75rem;flex:1;min-width:0}
+.dl-row{display:flex;align-items:center;gap:6px;cursor:pointer}
+.dl-row:hover .dl-name{color:var(--text)}
+.dl-dot{width:8px;height:8px;border-radius:2px;flex-shrink:0}
+.dl-name{flex:1;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dl-val{font-weight:700;font-variant-numeric:tabular-nums}
+
+/* Seat map */
+.seat-map{display:flex;flex-wrap:wrap;gap:2px;align-content:flex-start}
+.seat-sq{width:10px;height:10px;border-radius:2px;cursor:pointer;
+  transition:transform .1s,opacity .1s}
+.seat-sq:hover{transform:scale(1.5);z-index:10;position:relative}
+.seat-sq.dimmed{opacity:.2}
+
+/* Margin histogram */
+.hist-rows{display:flex;flex-direction:column;gap:7px}
+.hist-row{display:flex;align-items:center;gap:8px}
+.hist-label{font-size:.7rem;color:var(--muted);width:90px;text-align:right;flex-shrink:0}
+.hist-bar-wrap{flex:1;background:var(--surface2);border-radius:3px;height:14px;overflow:hidden;cursor:pointer}
+.hist-bar{height:100%;border-radius:3px;transition:width .4s ease;display:flex;align-items:center;
+  padding-left:6px;font-size:.65rem;font-weight:700;color:#fff;white-space:nowrap}
+.hist-count{font-size:.7rem;color:var(--muted);width:30px;font-weight:600;font-variant-numeric:tabular-nums}
+
+/* ── Party tally section ─────────── */
+.section{padding:10px 20px}
+.section-title{font-size:.63rem;color:var(--muted);text-transform:uppercase;
+  letter-spacing:.08em;margin-bottom:8px;font-weight:600}
+.party-grid{display:flex;flex-wrap:wrap;gap:6px}
+.party-chip{display:flex;align-items:center;gap:7px;
+  padding:5px 11px;background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius);font-size:.78rem;cursor:pointer;
+  transition:border-color .15s,background .15s;min-width:130px}
 .party-chip:hover{border-color:var(--blue)}
 .party-chip.active{border-color:var(--blue);background:#192a3e}
-.p-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
-.p-code{font-weight:700;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.p-total{font-weight:700;font-size:.92rem}
-.p-sub{display:flex;gap:5px;font-size:.7rem}
-.p-won{color:var(--green)}
-.p-lead{color:var(--yellow)}
+.p-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.p-code{font-weight:700;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.p-total{font-weight:700;font-size:.9rem}
+.p-sub{display:flex;gap:4px;font-size:.67rem}
+.p-won{color:var(--green)}.p-lead{color:var(--yellow)}
 
-/* ── Controls ────────────────────────────────────── */
-.controls{
-  display:flex;gap:8px;padding:0 20px 12px;
-  flex-wrap:wrap;align-items:center;
-}
-.search-wrap{position:relative;flex:1;min-width:200px;max-width:340px}
-.search-wrap svg{
-  position:absolute;left:10px;top:50%;transform:translateY(-50%);
-  width:14px;height:14px;color:var(--muted);pointer-events:none;
-}
-input[type=search]{
-  width:100%;background:var(--surface);border:1px solid var(--border);
-  color:var(--text);border-radius:6px;padding:6px 10px 6px 32px;
-  font-size:.83rem;outline:none;-webkit-appearance:none;
-}
+/* ── Controls ────────────────────── */
+.controls{display:flex;gap:7px;padding:0 20px 10px;flex-wrap:wrap;align-items:center}
+.search-wrap{position:relative;flex:1;min-width:180px;max-width:320px}
+.search-wrap svg{position:absolute;left:9px;top:50%;transform:translateY(-50%);
+  width:13px;height:13px;color:var(--muted);pointer-events:none}
+input[type=search]{width:100%;background:var(--surface);border:1px solid var(--border);
+  color:var(--text);border-radius:6px;padding:5px 9px 5px 28px;
+  font-size:.8rem;outline:none;-webkit-appearance:none}
 input[type=search]:focus{border-color:var(--blue)}
 input[type=search]::placeholder{color:var(--muted)}
-select{
-  background:var(--surface);border:1px solid var(--border);
-  color:var(--text);border-radius:6px;padding:6px 10px;
-  font-size:.83rem;outline:none;cursor:pointer;
-}
+select{background:var(--surface);border:1px solid var(--border);
+  color:var(--text);border-radius:6px;padding:5px 9px;font-size:.8rem;
+  outline:none;cursor:pointer}
 select:focus{border-color:var(--blue)}
-.btn{
-  border:none;padding:6px 14px;border-radius:6px;
-  cursor:pointer;font-size:.8rem;font-weight:600;
-  display:flex;align-items:center;gap:5px;white-space:nowrap;
-}
-.btn-primary{background:var(--blue);color:#0d1117}
-.btn-primary:hover{background:#79c0ff}
-.btn-ghost{
-  background:var(--surface);color:var(--text);
-  border:1px solid var(--border);
-}
+.btn{border:none;padding:5px 12px;border-radius:6px;cursor:pointer;
+  font-size:.78rem;font-weight:600;display:flex;align-items:center;gap:4px;white-space:nowrap}
+.btn-blue{background:var(--blue);color:#0d1117}
+.btn-blue:hover{background:#79c0ff}
+.btn-ghost{background:var(--surface);color:var(--text);border:1px solid var(--border)}
 .btn-ghost:hover{border-color:var(--blue)}
-.row-count{font-size:.75rem;color:var(--muted)}
+.row-count{font-size:.72rem;color:var(--muted);margin-left:auto}
 
-/* ── Table ───────────────────────────────────────── */
-.table-wrap{overflow-x:auto;padding:0 20px 20px}
-table{width:100%;border-collapse:collapse;font-size:.83rem}
-thead th{
-  text-align:left;padding:8px 10px;
-  color:var(--muted);font-weight:600;font-size:.68rem;
-  text-transform:uppercase;letter-spacing:.06em;
-  border-bottom:2px solid var(--border);
-  white-space:nowrap;cursor:pointer;user-select:none;
-  position:sticky;top:0;background:var(--bg);
+/* ── Both-mode layout ────────────── */
+#content-area{display:flex;gap:0}
+#content-area.mode-table  #card-panel{display:none}
+#content-area.mode-cards  #table-panel{display:none}
+#content-area.mode-both   #table-panel{width:45%;border-left:1px solid var(--border);flex-shrink:0}
+#content-area.mode-both   #card-panel {flex:1;min-width:0}
+@media(max-width:900px){
+  #content-area.mode-both{flex-direction:column}
+  #content-area.mode-both #table-panel{width:100%;border-left:none;border-top:1px solid var(--border)}
 }
+
+/* ── Table panel ─────────────────── */
+#table-panel{flex:1;min-width:0;overflow-x:auto;padding-bottom:20px}
+table{width:100%;border-collapse:collapse;font-size:.8rem;min-width:620px}
+thead{position:sticky;top:0;z-index:5}
+thead th{text-align:left;padding:7px 9px;color:var(--muted);font-weight:600;
+  font-size:.63rem;text-transform:uppercase;letter-spacing:.05em;
+  border-bottom:2px solid var(--border);white-space:nowrap;cursor:pointer;
+  user-select:none;background:var(--bg)}
 thead th:hover{color:var(--text)}
-thead th .sort-icon{margin-left:3px;font-size:.6rem;opacity:.5}
-thead th.sorted .sort-icon{opacity:1;color:var(--blue)}
-tbody td{
-  padding:8px 10px;border-bottom:1px solid #21262d;
-  vertical-align:middle;
-}
+thead th .si{margin-left:2px;font-size:.55rem;opacity:.4}
+thead th.sorted .si{opacity:1;color:var(--blue)}
+tbody td{padding:7px 9px;border-bottom:1px solid #21262d;vertical-align:middle}
 tbody tr:hover td{background:#161b22}
-
-/* Table cell styles */
-.ac-no{color:var(--muted);font-size:.75rem;font-variant-numeric:tabular-nums}
-.con-name{font-weight:600}
+.ac-no{color:var(--muted);font-size:.72rem;font-variant-numeric:tabular-nums;width:30px}
 .cand-lead{font-weight:500}
-.cand-trail{color:var(--muted);font-size:.77rem;margin-top:1px}
-.party-tag{
-  display:inline-block;padding:2px 8px;border-radius:4px;
-  font-size:.7rem;font-weight:700;color:#fff;white-space:nowrap;
-  text-shadow:0 1px 2px rgba(0,0,0,.4);
-}
-.party-tag-sm{
-  display:inline-block;padding:1px 6px;border-radius:4px;
-  font-size:.67rem;font-weight:600;color:#fff;
-  text-shadow:0 1px 2px rgba(0,0,0,.4);opacity:.75;
-  margin-top:2px;
-}
-.margin-cell{
-  font-weight:700;font-variant-numeric:tabular-nums;
-  color:var(--blue);
-}
-.round-cell{color:var(--muted);font-size:.78rem;font-variant-numeric:tabular-nums}
-.status-badge{
-  display:inline-flex;align-items:center;gap:4px;
-  padding:2px 8px;border-radius:99px;
-  font-size:.68rem;font-weight:600;white-space:nowrap;
-}
+.cand-trail{color:var(--muted);font-size:.73rem;margin-top:1px}
+.party-tag{display:inline-block;padding:1px 7px;border-radius:3px;
+  font-size:.68rem;font-weight:700;color:#fff;white-space:nowrap;
+  text-shadow:0 1px 2px rgba(0,0,0,.5)}
+.party-tag-sm{display:inline-block;padding:1px 5px;border-radius:3px;
+  font-size:.63rem;font-weight:600;color:#fff;
+  text-shadow:0 1px 2px rgba(0,0,0,.5);opacity:.72;margin-top:2px}
+.margin-cell{font-weight:700;font-variant-numeric:tabular-nums;color:var(--blue)}
+.round-cell{color:var(--muted);font-size:.75rem;font-variant-numeric:tabular-nums}
+.status-badge{display:inline-flex;align-items:center;gap:3px;
+  padding:2px 7px;border-radius:99px;font-size:.65rem;font-weight:600;white-space:nowrap}
 .s-progress{background:#d2992215;color:var(--yellow);border:1px solid #d2992235}
 .s-declared{background:#3fb95015;color:var(--green);border:1px solid #3fb95035}
 .s-pending{background:#58a6ff15;color:var(--blue);border:1px solid #58a6ff35}
 
-/* ── Footer ──────────────────────────────────────── */
-footer{
-  padding:14px 20px;border-top:1px solid var(--border);
-  text-align:center;font-size:.72rem;color:var(--muted);
+/* ── Card panel ──────────────────── */
+#card-panel{flex:1;min-width:0;padding:0 20px 20px}
+.card-size-bar{display:flex;gap:6px;padding:8px 0 10px;align-items:center}
+.card-size-bar span{font-size:.65rem;color:var(--muted);margin-right:4px}
+.cs-btn{padding:3px 9px;border:1px solid var(--border);background:var(--surface);
+  color:var(--muted);border-radius:5px;font-size:.7rem;cursor:pointer}
+.cs-btn:hover,.cs-btn.active{border-color:var(--blue);color:var(--text)}
+.cs-btn.active{background:#192a3e}
+
+.card-grid{display:grid;gap:8px}
+.card-grid.sz-compact{grid-template-columns:repeat(auto-fill,minmax(180px,1fr))}
+.card-grid.sz-normal {grid-template-columns:repeat(auto-fill,minmax(240px,1fr))}
+.card-grid.sz-detail {grid-template-columns:repeat(auto-fill,minmax(300px,1fr))}
+
+/* Individual card */
+.c-card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius);overflow:hidden;
+  transition:border-color .15s,transform .1s;position:relative;
+  border-left:3px solid var(--border);
 }
+.c-card:hover{border-color:#58a6ff60;transform:translateY(-1px)}
+.c-card.dimmed{opacity:.35}
+.c-head{display:flex;justify-content:space-between;align-items:flex-start;
+  padding:8px 10px 4px;gap:4px}
+.c-no{font-size:.62rem;color:var(--muted)}
+.c-name{font-weight:700;font-size:.82rem;line-height:1.3;flex:1}
+.c-body{padding:0 10px 8px}
+.c-leader{font-weight:600;font-size:.85rem;margin-bottom:1px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.c-party-row{display:flex;align-items:center;gap:5px;margin-bottom:5px}
+.c-party-tag{display:inline-block;padding:1px 7px;border-radius:3px;
+  font-size:.65rem;font-weight:700;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.5)}
+
+/* Margin bar */
+.c-margin-wrap{margin:5px 0}
+.c-margin-label{display:flex;justify-content:space-between;
+  font-size:.68rem;margin-bottom:3px}
+.c-margin-label .c-mv{color:var(--blue);font-weight:700;font-variant-numeric:tabular-nums}
+.c-margin-label .c-mr{color:var(--muted)}
+.c-bar-track{background:var(--surface2);border-radius:3px;height:5px;overflow:hidden}
+.c-bar-fill{height:100%;border-radius:3px;transition:width .4s ease}
+
+/* Runner row */
+.c-runner{font-size:.73rem;color:var(--muted);display:flex;align-items:center;gap:5px;
+  white-space:nowrap;overflow:hidden}
+.c-runner-name{overflow:hidden;text-overflow:ellipsis}
+
+/* Round + status row */
+.c-footer{display:flex;justify-content:space-between;align-items:center;
+  padding:5px 10px 7px;border-top:1px solid var(--border);margin-top:5px;gap:4px}
+.c-round{font-size:.67rem;color:var(--muted);font-variant-numeric:tabular-nums}
+
+/* Detail-only elements */
+.c-detail-block{display:none;padding:4px 10px 6px;border-top:1px solid var(--border)}
+.sz-detail .c-detail-block{display:block}
+.c-detail-title{font-size:.62rem;color:var(--muted);text-transform:uppercase;
+  letter-spacing:.05em;margin-bottom:4px}
+.c-cand-row{display:flex;justify-content:space-between;align-items:center;
+  font-size:.72rem;padding:2px 0;gap:4px}
+.c-cand-row .cc-name{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.c-cand-row .cc-party{font-size:.62rem;padding:0 5px;border-radius:3px;
+  font-weight:700;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.5);flex-shrink:0}
+.c-cand-row .cc-votes{font-variant-numeric:tabular-nums;color:var(--blue);
+  font-weight:600;flex-shrink:0}
+
+/* ── Tooltip ─────────────────────── */
+.tip{position:fixed;background:#1e2736;border:1px solid var(--border);
+  border-radius:6px;padding:7px 10px;font-size:.75rem;pointer-events:none;
+  z-index:9999;max-width:200px;line-height:1.5;display:none;box-shadow:0 4px 14px #0008}
+
+/* ── Footer ──────────────────────── */
+footer{padding:12px 20px;border-top:1px solid var(--border);
+  text-align:center;font-size:.68rem;color:var(--muted)}
 footer a{color:var(--blue);text-decoration:none}
 footer a:hover{text-decoration:underline}
 
-/* ── Responsive ──────────────────────────────────── */
+/* ── Responsive ──────────────────── */
 @media(max-width:640px){
-  .header-title h1{font-size:1rem}
-  .summary{gap:6px}
-  .stat .v{font-size:1.2rem}
-  .hide-mobile{display:none}
+  .h-title h1{font-size:.95rem}
+  .summary{gap:5px}
+  .stat .v{font-size:1.1rem}
+  .hide-m{display:none}
 }
 </style>
 </head>
 <body>
 
+<div class="tip" id="tip"></div>
+
 <!-- Header -->
 <header>
-  <div class="header-title">
-    <h1>Tamil Nadu — <span>Live Election Results 2026</span></h1>
-    <div class="header-sub" id="meta">Connecting to results.eci.gov.in…</div>
+  <div class="h-title">
+    <h1>Tamil Nadu — <em>Live Election Results 2026</em></h1>
+    <div class="h-sub" id="meta">Connecting to results.eci.gov.in…</div>
   </div>
-  <div class="header-right">
+  <div class="h-right">
     <div class="countdown" id="countdown"></div>
+
+    <!-- View toggle -->
+    <div class="view-toggle">
+      <button class="vt-btn active" id="vt-table" onclick="setView('table')" title="Table only">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/>
+          <line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="9" x2="9" y2="21"/>
+        </svg>
+        Table
+      </button>
+      <button class="vt-btn" id="vt-cards" onclick="setView('cards')" title="Cards only">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
+          <rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>
+        </svg>
+        Cards
+      </button>
+      <button class="vt-btn" id="vt-both" onclick="setView('both')" title="Side by side">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="2" y="3" width="9" height="18" rx="1"/><rect x="13" y="3" width="9" height="18" rx="1"/>
+        </svg>
+        Both
+      </button>
+    </div>
+
     <button class="btn btn-ghost" onclick="forceRefresh()">
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <polyline points="23 4 23 10 17 10"/>
+        <polyline points="1 20 1 14 7 14"/>
+        <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+      </svg>
       Refresh
     </button>
     <div class="live-pill"><div class="live-dot"></div> LIVE</div>
   </div>
 </header>
 
-<!-- Error Banner -->
+<!-- Error banner -->
 <div id="error-banner">
-  ⚠ Could not fetch data. If you opened this file directly from disk, try serving it:
-  <code>python3 -m http.server 8080</code> then open
+  ⚠ Could not fetch data from ECI. If opened directly from disk, serve it first:
+  <code>python3 -m http.server 8080</code> → open
   <code>http://localhost:8080/tn_election_results.html</code>
   <span id="error-detail"></span>
 </div>
 
-<!-- Main content -->
+<!-- Loading -->
 <div id="app">
   <div id="loading">
     <div class="spinner"></div>
-    <div class="load-steps" id="load-steps">Fetching live data from ECI…</div>
+    <div class="load-step" id="load-steps">Fetching live data from ECI…</div>
   </div>
 </div>
 
-<!-- Results template (hidden until loaded) -->
-<template id="results-tpl">
+<!-- Main UI (inserted after load) -->
+<template id="tpl">
 
-  <!-- Summary bar -->
+  <!-- Summary stats -->
   <div class="summary">
-    <div class="stat">
-      <div class="l">Total Seats</div>
-      <div class="v">234</div>
+    <div class="stat"><div class="l">Total Seats</div><div class="v">234</div></div>
+    <div class="stat"><div class="l">Results Declared</div>
+      <div class="v" id="s-dec" style="color:var(--green)">–</div></div>
+    <div class="stat"><div class="l">Counting in Progress</div>
+      <div class="v" id="s-cnt" style="color:var(--yellow)">–</div></div>
+    <div class="stat hide-m"><div class="l">Yet to Start</div>
+      <div class="v" id="s-pend" style="color:var(--blue)">–</div></div>
+    <div class="stat hide-m"><div class="l">Majority Mark</div>
+      <div class="v" style="color:var(--red)">118</div></div>
+  </div>
+
+  <!-- Visual charts panel -->
+  <div class="visual-panel" id="visual-panel">
+
+    <!-- Donut chart -->
+    <div class="vp-card" style="min-width:220px;max-width:280px">
+      <div class="vp-title">Seat Distribution</div>
+      <div class="donut-wrap">
+        <svg id="donut-svg" width="110" height="110" viewBox="0 0 110 110" style="flex-shrink:0"></svg>
+        <div class="donut-legend" id="donut-legend"></div>
+      </div>
     </div>
-    <div class="stat">
-      <div class="l">Results Declared</div>
-      <div class="v" id="s-dec" style="color:var(--green)">–</div>
+
+    <!-- Seat mini-map -->
+    <div class="vp-card" style="flex:2;min-width:220px">
+      <div class="vp-title">Constituency Map — 234 Seats (hover for details)</div>
+      <div class="seat-map" id="seat-map"></div>
     </div>
-    <div class="stat">
-      <div class="l">Counting in Progress</div>
-      <div class="v" id="s-cnt" style="color:var(--yellow)">–</div>
+
+    <!-- Margin histogram -->
+    <div class="vp-card" style="min-width:200px;max-width:260px">
+      <div class="vp-title">Lead Margin Distribution</div>
+      <div class="hist-rows" id="hist-rows"></div>
     </div>
-    <div class="stat">
-      <div class="l">Yet to Start</div>
-      <div class="v" id="s-pend" style="color:var(--blue)">–</div>
-    </div>
-    <div class="stat hide-mobile">
-      <div class="l">Majority Mark</div>
-      <div class="v" style="color:var(--red)">118</div>
-    </div>
+
   </div>
 
   <!-- Party tally -->
   <div class="section">
-    <div class="section-title">Party-wise Tally <span style="font-weight:400;text-transform:none;opacity:.7">(click to filter)</span></div>
+    <div class="section-title">
+      Party-wise Tally
+      <span style="font-weight:400;text-transform:none;opacity:.6">(click to filter)</span>
+    </div>
     <div class="party-grid" id="party-grid"></div>
   </div>
 
@@ -289,429 +394,665 @@ footer a:hover{text-decoration:underline}
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
       </svg>
-      <input type="search" id="search" placeholder="Search constituency, candidate, party…" oninput="renderTable()">
+      <input type="search" id="search" placeholder="Search constituency, candidate, party…"
+             oninput="renderAll()">
     </div>
-    <select id="filter-status" onchange="renderTable()">
+    <select id="filter-status" onchange="renderAll()">
       <option value="">All Status</option>
       <option value="progress">Counting in Progress</option>
       <option value="declared">Result Declared</option>
-      <option value="pending">Pending / No Data</option>
+      <option value="pending">Pending</option>
+    </select>
+    <select id="filter-margin" onchange="renderAll()">
+      <option value="">All Margins</option>
+      <option value="0-500">Very Close (0–500)</option>
+      <option value="500-2000">Close (500–2K)</option>
+      <option value="2000-10000">Comfortable (2K–10K)</option>
+      <option value="10000-">Safe (10K+)</option>
+    </select>
+    <select id="sort-sel" onchange="renderAll()">
+      <option value="ac_no">Sort: Constituency #</option>
+      <option value="name">Sort: Name A–Z</option>
+      <option value="margin_desc">Sort: Highest Margin</option>
+      <option value="margin_asc">Sort: Closest Contest</option>
+      <option value="round_desc">Sort: Most Rounds Done</option>
+      <option value="status">Sort: Status</option>
     </select>
     <button class="btn btn-ghost" onclick="clearFilters()">Clear</button>
     <div class="row-count" id="row-count"></div>
   </div>
 
-  <!-- Table -->
-  <div class="table-wrap">
-    <table>
-      <thead>
-        <tr>
-          <th onclick="sortBy('ac_no')"># <span class="sort-icon" id="sort-ac_no">↕</span></th>
-          <th onclick="sortBy('name')">Constituency <span class="sort-icon" id="sort-name">↕</span></th>
-          <th onclick="sortBy('leader')">Leader → Runner-up <span class="sort-icon" id="sort-leader">↕</span></th>
-          <th onclick="sortBy('leader_party')">Party <span class="sort-icon" id="sort-leader_party">↕</span></th>
-          <th onclick="sortBy('margin')">Lead Margin <span class="sort-icon" id="sort-margin">↕</span></th>
-          <th onclick="sortBy('round')" class="hide-mobile">Round <span class="sort-icon" id="sort-round">↕</span></th>
-          <th onclick="sortBy('status')">Status <span class="sort-icon" id="sort-status">↕</span></th>
-        </tr>
-      </thead>
-      <tbody id="tbody"></tbody>
-    </table>
+  <!-- Content area -->
+  <div id="content-area" class="mode-table">
+
+    <!-- Card panel -->
+    <div id="card-panel">
+      <div style="padding:0 20px">
+        <div class="card-size-bar">
+          <span>Card size:</span>
+          <button class="cs-btn" id="cs-compact" onclick="setCardSize('compact')">Compact</button>
+          <button class="cs-btn active" id="cs-normal"  onclick="setCardSize('normal')">Normal</button>
+          <button class="cs-btn" id="cs-detail"  onclick="setCardSize('detail')">Detailed</button>
+        </div>
+      </div>
+      <div id="card-grid" class="card-grid sz-normal" style="padding:0 20px"></div>
+    </div>
+
+    <!-- Table panel -->
+    <div id="table-panel" style="padding:0 20px 20px">
+      <table>
+        <thead>
+          <tr>
+            <th data-k="ac_no">     # <span class="si">↕</span></th>
+            <th data-k="name">      Constituency <span class="si">↕</span></th>
+            <th data-k="leader">    Leader / Runner-up <span class="si">↕</span></th>
+            <th data-k="leader_party"> Party <span class="si">↕</span></th>
+            <th data-k="margin">    Margin <span class="si">↕</span></th>
+            <th data-k="round" class="hide-m"> Round <span class="si">↕</span></th>
+            <th data-k="status">    Status <span class="si">↕</span></th>
+          </tr>
+        </thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+
   </div>
 
 </template>
 
 <footer>
-  Data source: <a href="https://results.eci.gov.in" target="_blank" rel="noopener">results.eci.gov.in</a>
-  &nbsp;·&nbsp; Auto-refreshes every 30 seconds &nbsp;·&nbsp; Tamil Nadu Assembly Elections May 2026
+  Data: <a href="https://results.eci.gov.in" target="_blank" rel="noopener">results.eci.gov.in</a>
+  &nbsp;·&nbsp; Auto-refreshes every 30s &nbsp;·&nbsp;
+  Tamil Nadu Assembly Elections May 2026 &nbsp;·&nbsp;
+  Press <kbd style="background:var(--surface2);padding:1px 5px;border-radius:3px;border:1px solid var(--border)">R</kbd> to refresh
 </footer>
 
 <script>
 'use strict';
 
-/* ── Constants ──────────────────────────────────────────────── */
-const BASE   = 'https://results.eci.gov.in/ResultAcGenMay2026';
-const PAGES  = 12;
-const RFRSH  = 30;   // seconds
+/* ── Config ────────────────────────────────────── */
+const BASE  = 'https://results.eci.gov.in/ResultAcGenMay2026';
+const PAGES = 12;
+const RFRSH = 30;
 
-const PARTY_COLORS = {
-  TVK:'#e72bd9', ADMK:'#A08547', DMK:'#05F86E', PMK:'#5D672B',
-  INC:'#19AAED', 'CPI(M)':'#FF1D15', VCK:'#729E31', BJP:'#ff944d',
-  IUML:'#006600', CPI:'#cc0000', DMDK:'#ff6600', NTK:'#cc5500',
+const PC = {
+  TVK:'#e72bd9',ADMK:'#A08547',DMK:'#05F86E',PMK:'#5D672B',
+  INC:'#19AAED','CPI(M)':'#FF1D15',VCK:'#729E31',BJP:'#ff944d',
+  IUML:'#006600',CPI:'#cc0000',DMDK:'#ff6600',NTK:'#cc5500',
+  AMMK:'#aa2200',MNMK:'#8800cc',
 };
 
-/* ── State ──────────────────────────────────────────────────── */
-let ALL       = [];   // all 234 constituency objects
-let TALLY     = [];   // party tally rows
-let TOTALS    = {};   // {declared, counting, pending}
-let SORT_KEY  = 'ac_no';
-let SORT_DIR  = 1;
-let SEL_PARTY = '';
-let countdown = RFRSH;
-let fetching  = false;
-let appReady  = false;
-let tickTimer, refreshTimer;
+/* ── App state ─────────────────────────────────── */
+let ALL=[], TALLY=[], TOTALS={};
+let VIEW='table', CARD_SIZE='normal';
+let SORT_KEY='ac_no', SORT_DIR=1;
+let SEL_PARTY='', HIST_FILTER='';
+let countdown=RFRSH, fetching=false, ready=false;
 
-/* ── Fetch helpers ──────────────────────────────────────────── */
-function withTimeout(ms, promise) {
-  return Promise.race([
-    promise,
-    new Promise((_, rej) => setTimeout(() => rej(new Error('Timeout')), ms))
-  ]);
-}
-async function getText(url) {
-  const res = await withTimeout(12000, fetch(url, { mode: 'cors' }));
-  if (!res.ok) throw new Error(`HTTP ${res.status}`);
-  return res.text();
-}
+/* ── Fetch utils ───────────────────────────────── */
+const withTimeout = (ms,p) => Promise.race([p, new Promise((_,r)=>setTimeout(()=>r(new Error('Timeout')),ms))]);
+const getText = url => withTimeout(14000, fetch(url,{mode:'cors'})).then(r=>{if(!r.ok)throw new Error(`HTTP ${r.status}`);return r.text();});
 
-/* ── Parse live JSON ────────────────────────────────────────── */
-async function fetchLiveJson() {
-  const raw  = await getText(`${BASE}/election-json-S22-live.json`);
-  const data = JSON.parse(raw);
-  const map  = {};
-  for (const item of (data.S22?.chartData || [])) {
-    if (item.length >= 5) {
-      map[item[2]] = { party: item[0], candidate: item[3], color: item[4] };
-    }
-  }
+/* ── Data fetchers ─────────────────────────────── */
+async function fetchLiveJson(){
+  const raw=await getText(`${BASE}/election-json-S22-live.json`);
+  const data=JSON.parse(raw), map={};
+  for(const it of (data.S22?.chartData||[]))
+    if(it.length>=5) map[it[2]]={party:it[0],candidate:it[3],color:it[4]};
   return map;
 }
 
-/* ── Parse one statewise HTML page ─────────────────────────── */
-function parseStatewisePage(html) {
-  const doc   = new DOMParser().parseFromString(html, 'text/html');
-  // The outer table tbody is the first one on the page
-  const tbodies = doc.querySelectorAll('table > tbody');
-  let outerTbody = null;
-  for (const tb of tbodies) {
-    const directRows = [...tb.children].filter(el => el.tagName === 'TR');
-    if (directRows.length > 0) { outerTbody = tb; break; }
+function parseStatewise(html){
+  const doc=new DOMParser().parseFromString(html,'text/html');
+  let outer=null;
+  for(const tb of doc.querySelectorAll('table > tbody')){
+    if([...tb.children].some(el=>el.tagName==='TR')){outer=tb;break;}
   }
-  if (!outerTbody) return [];
-
-  const rows = [];
-  for (const tr of outerTbody.querySelectorAll(':scope > tr')) {
-    // Direct child <td>s only (not nested)
-    const tds = [...tr.children].filter(el => el.tagName === 'TD');
-    if (tds.length < 9) continue;
-
-    const name   = tds[0].textContent.trim();
-    const acNo   = parseInt(tds[1].textContent.trim(), 10);
-    const leader = tds[2].textContent.trim();
-
-    // Party cells contain nested tables; grab first td[align=left]
-    const leaderPartyEl = tds[3].querySelector('td[align="left"]');
-    const leaderParty   = leaderPartyEl?.childNodes[0]?.textContent?.trim() || '';
-
-    const runner     = tds[4].textContent.trim();
-    const runnerPEl  = tds[5].querySelector('td[align="left"]');
-    const runnerParty= runnerPEl?.childNodes[0]?.textContent?.trim() || '';
-
-    const margin = parseInt(tds[6].textContent.trim().replace(/,/g, ''), 10) || 0;
-    const round  = tds[7].textContent.trim();
-    const status = tds[8].textContent.trim();
-
-    if (name && acNo) {
-      rows.push({ name, ac_no: acNo, leader, leader_party: leaderParty,
-                  runner, runner_party: runnerParty, margin, round, status,
-                  color: '#888', leader_code: '' });
-    }
+  if(!outer) return [];
+  const rows=[];
+  for(const tr of outer.querySelectorAll(':scope > tr')){
+    const tds=[...tr.children].filter(el=>el.tagName==='TD');
+    if(tds.length<9) continue;
+    const name   =tds[0].textContent.trim();
+    const acNo   =parseInt(tds[1].textContent.trim(),10);
+    const leader =tds[2].textContent.trim();
+    const lpEl   =tds[3].querySelector('td[align="left"]');
+    const lp     =lpEl?.childNodes[0]?.textContent?.trim()||'';
+    const runner =tds[4].textContent.trim();
+    const rpEl   =tds[5].querySelector('td[align="left"]');
+    const rp     =rpEl?.childNodes[0]?.textContent?.trim()||'';
+    const margin =parseInt(tds[6].textContent.trim().replace(/,/g,''),10)||0;
+    const round  =tds[7].textContent.trim();
+    const status =tds[8].textContent.trim();
+    if(name&&acNo) rows.push({name,ac_no:acNo,leader,leader_party:lp,
+      runner,runner_party:rp,margin,round,status,color:'#888',leader_code:''});
   }
   return rows;
 }
 
-/* ── Parse party tally page ─────────────────────────────────── */
-async function fetchPartyTally() {
-  const html = await getText(`${BASE}/partywiseresult-S22.htm`);
-  const doc  = new DOMParser().parseFromString(html, 'text/html');
-  const tally = [];
-  for (const tr of doc.querySelectorAll('tr.tr')) {
-    const tds = tr.querySelectorAll('td');
-    if (tds.length < 4) continue;
-    const fullName = tds[0].textContent.trim();
-    const won      = parseInt(tds[1].textContent.trim(), 10) || 0;
-    const leadLink = tds[2].querySelector('a');
-    const leading  = parseInt(leadLink?.textContent?.trim() || '0', 10) || 0;
-    const total    = won + leading;
-    if (total === 0) continue;
-    // Extract short code: "Full Party Name - CODE"
-    const codeM = fullName.match(/[-–]\s*([A-Z()\d]+)\s*$/);
-    const code  = codeM ? codeM[1] : fullName.split(/\s+/)[0];
-    tally.push({ party: fullName, code, won, leading, total,
-                 color: partyColor(code) });
+async function fetchTally(){
+  const html=await getText(`${BASE}/partywiseresult-S22.htm`);
+  const doc=new DOMParser().parseFromString(html,'text/html');
+  const tally=[];
+  for(const tr of doc.querySelectorAll('tr.tr')){
+    const tds=tr.querySelectorAll('td');
+    if(tds.length<4) continue;
+    const full=tds[0].textContent.trim();
+    const won=parseInt(tds[1].textContent.trim(),10)||0;
+    const leadLink=tds[2].querySelector('a');
+    const leading=parseInt(leadLink?.textContent?.trim()||'0',10)||0;
+    const total=won+leading;
+    if(!total) continue;
+    const cm=full.match(/[-–]\s*([A-Z()\d]+)\s*$/);
+    const code=cm?cm[1]:full.split(/\s+/)[0];
+    tally.push({party:full,code,won,leading,total,color:pColor(code)});
   }
-  return tally.sort((a, b) => b.total - a.total);
+  return tally.sort((a,b)=>b.total-a.total);
 }
 
-/* ── Merge everything ───────────────────────────────────────── */
-async function fetchAll() {
-  setLoadStep('Fetching live results JSON…');
-  const [liveMap, partyTally] = await Promise.all([
-    fetchLiveJson(),
-    fetchPartyTally(),
-  ]);
-
-  setLoadStep(`Fetching all ${PAGES} constituency pages…`);
-  const pageResults = await Promise.all(
-    Array.from({ length: PAGES }, (_, i) =>
-      getText(`${BASE}/statewiseS22${i + 1}.htm`)
-        .then(parseStatewisePage)
-        .catch(() => [])
+async function fetchAll(){
+  setStep('Fetching live JSON + party tally…');
+  const [live,tally]=await Promise.all([fetchLiveJson(),fetchTally()]);
+  setStep(`Fetching all ${PAGES} statewise pages…`);
+  const pages=await Promise.all(
+    Array.from({length:PAGES},(_,i)=>
+      getText(`${BASE}/statewiseS22${i+1}.htm`).then(parseStatewise).catch(()=>[])
     )
   );
-
-  const all = pageResults.flat();
-  for (const c of all) {
-    const lv = liveMap[c.ac_no] || {};
-    c.color       = lv.color  || '#888';
-    c.leader_code = lv.party  || '';
+  const all=pages.flat();
+  for(const c of all){
+    const lv=live[c.ac_no]||{};
+    c.color=lv.color||'#888';
+    c.leader_code=lv.party||'';
   }
-  all.sort((a, b) => a.ac_no - b.ac_no);
-
-  const declared = all.filter(r => /declared|won/i.test(r.status)).length;
-  const counting = all.filter(r => /progress|counting/i.test(r.status)).length;
-  const pending  = all.length - declared - counting;
-
-  return { all, partyTally, totals: { declared, counting, pending } };
+  all.sort((a,b)=>a.ac_no-b.ac_no);
+  const declared=all.filter(r=>/declared|won/i.test(r.status)).length;
+  const counting=all.filter(r=>/progress|counting/i.test(r.status)).length;
+  return {all,tally,totals:{declared,counting,pending:all.length-declared-counting}};
 }
 
-/* ── Colour helper ──────────────────────────────────────────── */
-function partyColor(codeOrFull) {
-  for (const [k, v] of Object.entries(PARTY_COLORS)) {
-    if ((codeOrFull || '').toUpperCase().includes(k)) return v;
-  }
-  // Deterministic fallback colour from string hash
-  let h = 0;
-  for (let i = 0; i < codeOrFull.length; i++) h = (h * 31 + codeOrFull.charCodeAt(i)) | 0;
-  return `hsl(${Math.abs(h) % 360},55%,45%)`;
+/* ── Colour helper ─────────────────────────────── */
+function pColor(s){
+  for(const[k,v]of Object.entries(PC))
+    if((s||'').toUpperCase().includes(k)) return v;
+  let h=0;for(let i=0;i<(s||'').length;i++)h=(h*31+s.charCodeAt(i))|0;
+  return `hsl(${Math.abs(h)%360},50%,42%)`;
+}
+function partyCode(lp_code,lp_full){
+  if(lp_code) return lp_code;
+  const m=(lp_full||'').match(/[-–]\s*([A-Z()\d]+)\s*$/);
+  return m?m[1]:(lp_full||'').slice(0,8);
 }
 
-/* ── Number formatter ───────────────────────────────────────── */
-const fmt = n => Number(n).toLocaleString('en-IN');
+/* ── Filter list ───────────────────────────────── */
+function filtered(){
+  const q =(document.getElementById('search')?.value||'').toLowerCase();
+  const sf=(document.getElementById('filter-status')?.value||'').toLowerCase();
+  const mf=(document.getElementById('filter-margin')?.value||'');
+  const ss=(document.getElementById('sort-sel')?.value||SORT_KEY);
 
-/* ── Status badge ───────────────────────────────────────────── */
-function statusBadge(s) {
-  if (!s || s === '—') return `<span class="status-badge s-pending">⏳ Pending</span>`;
-  if (/declared|won/i.test(s))      return `<span class="status-badge s-declared">✓ Declared</span>`;
-  if (/progress|counting/i.test(s)) return `<span class="status-badge s-progress">⟳ Counting</span>`;
-  return `<span class="status-badge s-pending">${s}</span>`;
-}
-
-/* ── Render party grid ──────────────────────────────────────── */
-function renderPartyGrid() {
-  const g = document.getElementById('party-grid');
-  if (!g) return;
-  g.innerHTML = TALLY.map(p => `
-    <div class="party-chip ${SEL_PARTY === p.code ? 'active' : ''}"
-         onclick="toggleParty('${p.code}')" title="${p.party}">
-      <span class="p-dot" style="background:${p.color}"></span>
-      <span class="p-code">${p.code}</span>
-      <span class="p-total">${p.total}</span>
-      <span class="p-sub">
-        ${p.won > 0 ? `<span class="p-won">✓${p.won}</span>` : ''}
-        ${p.leading > 0 ? `<span class="p-lead">▲${p.leading}</span>` : ''}
-      </span>
-    </div>`).join('');
-}
-
-/* ── Render table ───────────────────────────────────────────── */
-function renderTable() {
-  const q  = (document.getElementById('search')?.value || '').toLowerCase();
-  const sf = (document.getElementById('filter-status')?.value || '').toLowerCase();
-
-  let list = ALL.filter(r => {
-    const s = (r.status || '').toLowerCase();
-    if (sf === 'progress' && !s.includes('progress') && !s.includes('counting')) return false;
-    if (sf === 'declared' && !/declared|won/.test(s)) return false;
-    if (sf === 'pending' && (s.includes('progress') || s.includes('counting') || /declared|won/.test(s))) return false;
-    if (SEL_PARTY) {
-      const code = (r.leader_code || r.leader_party || '').toUpperCase();
-      if (!code.includes(SEL_PARTY)) return false;
+  let list=ALL.filter(r=>{
+    const s=(r.status||'').toLowerCase();
+    if(sf==='progress'&&!s.includes('progress')&&!s.includes('counting')) return false;
+    if(sf==='declared'&&!/declared|won/.test(s)) return false;
+    if(sf==='pending'&&(s.includes('progress')||s.includes('counting')||/declared|won/.test(s))) return false;
+    if(SEL_PARTY||(HIST_FILTER&&!mf?HIST_FILTER:'')){
+      if(SEL_PARTY){const c=(r.leader_code||r.leader_party||'').toUpperCase();if(!c.includes(SEL_PARTY))return false;}
     }
-    if (q) {
-      const hay = `${r.name} ${r.leader} ${r.runner} ${r.leader_party} ${r.runner_party}`.toLowerCase();
-      if (!hay.includes(q)) return false;
+    if(SEL_PARTY){const c=(r.leader_code||r.leader_party||'').toUpperCase();if(!c.includes(SEL_PARTY))return false;}
+    const activeMarginFilter=mf||HIST_FILTER;
+    if(activeMarginFilter){
+      const[lo,hi]=activeMarginFilter.split('-').map(Number);
+      if(isNaN(hi)){if(r.margin<lo)return false;}
+      else{if(r.margin<lo||r.margin>=hi)return false;}
+    }
+    if(q){
+      const hay=`${r.name} ${r.leader} ${r.runner} ${r.leader_party} ${r.runner_party}`.toLowerCase();
+      if(!hay.includes(q))return false;
     }
     return true;
   });
 
   // Sort
-  list.sort((a, b) => {
-    let av = a[SORT_KEY] ?? '', bv = b[SORT_KEY] ?? '';
-    if (SORT_KEY === 'margin' || SORT_KEY === 'ac_no') {
-      av = +av || 0; bv = +bv || 0;
-    } else if (SORT_KEY === 'round') {
-      av = av ? parseInt(av.split('/')[0], 10) || 0 : 0;
-      bv = bv ? parseInt(bv.split('/')[0], 10) || 0 : 0;
-    } else {
-      av = String(av).toLowerCase(); bv = String(bv).toLowerCase();
-    }
-    return av < bv ? -SORT_DIR : av > bv ? SORT_DIR : 0;
+  list.sort((a,b)=>{
+    let k=ss,d=1;
+    if(k==='margin_desc'){k='margin';d=-1;}
+    else if(k==='margin_asc'){k='margin';d=1;}
+    else if(k==='round_desc'){k='round';d=-1;}
+    let av=a[k]??'',bv=b[k]??'';
+    if(k==='margin'||k==='ac_no'){av=+av||0;bv=+bv||0;}
+    else if(k==='round'){av=av?parseInt(av,10)||0:0;bv=bv?parseInt(bv,10)||0:0;}
+    else{av=String(av).toLowerCase();bv=String(bv).toLowerCase();}
+    return av<bv?-d:av>bv?d:0;
   });
+  return list;
+}
 
-  const rcEl = document.getElementById('row-count');
-  if (rcEl) rcEl.textContent = `${list.length} of 234 constituencies`;
+/* ── Status badge ──────────────────────────────── */
+function badge(s){
+  if(!s||s==='—') return `<span class="status-badge s-pending">⏳ Pending</span>`;
+  if(/declared|won/i.test(s)) return `<span class="status-badge s-declared">✓ Declared</span>`;
+  if(/progress|counting/i.test(s)) return `<span class="status-badge s-progress">⟳ Counting</span>`;
+  return `<span class="status-badge s-pending">${s}</span>`;
+}
 
-  const tbody = document.getElementById('tbody');
-  if (!tbody) return;
+const fmt=n=>Number(n).toLocaleString('en-IN');
 
-  if (!list.length) {
-    tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:40px;color:var(--muted)">
-      No constituencies match your filter.</td></tr>`;
+/* ── Margin colour ─────────────────────────────── */
+function marginColor(m){
+  if(m<500)  return 'var(--red)';
+  if(m<2000) return 'var(--yellow)';
+  if(m<10000)return 'var(--blue)';
+  return 'var(--green)';
+}
+
+/* ── Donut chart ───────────────────────────────── */
+function renderDonut(){
+  const svg=document.getElementById('donut-svg');
+  const leg=document.getElementById('donut-legend');
+  if(!svg||!leg) return;
+  const total=234,cx=55,cy=55,r=40,sw=16;
+  const circ=2*Math.PI*r;
+  let offset=0;
+  const slices=TALLY.map(p=>{
+    const pct=p.total/total;
+    const dash=pct*circ,gap=circ-dash;
+    const rot=(offset/total)*360-90;
+    offset+=p.total;
+    return `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none"
+      stroke="${p.color}" stroke-width="${sw}"
+      stroke-dasharray="${dash.toFixed(2)} ${gap.toFixed(2)}"
+      transform="rotate(${rot.toFixed(2)},${cx},${cy})"
+      opacity=".92"/>`;
+  });
+  svg.innerHTML=slices.join('')+
+    `<text x="${cx}" y="${cy-6}" text-anchor="middle" fill="${'var(--text)'}"
+       font-size="16" font-weight="700">234</text>
+     <text x="${cx}" y="${cy+10}" text-anchor="middle" fill="${'var(--muted)'}"
+       font-size="8.5">SEATS</text>`;
+
+  leg.innerHTML=TALLY.slice(0,8).map(p=>`
+    <div class="dl-row" onclick="toggleParty('${p.code}')" title="${p.party}">
+      <span class="dl-dot" style="background:${p.color}"></span>
+      <span class="dl-name">${p.code}</span>
+      <span class="dl-val" style="color:${p.color}">${p.total}</span>
+    </div>`).join('');
+}
+
+/* ── Seat mini-map ─────────────────────────────── */
+function renderSeatMap(){
+  const el=document.getElementById('seat-map');
+  if(!el) return;
+  const tip=document.getElementById('tip');
+  const map={};
+  for(const r of ALL) map[r.ac_no]=r;
+
+  el.innerHTML=Array.from({length:234},(_,i)=>{
+    const r=map[i+1];
+    const color=r?.color||'#333';
+    const cls=(SEL_PARTY&&r&&!(r.leader_code||r.leader_party||'').toUpperCase().includes(SEL_PARTY))?' dimmed':'';
+    return `<div class="seat-sq${cls}" style="background:${color}"
+      data-ac="${i+1}"
+      onmouseenter="showTip(event,${i+1})"
+      onmouseleave="hideTip()"
+      onclick="seatClick(${i+1})"></div>`;
+  }).join('');
+}
+
+function showTip(e,acNo){
+  const tip=document.getElementById('tip');
+  const r=ALL.find(x=>x.ac_no===acNo);
+  if(!r){tip.style.display='none';return;}
+  const code=partyCode(r.leader_code,r.leader_party);
+  tip.innerHTML=`<b>#${r.ac_no} ${r.name}</b><br>
+    <span style="color:${r.color}">${code}</span> ${r.leader}<br>
+    Margin: <b>${fmt(r.margin)}</b> · Round: ${r.round||'—'}`;
+  tip.style.display='block';
+  tip.style.left=(e.clientX+12)+'px';
+  tip.style.top =(e.clientY-10)+'px';
+}
+function hideTip(){document.getElementById('tip').style.display='none';}
+function seatClick(acNo){
+  const r=ALL.find(x=>x.ac_no===acNo);
+  if(!r) return;
+  const s=document.getElementById('search');
+  if(s){s.value=r.name;renderAll();}
+}
+
+/* ── Margin histogram ──────────────────────────── */
+const HIST_BANDS=[
+  {label:'Very close\n(0–500)',    lo:0,   hi:500,   color:'var(--red)',    key:'0-500'},
+  {label:'Close\n(500–2K)',        lo:500, hi:2000,  color:'var(--yellow)', key:'500-2000'},
+  {label:'Comfortable\n(2K–10K)', lo:2000,hi:10000, color:'var(--blue)',   key:'2000-10000'},
+  {label:'Safe\n(10K+)',           lo:10000,hi:Infinity,color:'var(--green)',key:'10000-'},
+];
+
+function renderHistogram(){
+  const el=document.getElementById('hist-rows');
+  if(!el) return;
+  const counts=HIST_BANDS.map(b=>ALL.filter(r=>r.margin>=b.lo&&r.margin<b.hi).length);
+  const max=Math.max(...counts,1);
+  el.innerHTML=HIST_BANDS.map((b,i)=>{
+    const pct=Math.round(counts[i]/max*100);
+    const active=HIST_FILTER===b.key;
+    return `
+    <div class="hist-row">
+      <div class="hist-label" style="white-space:pre-line;line-height:1.2">${b.label}</div>
+      <div class="hist-bar-wrap ${active?'':''}">
+        <div class="hist-bar" style="width:${pct}%;background:${b.color};${active?'outline:2px solid #fff':''}"
+             onclick="histFilter('${b.key}')"
+             title="Click to filter: ${counts[i]} seats">${counts[i]}</div>
+      </div>
+      <div class="hist-count">${counts[i]}</div>
+    </div>`;
+  }).join('');
+}
+
+function histFilter(key){
+  HIST_FILTER=HIST_FILTER===key?'':key;
+  const mf=document.getElementById('filter-margin');
+  if(mf) mf.value='';
+  renderHistogram();
+  renderAll();
+}
+
+/* ── Party grid ────────────────────────────────── */
+function renderPartyGrid(){
+  const g=document.getElementById('party-grid');
+  if(!g) return;
+  g.innerHTML=TALLY.map(p=>`
+    <div class="party-chip ${SEL_PARTY===p.code?'active':''}"
+         onclick="toggleParty('${p.code}')" title="${p.party}">
+      <span class="p-dot" style="background:${p.color}"></span>
+      <span class="p-code">${p.code}</span>
+      <span class="p-total">${p.total}</span>
+      <span class="p-sub">
+        ${p.won>0?`<span class="p-won">✓${p.won}</span>`:''}
+        ${p.leading>0?`<span class="p-lead">▲${p.leading}</span>`:''}
+      </span>
+    </div>`).join('');
+}
+
+/* ── Card renderer ─────────────────────────────── */
+function renderCards(list){
+  const grid=document.getElementById('card-grid');
+  if(!grid) return;
+  if(!list.length){
+    grid.innerHTML='<div style="color:var(--muted);padding:30px;text-align:center">No constituencies match.</div>';
     return;
   }
+  const maxMargin=Math.max(...ALL.map(r=>r.margin),1);
+  grid.innerHTML=list.map(r=>{
+    const color=r.color||pColor(r.leader_code||r.leader_party);
+    const lpc=partyCode(r.leader_code,r.leader_party);
+    const rpc=partyCode('',r.runner_party);
+    const rcolor=pColor(rpc||r.runner_party);
+    const barPct=Math.min(Math.round(r.margin/maxMargin*100),100);
+    const mcolor=marginColor(r.margin);
 
-  tbody.innerHTML = list.map(r => {
-    const color  = r.color || partyColor(r.leader_code || r.leader_party);
-    const lpFull = r.leader_party;
-    const lpCode = r.leader_code || lpFull.match(/[-–]\s*([A-Z()\d]+)\s*$/)?.[1] || lpFull.slice(0, 6);
-    const rpFull = r.runner_party;
-    const rpCode = rpFull.match(/[-–]\s*([A-Z()\d]+)\s*$/)?.[1] || rpFull.slice(0, 6);
-    const rpColor= partyColor(rpCode || rpFull);
+    // Detailed mode: show all candidates from liveJson (not available per-card, so show leader+runner)
+    const detailBlock=`
+      <div class="c-detail-block">
+        <div class="c-detail-title">Candidate Details</div>
+        <div class="c-cand-row">
+          <span class="cc-name">${r.leader||'—'}</span>
+          <span class="cc-party" style="background:${color}">${lpc}</span>
+          <span class="cc-votes" style="color:${mcolor}">+${fmt(r.margin)} lead</span>
+        </div>
+        ${r.runner?`<div class="c-cand-row">
+          <span class="cc-name">${r.runner}</span>
+          <span class="cc-party" style="background:${rcolor}">${rpc}</span>
+          <span class="cc-votes" style="color:var(--muted)">trailing</span>
+        </div>`:''}
+      </div>`;
+
+    return `
+    <div class="c-card" style="border-left-color:${color}">
+      <div class="c-head">
+        <div>
+          <div class="c-no">#${r.ac_no}</div>
+          <div class="c-name">${r.name}</div>
+        </div>
+        ${badge(r.status)}
+      </div>
+      <div class="c-body">
+        <div class="c-leader">${r.leader||'No data'}</div>
+        <div class="c-party-row">
+          <span class="c-party-tag" style="background:${color}">${lpc}</span>
+          ${r.runner_party?`<span style="font-size:.68rem;color:var(--muted)">vs</span>
+            <span class="c-party-tag" style="background:${rcolor};opacity:.75">${rpc}</span>`:''}
+        </div>
+        ${r.margin>0?`
+        <div class="c-margin-wrap">
+          <div class="c-margin-label">
+            <span class="c-mv">${fmt(r.margin)} votes ahead</span>
+            <span class="c-mr">${marginLabel(r.margin)}</span>
+          </div>
+          <div class="c-bar-track">
+            <div class="c-bar-fill" style="width:${barPct}%;background:${mcolor}"></div>
+          </div>
+        </div>`:''}
+        ${r.runner?`<div class="c-runner">
+          <span style="color:var(--muted);font-size:.65rem">vs</span>
+          <span class="c-runner-name">${r.runner}</span>
+        </div>`:''}
+      </div>
+      ${detailBlock}
+      <div class="c-footer">
+        <span class="c-round">${r.round?`Round ${r.round}`:'—'}</span>
+        <span style="font-size:.65rem;color:var(--muted)">#${r.ac_no}</span>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function marginLabel(m){
+  if(m<500)  return '🔴 Very close';
+  if(m<2000) return '🟡 Close';
+  if(m<10000)return '🔵 Comfortable';
+  return '🟢 Safe';
+}
+
+/* ── Table renderer ────────────────────────────── */
+function renderTableBody(list){
+  const tbody=document.getElementById('tbody');
+  if(!tbody) return;
+  if(!list.length){
+    tbody.innerHTML=`<tr><td colspan="7" style="text-align:center;padding:40px;color:var(--muted)">
+      No constituencies match.</td></tr>`;
+    return;
+  }
+  tbody.innerHTML=list.map(r=>{
+    const color=r.color||pColor(r.leader_code||r.leader_party);
+    const lpc=partyCode(r.leader_code,r.leader_party);
+    const rpc=partyCode('',r.runner_party);
+    const rcolor=pColor(rpc||r.runner_party);
     return `
     <tr>
       <td class="ac-no">${r.ac_no}</td>
-      <td class="con-name">${r.name}</td>
+      <td><b>${r.name}</b></td>
       <td>
-        <div class="cand-lead">${r.leader || '—'}</div>
-        ${r.runner ? `<div class="cand-trail">vs ${r.runner}</div>` : ''}
+        <div class="cand-lead">${r.leader||'—'}</div>
+        ${r.runner?`<div class="cand-trail">vs ${r.runner}</div>`:''}
       </td>
       <td>
-        <span class="party-tag" style="background:${color}" title="${lpFull}">${lpCode}</span>
-        ${rpCode ? `<br><span class="party-tag-sm" style="background:${rpColor}" title="${rpFull}">${rpCode}</span>` : ''}
+        <span class="party-tag" style="background:${color}" title="${r.leader_party}">${lpc}</span>
+        ${rpc?`<br><span class="party-tag-sm" style="background:${rcolor}" title="${r.runner_party}">${rpc}</span>`:''}
       </td>
-      <td class="margin-cell">${r.margin > 0 ? fmt(r.margin) : '—'}</td>
-      <td class="round-cell hide-mobile">${r.round || '—'}</td>
-      <td>${statusBadge(r.status)}</td>
+      <td class="margin-cell" style="color:${marginColor(r.margin)}">
+        ${r.margin>0?fmt(r.margin):'—'}
+      </td>
+      <td class="round-cell hide-m">${r.round||'—'}</td>
+      <td>${badge(r.status)}</td>
     </tr>`;
   }).join('');
 }
 
-/* ── Sort ───────────────────────────────────────────────────── */
-function sortBy(key) {
-  if (SORT_KEY === key) SORT_DIR = -SORT_DIR;
-  else { SORT_KEY = key; SORT_DIR = 1; }
-  document.querySelectorAll('thead th').forEach(th => th.classList.remove('sorted'));
-  const icons = ['ac_no','name','leader','leader_party','margin','round','status'];
-  icons.forEach(k => {
-    const el = document.getElementById(`sort-${k}`);
-    if (el) el.textContent = '↕';
+/* ── Render all views ──────────────────────────── */
+function renderAll(){
+  const list=filtered();
+  const rc=document.getElementById('row-count');
+  if(rc) rc.textContent=`${list.length} of 234`;
+  renderPartyGrid();
+  renderSeatMap();
+  if(VIEW!=='table') renderCards(list);
+  if(VIEW!=='cards') renderTableBody(list);
+}
+
+/* ── View mode ─────────────────────────────────── */
+function setView(v){
+  VIEW=v;
+  ['table','cards','both'].forEach(n=>{
+    document.getElementById(`vt-${n}`)?.classList.toggle('active',n===v);
   });
-  const el = document.getElementById(`sort-${key}`);
-  if (el) {
-    el.textContent = SORT_DIR === 1 ? '▲' : '▼';
-    el.parentElement.classList.add('sorted');
-  }
-  renderTable();
+  const ca=document.getElementById('content-area');
+  if(ca) ca.className=`mode-${v}`;
+  const vp=document.getElementById('visual-panel');
+  if(vp) vp.classList.toggle('show',v!=='table');
+  renderAll();
 }
 
-/* ── Filter helpers ─────────────────────────────────────────── */
-function toggleParty(code) {
-  SEL_PARTY = SEL_PARTY === code ? '' : code;
+/* ── Card size ─────────────────────────────────── */
+function setCardSize(sz){
+  CARD_SIZE=sz;
+  const grid=document.getElementById('card-grid');
+  if(grid) grid.className=`card-grid sz-${sz}`;
+  ['compact','normal','detail'].forEach(s=>{
+    document.getElementById(`cs-${s}`)?.classList.toggle('active',s===sz);
+  });
+}
+
+/* ── Table sort (click header) ─────────────────── */
+function initTableSort(){
+  document.querySelectorAll('thead th[data-k]').forEach(th=>{
+    th.addEventListener('click',()=>{
+      const k=th.dataset.k;
+      const sortSel=document.getElementById('sort-sel');
+      if(!sortSel) return;
+      const curVal=sortSel.value;
+      if(curVal===k||curVal===k+'_desc'||curVal===k+'_asc'){
+        // Toggle direction
+        sortSel.value=curVal.endsWith('_desc')?k+'_asc':k+'_desc';
+      } else {
+        sortSel.value=k;
+      }
+      renderAll();
+      // Update header indicator
+      document.querySelectorAll('thead th[data-k]').forEach(t=>{
+        t.classList.remove('sorted');
+        const si=t.querySelector('.si');
+        if(si) si.textContent='↕';
+      });
+      th.classList.add('sorted');
+      const si=th.querySelector('.si');
+      if(si) si.textContent=sortSel.value.endsWith('_asc')?'▲':'▼';
+    });
+  });
+}
+
+/* ── Filter helpers ────────────────────────────── */
+function toggleParty(code){
+  SEL_PARTY=SEL_PARTY===code?'':code;
   renderPartyGrid();
-  renderTable();
+  renderSeatMap();
+  renderAll();
 }
-function clearFilters() {
-  const s = document.getElementById('search');
-  if (s) s.value = '';
-  const f = document.getElementById('filter-status');
-  if (f) f.value = '';
-  SEL_PARTY = '';
+function clearFilters(){
+  const s=document.getElementById('search');if(s)s.value='';
+  const f=document.getElementById('filter-status');if(f)f.value='';
+  const m=document.getElementById('filter-margin');if(m)m.value='';
+  SEL_PARTY='';HIST_FILTER='';
+  renderHistogram();
   renderPartyGrid();
-  renderTable();
+  renderSeatMap();
+  renderAll();
 }
 
-/* ── Load steps helper ──────────────────────────────────────── */
-function setLoadStep(msg) {
-  const el = document.getElementById('load-steps');
-  if (el) el.textContent = msg;
+/* ── Stats ─────────────────────────────────────── */
+function updateStats(){
+  const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};
+  set('s-dec',TOTALS.declared??'–');
+  set('s-cnt',TOTALS.counting??'–');
+  set('s-pend',TOTALS.pending??'–');
 }
 
-/* ── Bootstrap results UI (first time) ─────────────────────── */
-function bootstrapUI() {
-  if (appReady) return;
-  const tpl = document.getElementById('results-tpl').content.cloneNode(true);
-  const app = document.getElementById('app');
-  app.innerHTML = '';
+/* ── Bootstrap ─────────────────────────────────── */
+function bootstrap(){
+  if(ready) return;
+  const tpl=document.getElementById('tpl').content.cloneNode(true);
+  const app=document.getElementById('app');
+  app.innerHTML='';
   app.appendChild(tpl);
-  appReady = true;
+  ready=true;
+  initTableSort();
 }
 
-/* ── Update summary stats ───────────────────────────────────── */
-function updateStats() {
-  const set = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
-  set('s-dec',  TOTALS.declared ?? '–');
-  set('s-cnt',  TOTALS.counting ?? '–');
-  set('s-pend', TOTALS.pending  ?? '–');
-}
+const setStep=msg=>{const e=document.getElementById('load-steps');if(e)e.textContent=msg;};
+const setMeta=msg=>{const e=document.getElementById('meta');if(e)e.textContent=msg;};
 
-/* ── Meta line ──────────────────────────────────────────────── */
-function updateMeta(msg) {
-  const el = document.getElementById('meta');
-  if (el) el.textContent = msg;
-}
-
-/* ── Main refresh ───────────────────────────────────────────── */
-async function refresh() {
-  if (fetching) return;
-  fetching  = true;
-  countdown = RFRSH;
-
-  try {
-    const { all, partyTally, totals } = await fetchAll();
-    ALL    = all;
-    TALLY  = partyTally;
-    TOTALS = totals;
-
-    bootstrapUI();
+/* ── Main refresh ──────────────────────────────── */
+async function refresh(){
+  if(fetching)return;
+  fetching=true;countdown=RFRSH;
+  try{
+    const{all,tally,totals}=await fetchAll();
+    ALL=all;TALLY=tally;TOTALS=totals;
+    bootstrap();
     updateStats();
-    renderPartyGrid();
-    renderTable();
-
-    const now = new Date().toLocaleTimeString('en-IN');
-    updateMeta(`Source: results.eci.gov.in · Updated: ${now} · ${ALL.length} constituencies · Auto-refreshes every ${RFRSH}s`);
-    document.getElementById('error-banner').style.display = 'none';
-  } catch (err) {
-    console.error('[ECI Fetch Error]', err);
-    const banner = document.getElementById('error-banner');
-    banner.style.display = 'block';
-    document.getElementById('error-detail').textContent = ' (' + err.message + ')';
-    updateMeta('Failed to fetch — will retry in ' + countdown + 's');
-    if (!appReady) {
-      // Replace spinner with error
-      document.getElementById('loading').innerHTML =
-        `<div style="color:var(--red);text-align:center;padding:20px">
-           Failed to load data. Check the yellow banner above for instructions.
+    renderDonut();
+    renderHistogram();
+    renderAll();
+    setView(VIEW);
+    const ts=new Date().toLocaleTimeString('en-IN');
+    setMeta(`results.eci.gov.in · Updated ${ts} · ${ALL.length} constituencies · Auto-refresh ${RFRSH}s`);
+    document.getElementById('error-banner').style.display='none';
+  }catch(err){
+    console.error(err);
+    document.getElementById('error-banner').style.display='block';
+    document.getElementById('error-detail').textContent=` (${err.message})`;
+    setMeta(`Error — retrying in ${countdown}s`);
+    if(!ready){
+      document.getElementById('loading').innerHTML=
+        `<div style="color:var(--red);padding:20px;text-align:center">
+           Failed to load. See the banner above for instructions.
          </div>`;
     }
-  } finally {
-    fetching = false;
-  }
+  }finally{fetching=false;}
 }
 
-/* ── Countdown ticker ───────────────────────────────────────── */
-function tick() {
+/* ── Countdown ─────────────────────────────────── */
+function tick(){
   countdown--;
-  const el = document.getElementById('countdown');
-  if (el) el.textContent = countdown > 0 ? `Refreshes in ${countdown}s` : 'Refreshing…';
-  if (countdown <= 0) { countdown = RFRSH; refresh(); }
+  const e=document.getElementById('countdown');
+  if(e) e.textContent=countdown>0?`Refreshes in ${countdown}s`:'Refreshing…';
+  if(countdown<=0){countdown=RFRSH;refresh();}
 }
 
-/* ── Force refresh ──────────────────────────────────────────── */
-function forceRefresh() { countdown = 0; }
+function forceRefresh(){countdown=0;}
 
-/* ── Keyboard shortcut ──────────────────────────────────────── */
-document.addEventListener('keydown', e => {
-  if ((e.key === 'r' || e.key === 'R') && !e.ctrlKey && !e.metaKey
-       && document.activeElement.tagName !== 'INPUT') {
-    forceRefresh();
+/* ── Keys ──────────────────────────────────────── */
+document.addEventListener('keydown',e=>{
+  if(document.activeElement.tagName==='INPUT') return;
+  if(!e.ctrlKey&&!e.metaKey){
+    if(e.key==='r'||e.key==='R') forceRefresh();
+    if(e.key==='t') setView('table');
+    if(e.key==='c') setView('cards');
+    if(e.key==='b') setView('both');
   }
 });
 
-/* ── Start ──────────────────────────────────────────────────── */
+/* ── Move tooltip with mouse ───────────────────── */
+document.addEventListener('mousemove',e=>{
+  const tip=document.getElementById('tip');
+  if(tip&&tip.style.display!=='none'){
+    tip.style.left=(e.clientX+14)+'px';
+    tip.style.top =(e.clientY-10)+'px';
+  }
+});
+
+/* ── Start ─────────────────────────────────────── */
 refresh();
-tickTimer = setInterval(tick, 1000);
+setInterval(tick,1000);
 </script>
 </body>
 </html>
