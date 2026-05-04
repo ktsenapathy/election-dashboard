@@ -857,7 +857,7 @@ footer{
 </div>
 
 <!-- Analysis panel (always visible) -->
-<div id="analysis-panel" class="open">
+<div id="analysis-panel">
   <div class="ap-header">
     <div class="ap-title"><span class="ai-icon">🔍</span> Intelligent Analysis</div>
   </div>
@@ -3629,9 +3629,10 @@ async function showHomeScreen(){
   document.getElementById('back-to-home').style.display='none';
   document.getElementById('page-title').innerHTML='India Elections<span class="h-title-sub"> — <em>Live Results 2026</em></span>';
   document.title='India Elections — Live Results 2026';
-  // Hide verdict strip
+  // Hide verdict strip and analysis panel on home screen
   const vs=document.getElementById('verdict-strip');
   if(vs){vs.classList.remove('visible');vs.textContent='';}
+  document.getElementById('analysis-panel').classList.remove('open');
   // Show loading state then fetch summaries
   document.getElementById('app').innerHTML=
     '<div id="loading"><div class="spinner"></div><div class="load-step" id="load-steps">Loading state summaries…</div></div>';
@@ -3641,9 +3642,10 @@ async function showHomeScreen(){
 
 function goToState(code){
   HOME_VIEW=false;
-  // Show state-specific header controls and back button
+  // Show state-specific header controls, back button, and analysis panel
   document.getElementById('state-controls').style.display='contents';
   document.getElementById('back-to-home').style.display='';
+  document.getElementById('analysis-panel').classList.add('open');
   switchState(code);
 }
 
