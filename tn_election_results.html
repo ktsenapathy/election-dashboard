@@ -1131,8 +1131,14 @@ let MAJORITY    = 118;
 
 const PC = {
   TVK:'#e72bd9',ADMK:'#A08547',DMK:'#05F86E',PMK:'#5D672B',
-  INC:'#19AAED','CPI(M)':'#FF1D15',VCK:'#729E31',BJP:'#ff944d',
-  IUML:'#006600',CPI:'#cc0000',DMDK:'#ff6600',NTK:'#cc5500',
+  INC:'#1565C0',    // Congress blue — national standard for all-India use
+  'CPI(M)':'#E53935',// Communist red (distinct from CPI below)
+  VCK:'#729E31',
+  BJP:'#FF6600',    // Saffron — BJP national standard for all-India use
+  IUML:'#2E7D32',   // Readable green (was #006600, 20% lightness — too dark)
+  CPI:'#880E4F',    // Deep crimson — distinct from CPI(M) bright red
+  DMDK:'#D4A017',   // Golden yellow — DMDK's actual color; frees BJP saffron
+  NTK:'#7B2D8B',    // Purple — breaks orange cluster (was #cc5500)
   AMMK:'#aa2200',MNMK:'#8800cc',
 };
 
@@ -1146,13 +1152,25 @@ let countdown=RFRSH, fetching=false, ready=false;
 /* ── Fetch utils ───────────────────────────────── */
 const withTimeout = (ms,p) => Promise.race([p, new Promise((_,r)=>setTimeout(()=>r(new Error('Timeout')),ms))]);
 
-// iOS Safari blocks cross-origin fetch() when page is opened as file://
-// There is no client-side workaround — show immediate error instead of
-// hanging for 10 seconds. HTTP/HTTPS hosting works fine.
+// Three access modes — auto-detected:
+//  1. file:// → iOS blocks cross-origin fetch. Show instructions immediately.
+//  2. localhost / LAN IP via serve.py → route through /proxy (Python fetches
+//     ECI server-side, no CORS involved). Works on iPhone over WiFi.
+//  3. HTTP/HTTPS remote → direct fetch + credentials:omit fixes Safari CORS.
 const IS_FILE_PROTOCOL = location.protocol === 'file:';
+const IS_LOCAL = !IS_FILE_PROTOCOL && (
+  location.hostname === 'localhost' ||
+  location.hostname === '127.0.0.1' ||
+  /^(192\.168\.|10\.|172\.(1[6-9]|2\d|3[01])\.)/.test(location.hostname)
+);
 
-const getText = url => withTimeout(7000,
-  fetch(url, {mode:'cors', credentials:'omit'})
+function resolveUrl(url){
+  return IS_LOCAL ? `/proxy?url=${encodeURIComponent(url)}` : url;
+}
+
+const getText = url => withTimeout(10000,
+  fetch(resolveUrl(url),
+    IS_LOCAL ? {} : {mode:'cors', credentials:'omit'})
 ).then(r=>{if(!r.ok)throw new Error(`HTTP ${r.status}`);return r.text();});
 
 /* ── Data fetchers ─────────────────────────────── */
@@ -2018,36 +2036,36 @@ async function refresh(){
   // Show immediate, clear guidance instead of a 7-second hanging spinner.
   if(IS_FILE_PROTOCOL){
     document.getElementById('app').innerHTML=`
-      <div style="padding:28px 20px;max-width:400px;margin:0 auto;font-family:inherit">
-        <div style="text-align:center;margin-bottom:18px">
-          <div style="font-size:2.2rem">📱</div>
-          <h2 style="color:var(--text);font-size:1.05rem;margin-top:8px">
-            iPhone can't load from Files app
+      <div style="padding:24px 20px;max-width:420px;margin:0 auto;font-family:inherit">
+        <div style="text-align:center;margin-bottom:16px">
+          <div style="font-size:2rem">📱</div>
+          <h2 style="color:var(--text);font-size:1rem;margin-top:6px">
+            Needs a web server — not the Files app
           </h2>
-          <p style="color:var(--muted);font-size:.8rem;margin-top:6px;line-height:1.6">
-            Safari blocks web requests when a file is opened directly
-            from the Files app or received via AirDrop. This is an iOS
-            security restriction — there is no workaround.
+          <p style="color:var(--muted);font-size:.78rem;margin-top:5px;line-height:1.55">
+            iOS Safari blocks web requests from files opened via AirDrop
+            or the Files app. Run the included <b style="color:var(--text)">serve.py</b>
+            on your Mac/PC — it acts as a local server and proxy.
           </p>
         </div>
-        <div style="display:flex;flex-direction:column;gap:10px">
-          <a href="https://results.eci.gov.in/ResultAcGenMay2026/partywiseresult-S22.htm"
-             target="_blank"
-             style="display:block;background:#1f6feb;color:#fff;text-decoration:none;
-               padding:12px 16px;border-radius:8px;text-align:center;font-weight:600;
-               font-size:.88rem">
-            Open Official ECI Results ↗
-          </a>
-          <div style="background:var(--surface);border:1px solid var(--border);
-            border-radius:8px;padding:12px 14px;font-size:.78rem;line-height:1.7;
-            color:var(--muted)">
-            <b style="color:var(--text)">To use this dashboard on iPhone:</b><br>
-            1. On your Mac/PC, open Terminal and run:<br>
-            &nbsp;&nbsp;<code style="color:var(--green)">python3 -m http.server 8080</code><br>
-            2. Find your computer's IP (e.g. <code>192.168.1.5</code>)<br>
-            3. On iPhone Safari, open:<br>
-            &nbsp;&nbsp;<code style="color:var(--blue)">http://192.168.1.5:8080/tn_election_results.html</code>
+        <div style="display:flex;flex-direction:column;gap:9px">
+
+          <div style="background:var(--surface);border:1px solid var(--green);
+            border-radius:8px;padding:12px 14px;font-size:.8rem;line-height:1.75">
+            <b style="color:var(--green)">✓ Easiest: use serve.py (same WiFi needed)</b><br>
+            <span style="color:var(--muted)">On your Mac/PC Terminal:</span><br>
+            <code style="color:var(--green)">cd path/to/tn_election_results</code><br>
+            <code style="color:var(--green)">python3 serve.py</code><br>
+            <span style="color:var(--muted)">It will print the iPhone URL — open that on Safari.</span>
           </div>
+
+          <a href="https://results.eci.gov.in" target="_blank"
+             style="display:block;background:#21262d;color:var(--blue);text-decoration:none;
+               padding:10px 16px;border-radius:8px;text-align:center;font-size:.83rem;
+               border:1px solid var(--border)">
+            Or open the official ECI site directly ↗
+          </a>
+
         </div>
       </div>`;
     return;
@@ -3021,7 +3039,7 @@ async function fetchLiveConstituencyData(r){
   if(!t?.partyId) return null;
   try{
     const html=await withTimeout(10000,
-      fetch(`${BASE}/partywiseleadresult-${t.partyId}${STATE_CODE}.htm`,{mode:'cors',credentials:'omit'})
+      fetch(resolveUrl(`${BASE}/partywiseleadresult-${t.partyId}${STATE_CODE}.htm`),IS_LOCAL?{}:{mode:'cors',credentials:'omit'})
         .then(res=>res.ok?res.text():Promise.reject(new Error(`HTTP ${res.status}`)))
     );
     // Match this constituency row: after </a> the link's <td> closes,
@@ -3074,7 +3092,7 @@ function parseCandidatewise(html){
 async function fetchCandidatewiseData(acNo){
   try{
     const html=await withTimeout(12000,
-      fetch(`${BASE}/candidateswise-${STATE_CODE}${acNo}.htm`,{mode:'cors',credentials:'omit'})
+      fetch(resolveUrl(`${BASE}/candidateswise-${STATE_CODE}${acNo}.htm`),IS_LOCAL?{}:{mode:'cors',credentials:'omit'})
         .then(r=>{if(!r.ok)throw new Error(`HTTP ${r.status}`);return r.text();})
     );
     const result=parseCandidatewise(html);
