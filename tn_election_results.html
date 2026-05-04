@@ -1145,7 +1145,7 @@ let countdown=RFRSH, fetching=false, ready=false;
 
 /* ── Fetch utils ───────────────────────────────── */
 const withTimeout = (ms,p) => Promise.race([p, new Promise((_,r)=>setTimeout(()=>r(new Error('Timeout')),ms))]);
-const getText = url => withTimeout(14000, fetch(url,{mode:'cors'})).then(r=>{if(!r.ok)throw new Error(`HTTP ${r.status}`);return r.text();});
+const getText = url => withTimeout(7000, fetch(url,{mode:'cors',credentials:'omit'})).then(r=>{if(!r.ok)throw new Error(`HTTP ${r.status}`);return r.text();});
 
 /* ── Data fetchers ─────────────────────────────── */
 async function fetchLiveJson(){
@@ -2005,6 +2005,36 @@ const setMeta=msg=>{const e=document.getElementById('meta');if(e)e.textContent=m
 
 /* ── Main refresh ──────────────────────────────── */
 async function refresh(){
+  // ── file:// protocol check ─────────────────────
+  // iOS Safari (and all browsers) block cross-origin
+  // fetch() when the page is opened as a local file.
+  if(window.location.protocol==='file:'){
+    document.getElementById('app').innerHTML=`
+      <div style="padding:32px 20px;text-align:center;max-width:380px;margin:0 auto">
+        <div style="font-size:2.5rem;margin-bottom:14px">📱</div>
+        <h2 style="color:var(--text);margin-bottom:8px;font-size:1.1rem">
+          Can't load data from Files app
+        </h2>
+        <p style="color:var(--muted);font-size:.83rem;line-height:1.65;margin-bottom:16px">
+          iPhone Safari blocks external web requests when a file is
+          opened directly from the Files app or via AirDrop.
+        </p>
+        <div style="background:var(--surface);border:1px solid var(--border);
+          border-radius:10px;padding:14px 16px;text-align:left;font-size:.78rem;
+          line-height:1.7">
+          <b style="color:var(--text)">✓ Easiest fix — open the ECI site directly:</b><br>
+          <a href="https://results.eci.gov.in" target="_blank"
+             style="color:var(--blue)">results.eci.gov.in</a>
+          (official ECI results)<br><br>
+          <b style="color:var(--text)">✓ To use this dashboard on iPhone:</b><br>
+          On your Mac or PC, run:<br>
+          <code style="color:var(--green);font-size:.75rem">python3 -m http.server 8080</code><br>
+          Then open on your iPhone:<br>
+          <code style="color:var(--blue);font-size:.72rem">http://[your-computer-ip]:8080/tn_election_results.html</code>
+        </div>
+      </div>`;
+    return;
+  }
   if(fetching)return;
   fetching=true;countdown=RFRSH;
   try{
@@ -2033,15 +2063,30 @@ async function refresh(){
     renderVotePanel();
     if(ANALYSIS_OPEN) renderAnalysis();
   }catch(err){
-    console.error(err);
+    console.error('[ECI fetch error]', err);
+    const isCORS = err.message && (err.message.includes('Failed to fetch') ||
+      err.message.includes('Load failed') || err.message.includes('NetworkError'));
     document.getElementById('error-banner').style.display='block';
-    document.getElementById('error-detail').textContent=` (${err.message})`;
-    setMeta(`Error — retrying in ${countdown}s`);
+    document.getElementById('error-detail').textContent=
+      isCORS ? ' — CORS/Network error. Try opening the page from a web server (not file://), or via HTTPS.'
+              : ` (${err.message})`;
+    setMeta(`Network error — retrying in ${countdown}s`);
     if(!ready){
-      document.getElementById('loading').innerHTML=
-        `<div style="color:var(--red);padding:20px;text-align:center">
-           Failed to load. See the banner above for instructions.
-         </div>`;
+      document.getElementById('app').innerHTML=`
+        <div style="padding:30px 20px;text-align:center;max-width:400px;margin:0 auto">
+          <div style="font-size:2rem;margin-bottom:10px">⚠️</div>
+          <h3 style="color:var(--red);margin-bottom:8px">Could not reach ECI servers</h3>
+          <p style="color:var(--muted);font-size:.82rem;line-height:1.6;margin-bottom:14px">
+            ${isCORS
+              ? 'Network or CORS error — this usually means the page was opened as a local file (file://) or your browser is blocking cross-origin requests.'
+              : err.message}
+          </p>
+          <p style="color:var(--muted);font-size:.78rem">
+            Retrying in <span id="err-countdown">${countdown}</span>s…<br>
+            Or <a href="https://results.eci.gov.in" target="_blank"
+               style="color:var(--blue)">open results.eci.gov.in directly ↗</a>
+          </p>
+        </div>`;
     }
   }finally{fetching=false;}
 }
@@ -2959,7 +3004,7 @@ async function fetchLiveConstituencyData(r){
   if(!t?.partyId) return null;
   try{
     const html=await withTimeout(10000,
-      fetch(`${BASE}/partywiseleadresult-${t.partyId}${STATE_CODE}.htm`,{mode:'cors'})
+      fetch(`${BASE}/partywiseleadresult-${t.partyId}${STATE_CODE}.htm`,{mode:'cors',credentials:'omit'})
         .then(res=>res.ok?res.text():Promise.reject(new Error(`HTTP ${res.status}`)))
     );
     // Match this constituency row: after </a> the link's <td> closes,
@@ -3012,7 +3057,7 @@ function parseCandidatewise(html){
 async function fetchCandidatewiseData(acNo){
   try{
     const html=await withTimeout(12000,
-      fetch(`${BASE}/candidateswise-${STATE_CODE}${acNo}.htm`,{mode:'cors'})
+      fetch(`${BASE}/candidateswise-${STATE_CODE}${acNo}.htm`,{mode:'cors',credentials:'omit'})
         .then(r=>{if(!r.ok)throw new Error(`HTTP ${r.status}`);return r.text();})
     );
     const result=parseCandidatewise(html);
@@ -3368,7 +3413,7 @@ let ALL_STATES = [];
 async function discoverStates(){
   try{
     // Live JSON contains all state codes as top-level keys
-    const raw=await withTimeout(12000,fetch(`${BASE}/election-json-${STATE_CODE}-live.json`,{mode:'cors'}).then(r=>r.text()));
+    const raw=await withTimeout(12000,fetch(`${BASE}/election-json-${STATE_CODE}-live.json`,{mode:'cors',credentials:'omit'}).then(r=>r.text()));
     const data=JSON.parse(raw);
     const codes=Object.keys(data).filter(k=>/^[SU]\d+/.test(k));
 
