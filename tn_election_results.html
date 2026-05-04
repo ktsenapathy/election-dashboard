@@ -838,7 +838,6 @@ footer{
         <button onclick="forceRefresh();closeOverflow()">↺ Refresh Now</button>
         <button onclick="copyShareText();closeOverflow()">📤 Share Results</button>
         <button onclick="downloadCSV();closeOverflow()">⬇ Download CSV</button>
-        <button onclick="toggleAnalysis();closeOverflow()" id="overflow-analyse">🔍 Analysis Panel</button>
       </div>
     </div>
     </span><!-- /state-controls -->
@@ -857,11 +856,10 @@ footer{
   <span id="error-detail"></span>
 </div>
 
-<!-- Analysis panel (always in DOM, toggled) -->
+<!-- Analysis panel (always visible) -->
 <div id="analysis-panel" class="open">
   <div class="ap-header">
     <div class="ap-title"><span class="ai-icon">🔍</span> Intelligent Analysis</div>
-    <button class="ap-close" onclick="toggleAnalysis()">✕</button>
   </div>
   <div class="ap-verdict" id="ap-verdict">
     <div class="vd-label">Smart Verdict</div>
@@ -2147,7 +2145,7 @@ async function refresh(){
     renderWhoWins();
     renderWatchNext();
     renderVotePanel();
-    if(ANALYSIS_OPEN) renderAnalysis();
+    renderAnalysis();
   }catch(err){
     console.error('[ECI fetch error]', err);
     const isCORS = err.message && (err.message.includes('Failed to fetch') ||
@@ -2453,14 +2451,7 @@ function renderWhoWins(){
    ══════════════════════════════════════════════════ */
 
 // MAJORITY is now a global let (set per state above)
-let ANALYSIS_OPEN = true;
-
-function toggleAnalysis(){
-  ANALYSIS_OPEN = !ANALYSIS_OPEN;
-  document.getElementById('analysis-panel').classList.toggle('open', ANALYSIS_OPEN);
-  document.getElementById('btn-analyse').classList.toggle('on', ANALYSIS_OPEN);
-  if(ANALYSIS_OPEN && ALL.length) renderAnalysis();
-}
+const ANALYSIS_OPEN = true;
 
 /* ── Core analysis engine ──────────────────────── */
 function computeAnalysis(){
@@ -2848,7 +2839,7 @@ function jumpTo(acNo){
 }
 
 /* ── Keep analysis live on refresh ────────────── */
-const _origRefreshDone = () => { if(ANALYSIS_OPEN) renderAnalysis(); };
+const _origRefreshDone = () => { renderAnalysis(); };
 
 /* ══════════════════════════════════════════════════
    ALLIANCE / BLOC TRACKING
