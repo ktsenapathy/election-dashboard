@@ -1158,7 +1158,6 @@ const withTimeout = (ms,p) => Promise.race([p, new Promise((_,r)=>setTimeout(()=
 //  localhost / LAN via serve.py → route through /proxy endpoint.
 //  HTTP/HTTPS → direct fetch with credentials:omit (fixes Safari CORS conflict).
 const IS_FILE_PROTOCOL = location.protocol === 'file:';
-const IS_IOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
 const IS_LOCAL = !IS_FILE_PROTOCOL && (
   location.hostname === 'localhost' ||
   location.hostname === '127.0.0.1' ||
@@ -2030,45 +2029,51 @@ function bootstrap(){
 const setStep=msg=>{const e=document.getElementById('load-steps');if(e)e.textContent=msg;};
 const setMeta=msg=>{const e=document.getElementById('meta');if(e)e.textContent=msg;};
 
+function showFileProtocolError(){
+  document.getElementById('app').innerHTML=`
+    <div style="padding:24px 20px;max-width:420px;margin:0 auto;font-family:inherit">
+      <div style="text-align:center;margin-bottom:16px">
+        <div style="font-size:2rem">📱</div>
+        <h2 style="color:var(--text);font-size:1rem;margin-top:6px">
+          Needs a web server — not the Files app
+        </h2>
+        <p style="color:var(--muted);font-size:.78rem;margin-top:5px;line-height:1.55">
+          Safari blocks web requests when a file is opened via AirDrop
+          or the Files app. Run the included <b style="color:var(--text)">serve.py</b>
+          on your Mac/PC — it acts as a local server and proxy.
+        </p>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:9px">
+        <div style="background:var(--surface);border:1px solid var(--green);
+          border-radius:8px;padding:12px 14px;font-size:.8rem;line-height:1.75">
+          <b style="color:var(--green)">✓ Easiest: use serve.py (same WiFi needed)</b><br>
+          <span style="color:var(--muted)">On your Mac/PC Terminal:</span><br>
+          <code style="color:var(--green)">cd path/to/tn_election_results</code><br>
+          <code style="color:var(--green)">python3 serve.py</code><br>
+          <span style="color:var(--muted)">It will print the iPhone URL — open that on Safari.</span>
+        </div>
+        <a href="https://results.eci.gov.in" target="_blank"
+           style="display:block;background:#21262d;color:var(--blue);text-decoration:none;
+             padding:10px 16px;border-radius:8px;text-align:center;font-size:.83rem;
+             border:1px solid var(--border)">
+          Or open the official ECI site directly ↗
+        </a>
+      </div>
+    </div>`;
+}
+
 /* ── Main refresh ──────────────────────────────── */
 async function refresh(){
-  // iOS Safari cannot make cross-origin fetch() from file:// — no workaround.
-  // Android/Linux Chrome can fetch with credentials:omit + ACAO:*, so let them try.
-  if(IS_FILE_PROTOCOL && IS_IOS){
-    document.getElementById('app').innerHTML=`
-      <div style="padding:24px 20px;max-width:420px;margin:0 auto;font-family:inherit">
-        <div style="text-align:center;margin-bottom:16px">
-          <div style="font-size:2rem">📱</div>
-          <h2 style="color:var(--text);font-size:1rem;margin-top:6px">
-            Needs a web server — not the Files app
-          </h2>
-          <p style="color:var(--muted);font-size:.78rem;margin-top:5px;line-height:1.55">
-            iOS Safari blocks web requests from files opened via AirDrop
-            or the Files app. Run the included <b style="color:var(--text)">serve.py</b>
-            on your Mac/PC — it acts as a local server and proxy.
-          </p>
-        </div>
-        <div style="display:flex;flex-direction:column;gap:9px">
-
-          <div style="background:var(--surface);border:1px solid var(--green);
-            border-radius:8px;padding:12px 14px;font-size:.8rem;line-height:1.75">
-            <b style="color:var(--green)">✓ Easiest: use serve.py (same WiFi needed)</b><br>
-            <span style="color:var(--muted)">On your Mac/PC Terminal:</span><br>
-            <code style="color:var(--green)">cd path/to/tn_election_results</code><br>
-            <code style="color:var(--green)">python3 serve.py</code><br>
-            <span style="color:var(--muted)">It will print the iPhone URL — open that on Safari.</span>
-          </div>
-
-          <a href="https://results.eci.gov.in" target="_blank"
-             style="display:block;background:#21262d;color:var(--blue);text-decoration:none;
-               padding:10px 16px;border-radius:8px;text-align:center;font-size:.83rem;
-               border:1px solid var(--border)">
-            Or open the official ECI site directly ↗
-          </a>
-
-        </div>
-      </div>`;
-    return;
+  // When opened as file://, probe whether cross-origin fetch actually works.
+  // Android/Linux Chrome succeeds (allows ACAO:* from file://); iOS Safari fails.
+  // UA sniffing is unreliable (desktop-mode spoof), so we test the real thing.
+  if(IS_FILE_PROTOCOL){
+    setStep('Testing connection…');
+    const ok = await withTimeout(3000,
+      fetch('https://results.eci.gov.in/', {mode:'cors',credentials:'omit',method:'HEAD'})
+    ).then(()=>true).catch(()=>false);
+    if(!ok){ showFileProtocolError(); return; }
+    setStep('Fetching live data from ECI…');
   }
   if(fetching)return;
   fetching=true;countdown=RFRSH;
