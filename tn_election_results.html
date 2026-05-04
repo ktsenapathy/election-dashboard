@@ -24,14 +24,14 @@ body{background:var(--bg);color:var(--text);
 /* ── Header ─────────────────────── */
 header{
   background:linear-gradient(135deg,#0d2137,#0d1117);
-  padding:12px 20px;border-bottom:1px solid var(--border);
+  padding:8px 16px;border-bottom:1px solid var(--border);
   display:flex;justify-content:space-between;align-items:center;
-  flex-wrap:wrap;gap:10px;position:-webkit-sticky;position:sticky;top:0;z-index:200;
+  gap:8px;position:-webkit-sticky;position:sticky;top:0;z-index:200;
 }
 .h-title h1{font-size:1.1rem;font-weight:700}
 .h-title h1 em{color:var(--blue);font-style:normal}
 .h-sub{font-size:.68rem;color:var(--muted);margin-top:1px}
-.h-right{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.h-right{display:flex;gap:8px;align-items:center}
 
 /* View toggle */
 .view-toggle{display:flex;background:var(--surface2);border:1px solid var(--border);
@@ -74,7 +74,7 @@ header{
 .stat .v{font-size:1.35rem;font-weight:700;margin-top:1px}
 
 /* ── Visual panel (charts) ──────── */
-.visual-panel{gap:12px;padding:12px 20px;border-bottom:1px solid var(--border);flex-wrap:wrap}
+.visual-panel{display:flex;gap:12px;padding:12px 20px;border-bottom:1px solid var(--border);flex-wrap:wrap}
 .vp-card{background:var(--surface);border:1px solid var(--border);
   border-radius:var(--radius);padding:12px;flex:1;min-width:200px}
 .vp-title{font-size:.65rem;color:var(--muted);text-transform:uppercase;
@@ -123,7 +123,8 @@ header{
 .p-won{color:var(--green)}.p-lead{color:var(--yellow)}
 
 /* ── Controls ────────────────────── */
-.controls{display:flex;gap:7px;padding:0 20px 10px;flex-wrap:wrap;align-items:center}
+.controls{display:flex;gap:7px;padding:8px 20px;flex-wrap:wrap;align-items:center;
+  border-bottom:1px solid var(--border);background:var(--surface)}
 .search-wrap{position:relative;flex:1;min-width:180px;max-width:320px}
 .search-wrap svg{position:absolute;left:9px;top:50%;transform:translateY(-50%);
   width:13px;height:13px;color:var(--muted);pointer-events:none}
@@ -647,7 +648,6 @@ tbody tr:hover td{background:#161b22}
 .acc-body{display:none}
 .acc-body.open{display:block}
 /* visual panel lives inside accordion — always flex when visible */
-.acc-body .visual-panel{display:flex}
 
 /* ── More-filters popup ──────────── */
 #more-filters-wrap{position:relative}
@@ -727,6 +727,35 @@ header{
 footer{
   padding-bottom:max(12px, env(safe-area-inset-bottom));
 }
+/* ── Home screen ────────────────────────────────── */
+#back-to-home{display:none;background:none;border:1px solid var(--border);color:var(--muted);
+  border-radius:5px;padding:3px 10px;font-size:.75rem;cursor:pointer;white-space:nowrap;margin-right:4px}
+#back-to-home:hover{color:var(--text);border-color:var(--text)}
+.home-wrap{max-width:860px;margin:0 auto;padding:16px}
+.home-title{text-align:center;padding:18px 0 22px}
+.home-title h2{font-size:1.3rem;font-weight:700;color:var(--text);margin:0}
+.home-title p{font-size:.78rem;color:var(--muted);margin:5px 0 0}
+.home-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:14px}
+.sc{background:var(--surface);border:1px solid var(--border);border-radius:10px;
+  padding:16px;cursor:pointer;transition:border-color .15s}
+.sc:hover{border-color:var(--blue)}
+.sc-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px}
+.sc-name{font-weight:700;font-size:.95rem;color:var(--text)}
+.sc-sub{font-size:.7rem;color:var(--muted);margin-top:2px}
+.sc-leader-num{font-weight:700;font-size:1.2rem;text-align:right}
+.sc-leader-lbl{font-size:.62rem;color:var(--muted)}
+.sc-bar{height:8px;border-radius:4px;overflow:hidden;background:var(--bg);margin-bottom:12px;display:flex}
+.sc-parties{display:flex;flex-direction:column;gap:5px;margin-bottom:12px;min-height:80px}
+.sc-party{display:flex;align-items:center;gap:6px;font-size:.78rem}
+.sc-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.sc-pcode{font-weight:600;color:var(--text);min-width:58px}
+.sc-pdetail{font-size:.68rem;color:var(--muted)}
+.sc-ptotal{margin-left:auto;font-weight:700;color:var(--text)}
+.sc-foot{display:flex;justify-content:space-between;align-items:center;
+  padding-top:10px;border-top:1px solid var(--border)}
+.sc-declared{font-size:.72rem;color:var(--muted)}
+.sc-btn{background:var(--blue);color:#fff;border:none;border-radius:6px;
+  padding:5px 13px;font-size:.78rem;font-weight:600;cursor:pointer}
 </style>
 </head>
 <body>
@@ -758,57 +787,25 @@ footer{
 <!-- Header -->
 <header>
   <div class="h-title">
-    <h1>Tamil Nadu — <em>Live Election Results 2026</em></h1>
-    <div class="h-sub" id="meta">Connecting to results.eci.gov.in…</div>
+    <button id="back-to-home" onclick="showHomeScreen()">← All States</button>
+    <h1 id="page-title">India Elections — <em>Live Results 2026</em></h1>
+    <div class="h-sub" id="meta">Loading state summaries…</div>
   </div>
   <div class="h-right">
-    <div class="countdown" id="countdown"></div>
-
-    <!-- State selector -->
+    <span id="state-controls" style="display:none">
     <select id="state-sel" onchange="switchState(this.value)" title="Switch state">
       <option value="S22">Tamil Nadu</option>
     </select>
-
-    <!-- View toggle -->
-    <div class="view-toggle">
-      <button class="vt-btn active" id="vt-table" onclick="setView('table')" title="Table only (press T)">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/>
-          <line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="9" x2="9" y2="21"/>
-        </svg>
-        Table <span style="opacity:.45;font-size:.65rem">T</span>
-      </button>
-      <button class="vt-btn" id="vt-cards" onclick="setView('cards')" title="Cards only (press C)">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
-          <rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>
-        </svg>
-        Cards <span style="opacity:.45;font-size:.65rem">C</span>
-      </button>
-      <button class="vt-btn" id="vt-both" onclick="setView('both')" title="Side by side (press B)">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <rect x="2" y="3" width="9" height="18" rx="1"/><rect x="13" y="3" width="9" height="18" rx="1"/>
-        </svg>
-        Both <span style="opacity:.45;font-size:.65rem">B</span>
-      </button>
-    </div>
-
     <div class="overflow-wrap" id="overflow-wrap">
       <button class="btn btn-ghost" onclick="toggleOverflow()" title="More actions">⋯</button>
       <div class="overflow-dropdown" id="overflow-dropdown">
+        <button onclick="forceRefresh();closeOverflow()">↺ Refresh Now</button>
         <button onclick="copyShareText();closeOverflow()">📤 Share Results</button>
         <button onclick="downloadCSV();closeOverflow()">⬇ Download CSV</button>
         <button onclick="toggleAnalysis();closeOverflow()" id="overflow-analyse">🔍 Analysis Panel</button>
       </div>
     </div>
-    <button class="btn btn-ghost" onclick="forceRefresh()">
-      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-        <polyline points="23 4 23 10 17 10"/>
-        <polyline points="1 20 1 14 7 14"/>
-        <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
-      </svg>
-      Refresh
-    </button>
+    </span><!-- /state-controls -->
     <div class="live-pill"><div class="live-dot"></div> LIVE</div>
   </div>
 </header>
@@ -926,7 +923,26 @@ footer{
     <div class="party-grid" id="party-grid"></div>
   </div>
 
-  <!-- ③ Simplified controls -->
+  <!-- ③ Visual panels — always visible -->
+  <div class="visual-panel" id="visual-panel">
+    <div class="vp-card" style="min-width:220px;max-width:280px">
+      <div class="vp-title">Seat Distribution</div>
+      <div class="donut-wrap">
+        <svg id="donut-svg" width="110" height="110" viewBox="0 0 110 110" style="flex-shrink:0"></svg>
+        <div class="donut-legend" id="donut-legend"></div>
+      </div>
+    </div>
+    <div class="vp-card" style="flex:2;min-width:220px">
+      <div class="vp-title">Constituency Map — ${STATE_SEATS} Seats (hover for details)</div>
+      <div class="seat-map" id="seat-map"></div>
+    </div>
+    <div class="vp-card" style="min-width:200px;max-width:260px">
+      <div class="vp-title">Lead Margin Distribution</div>
+      <div class="hist-rows" id="hist-rows"></div>
+    </div>
+  </div>
+
+  <!-- ④ Simplified controls -->
   <div class="controls">
     <div class="search-wrap">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
@@ -994,6 +1010,28 @@ footer{
     </div>
     <button class="btn btn-ghost" onclick="clearFilters()">✕</button>
     <div class="row-count" id="row-count"></div>
+    <div class="view-toggle" style="margin-left:auto">
+      <button class="vt-btn active" id="vt-table" onclick="setView('table')" title="Table (T)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13">
+          <rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/>
+          <line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="9" x2="9" y2="21"/>
+        </svg>
+        Table
+      </button>
+      <button class="vt-btn" id="vt-cards" onclick="setView('cards')" title="Cards (C)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13">
+          <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
+          <rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>
+        </svg>
+        Cards
+      </button>
+      <button class="vt-btn" id="vt-both" onclick="setView('both')" title="Both (B)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13">
+          <rect x="2" y="3" width="9" height="18" rx="1"/><rect x="13" y="3" width="9" height="18" rx="1"/>
+        </svg>
+        Both
+      </button>
+    </div>
   </div>
 
   <!-- ④ CONTENT AREA — DATA FIRST -->
@@ -1068,24 +1106,6 @@ footer{
           <div style="display:flex;gap:8px;flex-wrap:wrap" id="vote-con-stats"></div>
         </div>
       </div>
-      <!-- Visual charts -->
-      <div class="visual-panel" id="visual-panel" style="gap:12px;padding:12px 20px;border-bottom:1px solid var(--border);flex-wrap:wrap">
-        <div class="vp-card" style="min-width:220px;max-width:280px">
-          <div class="vp-title">Seat Distribution</div>
-          <div class="donut-wrap">
-            <svg id="donut-svg" width="110" height="110" viewBox="0 0 110 110" style="flex-shrink:0"></svg>
-            <div class="donut-legend" id="donut-legend"></div>
-          </div>
-        </div>
-        <div class="vp-card" style="flex:2;min-width:220px">
-          <div class="vp-title">Constituency Map — ${STATE_SEATS} Seats (hover for details)</div>
-          <div class="seat-map" id="seat-map"></div>
-        </div>
-        <div class="vp-card" style="min-width:200px;max-width:260px">
-          <div class="vp-title">Lead Margin Distribution</div>
-          <div class="hist-rows" id="hist-rows"></div>
-        </div>
-      </div>
     </div>
   </div>
 
@@ -1108,11 +1128,10 @@ footer{
 
 </template>
 
-<footer>
+<footer id="page-footer">
   Data: <a href="https://results.eci.gov.in" target="_blank" rel="noopener">results.eci.gov.in</a>
-  &nbsp;·&nbsp; Auto-refreshes every 30s &nbsp;·&nbsp;
-  Tamil Nadu Assembly Elections May 2026 &nbsp;·&nbsp;
-  Press <kbd style="background:var(--surface2);padding:1px 5px;border-radius:3px;border:1px solid var(--border)">R</kbd> to refresh
+  &nbsp;·&nbsp; India Assembly Elections May 2026
+  &nbsp;·&nbsp; Press <kbd style="background:var(--surface2);padding:1px 5px;border-radius:3px;border:1px solid var(--border)">R</kbd> to refresh
 </footer>
 
 <script>
@@ -2003,16 +2022,7 @@ function renderVotePanel(){
     <div class="csc-label">Lowest Turnout</div>
     <div class="csc-val" style="color:var(--yellow)">${fmt(lowest.total_votes)}</div>
     <div class="csc-name">#${lowest.ac_no} ${lowest.name}</div>
-  </div>` +
-  TALLY.slice(0,5).map(t=>{
-    const pm=pvMap[t.code]||{sum:0,n:1};
-    const a2=Math.round(pm.sum/Math.max(pm.n,1));
-    return `<div class="con-stat-chip">
-      <div class="csc-label" style="color:${t.color}">${t.code} Avg/Seat</div>
-      <div class="csc-val">${a2>0?fmt(a2):'–'}</div>
-      <div class="csc-name">${pm.n} leading seats</div>
-    </div>`;
-  }).join('');
+  </div>`;
 }
 
 /* ── Bootstrap ─────────────────────────────────── */
@@ -2075,7 +2085,7 @@ async function refresh(){
     if(!ok){ showFileProtocolError(); return; }
     setStep('Fetching live data from ECI…');
   }
-  if(fetching)return;
+  if(HOME_VIEW||fetching)return;
   fetching=true;countdown=RFRSH;
   try{
     snapshotCurrent(); // capture state BEFORE fetch for change detection
@@ -2133,6 +2143,7 @@ async function refresh(){
 
 /* ── Countdown ─────────────────────────────────── */
 function tick(){
+  if(HOME_VIEW) return;
   countdown--;
   const e=document.getElementById('countdown');
   if(e) e.textContent=countdown>0?`Refreshes in ${countdown}s`:'Refreshing…';
@@ -3449,6 +3460,7 @@ clearFilters=function(){
    ══════════════════════════════════════════════════ */
 
 let ALL_STATES = [];
+let HOME_VIEW  = true;
 
 async function discoverStates(){
   try{
@@ -3464,14 +3476,32 @@ async function discoverStates(){
       const nm=html.match(/<h2>.*?<strong>\s*([^<]+?)\s*<\/strong>.*?\(Total AC\s*:\s*(\d+)\)/s);
       if(!nm) return null;
       const seats=parseInt(nm[2]);
-      return{code,name:nm[1].trim(),seats,pages:Math.ceil(seats/20),majority:Math.floor(seats/2)+1};
+      // Parse party tally from the same HTML (zero extra fetches)
+      const doc=new DOMParser().parseFromString(html,'text/html');
+      const tally=[];
+      for(const tr of doc.querySelectorAll('tr.tr')){
+        const tds=tr.querySelectorAll('td');
+        if(tds.length<4) continue;
+        const full=tds[0].textContent.trim();
+        const won=parseInt(tds[1].textContent.trim(),10)||0;
+        const leading=parseInt(tds[2].querySelector('a')?.textContent?.trim()||'0',10)||0;
+        const total=won+leading;
+        if(!total) continue;
+        const cm=full.match(/[-–]\s*([A-Z()\d]+)\s*$/);
+        const pc=cm?cm[1]:full.split(/\s+/)[0];
+        tally.push({code:pc,party:full,won,leading,total,color:pColor(pc)});
+      }
+      tally.sort((a,b)=>b.total-a.total);
+      const declared=tally.reduce((s,p)=>s+p.won,0);
+      return{code,name:nm[1].trim(),seats,pages:Math.ceil(seats/20),
+             majority:Math.floor(seats/2)+1,tally,declared};
     }));
 
     ALL_STATES=states.filter(Boolean).sort((a,b)=>a.name.localeCompare(b.name));
     populateStateSelector();
   }catch(e){
     console.warn('State discovery failed:',e);
-    ALL_STATES=[{code:'S22',name:'Tamil Nadu',seats:234,pages:12,majority:118}];
+    ALL_STATES=[{code:'S22',name:'Tamil Nadu',seats:234,pages:12,majority:118,tally:[],declared:0}];
     populateStateSelector();
   }
 }
@@ -3496,7 +3526,7 @@ async function switchState(code){
   MAJORITY    = st.majority;
 
   // Update page title
-  const h1=document.querySelector('header h1');
+  const h1=document.getElementById('page-title');
   if(h1) h1.innerHTML=`${STATE_NAME} — <em>Live Election Results 2026</em>`;
   document.title=`${STATE_NAME} Live Election Results 2026`;
 
@@ -3513,8 +3543,85 @@ async function switchState(code){
   countdown=0;
 }
 
+/* ── Home screen ───────────────────────────────── */
+function renderHomeScreen(){
+  const app=document.getElementById('app');
+  if(!app) return;
+  app.innerHTML=`
+    <div class="home-wrap">
+      <div class="home-title">
+        <h2>India Elections — Live Results 2026</h2>
+        <p>${ALL_STATES.length} states · Live data from ECI</p>
+      </div>
+      <div class="home-grid">${ALL_STATES.map(stateCard).join('')}</div>
+    </div>`;
+  setMeta(`${ALL_STATES.length} states · ${new Date().toLocaleTimeString('en-IN')}`);
+}
+
+function stateCard(s){
+  const top=s.tally.slice(0,5);
+  const othersSeats=s.tally.slice(5).reduce((a,p)=>a+p.total,0);
+  const grandTotal=s.tally.reduce((a,p)=>a+p.total,0)||1;
+  const w=v=>Math.max(0.4,(v/grandTotal*100)).toFixed(1)+'%';
+  const bar=[...top.map(p=>`<div style="width:${w(p.total)};background:${p.color};height:100%"></div>`),
+             othersSeats?`<div style="width:${w(othersSeats)};background:#555;height:100%"></div>`:''].join('');
+  const leader=top[0];
+  const majColor=leader?.total>=s.majority?'var(--green)':leader?.total>=(s.majority*.75)?'var(--yellow)':'var(--muted)';
+  const parties=top.map(p=>`
+    <div class="sc-party">
+      <span class="sc-dot" style="background:${p.color}"></span>
+      <span class="sc-pcode">${p.code}</span>
+      <span class="sc-pdetail">${p.won}✓${p.leading?` +${p.leading}↑`:''}</span>
+      <span class="sc-ptotal">${p.total}</span>
+    </div>`).join('');
+  return `
+    <div class="sc" onclick="goToState('${s.code}')">
+      <div class="sc-head">
+        <div>
+          <div class="sc-name">${s.name}</div>
+          <div class="sc-sub">${s.seats} seats · Majority: <span style="color:${majColor};font-weight:600">${s.majority}</span></div>
+        </div>
+        ${leader?`<div>
+          <div class="sc-leader-num" style="color:${leader.color}">${leader.total}</div>
+          <div class="sc-leader-lbl">${leader.code} leading</div>
+        </div>`:'<div style="color:var(--muted);font-size:.78rem">Awaiting results</div>'}
+      </div>
+      <div class="sc-bar">${bar}</div>
+      <div class="sc-parties">${parties}</div>
+      <div class="sc-foot">
+        <div class="sc-declared"><span style="color:var(--green);font-weight:600">${s.declared}</span>/${s.seats} declared</div>
+        <button class="sc-btn" onclick="event.stopPropagation();goToState('${s.code}')">View Details →</button>
+      </div>
+    </div>`;
+}
+
+async function showHomeScreen(){
+  HOME_VIEW=true;
+  // Header: hide state controls, hide back button, show home title
+  document.getElementById('state-controls').style.display='none';
+  document.getElementById('back-to-home').style.display='none';
+  document.getElementById('page-title').innerHTML='India Elections — <em>Live Results 2026</em>';
+  document.title='India Elections — Live Results 2026';
+  // Hide verdict strip
+  const vs=document.getElementById('verdict-strip');
+  if(vs){vs.classList.remove('visible');vs.textContent='';}
+  // Show loading state then fetch summaries
+  document.getElementById('app').innerHTML=
+    '<div id="loading"><div class="spinner"></div><div class="load-step" id="load-steps">Loading state summaries…</div></div>';
+  await discoverStates();
+  renderHomeScreen();
+}
+
+function goToState(code){
+  HOME_VIEW=false;
+  // Show state-specific header controls and back button
+  document.getElementById('state-controls').style.display='contents';
+  document.getElementById('back-to-home').style.display='';
+  switchState(code);
+}
+
 /* ── Start ─────────────────────────────────────── */
-refresh();
+showHomeScreen();
 setInterval(tick,1000);
 </script>
 </body>
