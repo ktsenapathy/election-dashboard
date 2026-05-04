@@ -596,6 +596,15 @@ tbody tr:hover td{background:#161b22}
 .btn-analyse.on{background:linear-gradient(135deg,#1f6feb,#1a4a8a);color:#fff;
   border-color:var(--blue)}
 
+/* ── State selector ─────────────────────────── */
+#state-sel{
+  background:var(--surface);border:1px solid #1f6feb60;
+  color:var(--blue);border-radius:6px;padding:5px 10px;
+  font-size:.78rem;font-weight:700;outline:none;cursor:pointer;
+  max-width:140px;
+}
+#state-sel:focus{border-color:var(--blue)}
+
 /* ── Verdict strip (sticky, below header) ──── */
 #verdict-strip{
   position:sticky;top:54px;z-index:190;
@@ -700,6 +709,11 @@ footer a:hover{text-decoration:underline}
   <div class="h-right">
     <div class="countdown" id="countdown"></div>
 
+    <!-- State selector -->
+    <select id="state-sel" onchange="switchState(this.value)" title="Switch state">
+      <option value="S22">Tamil Nadu</option>
+    </select>
+
     <!-- View toggle -->
     <div class="view-toggle">
       <button class="vt-btn active" id="vt-table" onclick="setView('table')" title="Table only (press T)">
@@ -769,7 +783,7 @@ footer a:hover{text-decoration:underline}
 
     <!-- Majority race -->
     <div class="ap-card">
-      <div class="ap-card-title"><span class="icon">🏁</span> Majority Race (Need 118)</div>
+      <div class="ap-card-title"><span class="icon">🏁</span> Majority Race (Need ${MAJORITY})</div>
       <div id="ap-majority"></div>
     </div>
 
@@ -1009,7 +1023,7 @@ footer a:hover{text-decoration:underline}
           </div>
         </div>
         <div class="vp-card" style="flex:2;min-width:220px">
-          <div class="vp-title">Constituency Map — 234 Seats (hover for details)</div>
+          <div class="vp-title">Constituency Map — ${STATE_SEATS} Seats (hover for details)</div>
           <div class="seat-map" id="seat-map"></div>
         </div>
         <div class="vp-card" style="min-width:200px;max-width:260px">
@@ -1051,8 +1065,14 @@ footer a:hover{text-decoration:underline}
 
 /* ── Config ────────────────────────────────────── */
 const BASE  = 'https://results.eci.gov.in/ResultAcGenMay2026';
-const PAGES = 12;
 const RFRSH = 30;
+
+// ── State-specific config (updated on state switch) ──
+let STATE_CODE  = 'S22';
+let STATE_NAME  = 'Tamil Nadu';
+let STATE_SEATS = 234;
+let PAGES       = 12;
+let MAJORITY    = 118;
 
 const PC = {
   TVK:'#e72bd9',ADMK:'#A08547',DMK:'#05F86E',PMK:'#5D672B',
@@ -1074,9 +1094,9 @@ const getText = url => withTimeout(14000, fetch(url,{mode:'cors'})).then(r=>{if(
 
 /* ── Data fetchers ─────────────────────────────── */
 async function fetchLiveJson(){
-  const raw=await getText(`${BASE}/election-json-S22-live.json`);
+  const raw=await getText(`${BASE}/election-json-${STATE_CODE}-live.json`);
   const data=JSON.parse(raw), map={};
-  for(const it of (data.S22?.chartData||[]))
+  for(const it of (data[STATE_CODE]?.chartData||[]))
     if(it.length>=5) map[it[2]]={party:it[0],candidate:it[3],color:it[4]};
   return map;
 }
@@ -1110,7 +1130,7 @@ function parseStatewise(html){
 }
 
 async function fetchTally(){
-  const html=await getText(`${BASE}/partywiseresult-S22.htm`);
+  const html=await getText(`${BASE}/partywiseresult-${STATE_CODE}.htm`);
   const doc=new DOMParser().parseFromString(html,'text/html');
   const tally=[];
   for(const tr of doc.querySelectorAll('tr.tr')){
@@ -1126,7 +1146,7 @@ async function fetchTally(){
     const code=cm?cm[1]:full.split(/\s+/)[0];
     // Extract party ID from href e.g. partywiseleadresult-3679S22.htm
     const href=leadLink?.getAttribute('href')||'';
-    const idM=href.match(/partywiseleadresult-(\d+)S22\.htm/);
+    const idM=href.match(new RegExp(`partywiseleadresult-(\\d+)${STATE_CODE}\\.htm`));
     const partyId=idM?idM[1]:null;
     tally.push({party:full,code,won,leading,total,color:pColor(code),partyId});
   }
@@ -1138,7 +1158,7 @@ async function fetchConstituencyVotes(tally){
   const voteMap={};
   await Promise.all(
     tally.filter(p=>p.partyId).map(async p=>{
-      const html=await getText(`${BASE}/partywiseleadresult-${p.partyId}S22.htm`).catch(()=>'');
+      const html=await getText(`${BASE}/partywiseleadresult-${p.partyId}${STATE_CODE}.htm`).catch(()=>'');
       if(!html) return;
       const doc=new DOMParser().parseFromString(html,'text/html');
       for(const tr of doc.querySelectorAll('tbody tr')){
@@ -1147,7 +1167,7 @@ async function fetchConstituencyVotes(tally){
         const link=tds[1].querySelector('a');
         if(!link) continue;
         const href=link.getAttribute('href')||'';
-        const acM=href.match(/candidateswise-S22(\d+)\.htm/);
+        const acM=href.match(new RegExp(`candidateswise-${STATE_CODE}(\\d+)\\.htm`));
         if(!acM) continue;
         const acNo=parseInt(acM[1],10);
         const tv  =parseInt(tds[3].textContent.trim().replace(/,/g,''),10)||0;
@@ -1162,7 +1182,7 @@ async function fetchConstituencyVotes(tally){
 
 /* ── Fetch party-wise vote share from voteshareresult page ────── */
 async function fetchVoteShare(){
-  const html=await getText(`${BASE}/voteshareresult-S22.htm`).catch(()=>'');
+  const html=await getText(`${BASE}/voteshareresult-${STATE_CODE}.htm`).catch(()=>'');
   if(!html) return [];
   const labM=html.match(/var xValues\s*=\s*\[([^\]]+)\]/);
   const valM=html.match(/var yValues\s*=\s*\[([^\]]+)\]/);
@@ -1188,7 +1208,7 @@ async function fetchAll(){
   let pgDone=0;
   const pages=await Promise.all(
     Array.from({length:PAGES},(_,i)=>
-      getText(`${BASE}/statewiseS22${i+1}.htm`)
+      getText(`${BASE}/statewise${STATE_CODE}${i+1}.htm`)
         .then(html=>{ pgDone++; setStep(`2/4 · Constituency pages (${pgDone}/${PAGES})…`); return parseStatewise(html); })
         .catch(()=>{ pgDone++; return []; })
     )
@@ -1362,13 +1382,24 @@ const TN_REGIONS=[
   {name:'Southern TN',     lo:211,hi:234, abbr:'STN'},
 ];
 
+function activeRegions(){
+  // Use TN regions for Tamil Nadu; for other states use 6 equal-size groups by AC number
+  if(STATE_CODE==='S22') return TN_REGIONS;
+  const grpSz=Math.ceil(STATE_SEATS/5);
+  const names=['Northern','Central','South-Central','Southern','Eastern'];
+  return Array.from({length:5},(_,i)=>{
+    const lo=i*grpSz+1, hi=Math.min((i+1)*grpSz,STATE_SEATS);
+    return {name:names[i]||`Region ${i+1}`,abbr:names[i]?.slice(0,3)||`R${i+1}`,lo,hi};
+  }).filter(r=>r.lo<=STATE_SEATS);
+}
+
 function renderSeatMap(){
   const el=document.getElementById('seat-map');
   if(!el) return;
   const map={};
   for(const r of ALL) map[r.ac_no]=r;
 
-  el.innerHTML=TN_REGIONS.map(region=>{
+  el.innerHTML=activeRegions().map(region=>{
     const seatsInRegion=[];
     for(let i=region.lo;i<=region.hi;i++){
       const r=map[i];
@@ -1620,7 +1651,7 @@ function renderTableBody(list){
 function renderAll(){
   const list=filtered();
   const rc=document.getElementById('row-count');
-  if(rc) rc.textContent=`${list.length} of 234`;
+  if(rc) rc.textContent=`${list.length} of ${STATE_SEATS}`;
   renderPartyGrid();
   renderAllianceSection();
   renderSeatMap();
@@ -1928,7 +1959,7 @@ async function refresh(){
     detectChanges();   // compare new state to snapshot
     const firstLoad=!ready;
     bootstrap();
-    if(firstLoad) initAccordions();
+    if(firstLoad){ initAccordions(); discoverStates(); }
     updateStats();
     renderVerdictStrip();
     renderWhoWins();
@@ -2234,7 +2265,7 @@ function renderWhoWins(){
    INTELLIGENT ANALYSER
    ══════════════════════════════════════════════════ */
 
-const MAJORITY = 118;
+// MAJORITY is now a global let (set per state above)
 let ANALYSIS_OPEN = false;
 
 function toggleAnalysis(){
@@ -2372,7 +2403,7 @@ function renderAnalysis(){
     </div>`;
   }).join('') +
   `<div style="font-size:.62rem;color:var(--muted);margin-top:6px;border-top:1px solid var(--border);padding-top:6px">
-    Full bar = 118 seats (majority mark)
+    Full bar = ${MAJORITY} seats (majority mark)
   </div>`;
 
   // Risk zones
@@ -2524,12 +2555,12 @@ function renderAnalysis(){
       <div class="con-stat-chip">
         <div class="csc-label">Total Votes Counted (all parties)</div>
         <div class="csc-val" style="color:var(--purple);font-size:1.2rem">${fmt(vsGrand)}</div>
-        <div class="csc-name">${ALL.filter(r=>r.total_votes>0).length} / 234 constituencies reporting</div>
+        <div class="csc-name">${ALL.filter(r=>r.total_votes>0).length} / ${STATE_SEATS} constituencies reporting</div>
       </div>
       <div class="con-stat-chip">
         <div class="csc-label">Average per Seat</div>
         <div class="csc-val">${fmt(Math.round(vsGrand/234))}</div>
-        <div class="csc-name">all candidates · all 234 seats</div>
+        <div class="csc-name">all candidates · all ${STATE_SEATS} seats</div>
       </div>
     </div>
     <div style="display:flex;align-items:center;gap:6px;font-size:.65rem;color:var(--muted);margin-bottom:6px;padding-bottom:4px;border-bottom:1px solid var(--border)">
@@ -2661,6 +2692,8 @@ function partyAlliance(code){
 function renderAllianceSection(){
   const el=document.getElementById('alliance-row');
   if(!el||!TALLY.length) return;
+  // Alliance blocs are configured for Tamil Nadu only
+  if(STATE_CODE!=='S22'){el.innerHTML='';return;}
 
   // Compute bloc totals from TALLY
   const blocs=ALLIANCE_CFG.map(a=>{
@@ -2672,7 +2705,7 @@ function renderAllianceSection(){
       .map(t=>t.code).join('+');
     return{...a,total,parties};
   });
-  const others=234-blocs.reduce((s,b)=>s+b.total,0);
+  const others=STATE_SEATS-blocs.reduce((s,b)=>s+b.total,0);
 
   // Post-election coalition scenarios (combinations ≥ 118)
   const coalitions=[];
@@ -2784,7 +2817,7 @@ function copyShareText(){
     seatsLine,
     blocs?`Blocs: ${blocs}`:'',
     ``,
-    leader?`📊 ${leader.code} leads: ${leader.total}/118 seats${leader.total>=118?' ✓ MAJORITY':` (needs ${118-leader.total} more)`}`:'',
+    leader?`📊 ${leader.code} leads: ${leader.total}/${MAJORITY} seats${leader.total>=MAJORITY?' ✓ MAJORITY':` (needs ${MAJORITY-leader.total} more)`}`:'',
     knife.length?`⚠️ ${knife.length} seat${knife.length>1?'s':''} on knife-edge (<500 votes)`:'',
     ``,
     battles.length?`Closest contests:`:'',...battles.map(r=>`  #${r.ac_no} ${r.name}: +${fmt(r.margin)} votes`),
@@ -2806,7 +2839,7 @@ function downloadCSV(){
   const headers=['AC#','Constituency','Leader','Leader Party','Runner-up',
     'Runner Party','Margin','Total Votes','Round','Counting %','Status','Region'];
   const rows=ALL.map(r=>{
-    const region=TN_REGIONS.find(rg=>r.ac_no>=rg.lo&&r.ac_no<=rg.hi)?.name||'';
+    const region=activeRegions().find(rg=>r.ac_no>=rg.lo&&r.ac_no<=rg.hi)?.name||'';
     const rp=roundProgress(r.round);
     return[r.ac_no,r.name,r.leader||'',r.leader_party||'',r.runner||'',
       r.runner_party||'',r.margin||0,r.total_votes||0,r.round||'',
@@ -2842,13 +2875,13 @@ async function fetchLiveConstituencyData(r){
   if(!t?.partyId) return null;
   try{
     const html=await withTimeout(10000,
-      fetch(`${BASE}/partywiseleadresult-${t.partyId}S22.htm`,{mode:'cors'})
+      fetch(`${BASE}/partywiseleadresult-${t.partyId}${STATE_CODE}.htm`,{mode:'cors'})
         .then(res=>res.ok?res.text():Promise.reject(new Error(`HTTP ${res.status}`)))
     );
     // Match this constituency row: after </a> the link's <td> closes,
     // then candidate name td, total votes td, margin td, round td follow
     const pat=new RegExp(
-      `href=['"]candidateswise-S22${r.ac_no}\\.htm['"][^>]*>[^<]+</a></td>\\s*`+
+      `href=['"]candidateswise-${STATE_CODE}${r.ac_no}\\.htm['"][^>]*>[^<]+</a></td>\\s*`+
       `<td[^>]*>([^<]+)</td>\\s*`+    // candidate name
       `<td[^>]*>([\\d,]+)</td>\\s*`+  // Total Votes (all candidates)
       `<td[^>]*>([\\d,]+)</td>\\s*`+  // Margin
@@ -2873,7 +2906,7 @@ function buildModalBody(r, live){
   const round       = live?.round       ?? r.round;
   const isLive      = !!live;
 
-  const region    = TN_REGIONS.find(rg=>r.ac_no>=rg.lo&&r.ac_no<=rg.hi)?.name||'—';
+  const region    = activeRegions().find(rg=>r.ac_no>=rg.lo&&r.ac_no<=rg.hi)?.name||'—';
   const rp        = roundProgress(round);
   const color     = r.color||pColor(r.leader_code||r.leader_party);
   const lpc       = partyCode(r.leader_code,r.leader_party);
@@ -2976,7 +3009,7 @@ function openModal(acNo){
     </div>`;
 
   const eciLink=document.getElementById('modal-eci-link');
-  if(eciLink) eciLink.href=`https://results.eci.gov.in/ResultAcGenMay2026/candidateswise-S22${acNo}.htm`;
+  if(eciLink) eciLink.href=`https://results.eci.gov.in/ResultAcGenMay2026/candidateswise-${STATE_CODE}${acNo}.htm`;
 
   document.getElementById('modal-overlay').classList.add('open');
   document.addEventListener('keydown',_modalEsc);
@@ -3077,7 +3110,7 @@ function renderVerdictStrip(){
     `<span style="color:${p.color};font-weight:700">${p.code}&thinsp;${p.total}</span>`
   ).join(SEP);
   const leader=TALLY[0];
-  const need=leader?118-leader.total:0;
+  const need=leader?MAJORITY-leader.total:0;
   const knife=ALL.filter(r=>r.margin>0&&r.margin<500).length;
   const flip=ALL.filter(r=>isFlipRisk(r)).length;
   const status=need>0
@@ -3158,6 +3191,75 @@ clearFilters=function(){
   const btn=document.getElementById('more-filters-btn');
   if(btn){btn.style.borderColor='';btn.style.color='';}
 };
+
+/* ══════════════════════════════════════════════════
+   MULTI-STATE SUPPORT
+   ══════════════════════════════════════════════════ */
+
+let ALL_STATES = [];
+
+async function discoverStates(){
+  try{
+    // Live JSON contains all state codes as top-level keys
+    const raw=await withTimeout(12000,fetch(`${BASE}/election-json-${STATE_CODE}-live.json`,{mode:'cors'}).then(r=>r.text()));
+    const data=JSON.parse(raw);
+    const codes=Object.keys(data).filter(k=>/^[SU]\d+/.test(k));
+
+    const states=await Promise.all(codes.map(async code=>{
+      const html=await getText(`${BASE}/partywiseresult-${code}.htm`).catch(()=>'');
+      if(!html) return null;
+      // Name is in <h2>...<strong> STATE NAME </strong>...(Total AC : N)
+      const nm=html.match(/<h2>.*?<strong>\s*([^<]+?)\s*<\/strong>.*?\(Total AC\s*:\s*(\d+)\)/s);
+      if(!nm) return null;
+      const seats=parseInt(nm[2]);
+      return{code,name:nm[1].trim(),seats,pages:Math.ceil(seats/20),majority:Math.floor(seats/2)+1};
+    }));
+
+    ALL_STATES=states.filter(Boolean).sort((a,b)=>a.name.localeCompare(b.name));
+    populateStateSelector();
+  }catch(e){
+    console.warn('State discovery failed:',e);
+    ALL_STATES=[{code:'S22',name:'Tamil Nadu',seats:234,pages:12,majority:118}];
+    populateStateSelector();
+  }
+}
+
+function populateStateSelector(){
+  const sel=document.getElementById('state-sel');
+  if(!sel) return;
+  sel.innerHTML=ALL_STATES.map(s=>
+    `<option value="${s.code}" ${s.code===STATE_CODE?'selected':''}>${s.name}</option>`
+  ).join('');
+}
+
+async function switchState(code){
+  const st=ALL_STATES.find(s=>s.code===code)||{code,name:code,seats:234,pages:12,majority:Math.floor(234/2)+1};
+  if(code===STATE_CODE&&ALL.length) return; // already loaded
+
+  // Apply new state config
+  STATE_CODE  = st.code;
+  STATE_NAME  = st.name;
+  STATE_SEATS = st.seats;
+  PAGES       = st.pages;
+  MAJORITY    = st.majority;
+
+  // Update page title
+  const h1=document.querySelector('header h1');
+  if(h1) h1.innerHTML=`${STATE_NAME} — <em>Live Election Results 2026</em>`;
+  document.title=`${STATE_NAME} Live Election Results 2026`;
+
+  // Reset all data
+  ALL=[];TALLY=[];TOTALS={};VOTE_SHARE=[];GRAND_VOTES=0;
+  PREV_SNAP={};CHANGED.clear();
+  SEL_PARTY='';SEL_ALLIANCE='';SEL_REGION='';HIST_FILTER='';
+
+  // Reset verdict strip
+  const vs=document.getElementById('verdict-strip');
+  if(vs){vs.classList.remove('visible');vs.textContent='';}
+
+  // Force immediate refresh
+  countdown=0;
+}
 
 /* ── Start ─────────────────────────────────────── */
 refresh();
