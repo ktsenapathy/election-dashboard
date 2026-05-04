@@ -310,6 +310,124 @@ tbody tr:hover td{background:#161b22}
   background:#f8514920;color:var(--red);font-weight:700;border:1px solid #f8514940;
   white-space:nowrap}
 
+/* ── Alliance blocs ─────────────── */
+.alliance-section{padding:8px 20px;border-bottom:1px solid var(--border);
+  background:#0a1020}
+.alliance-row{display:flex;gap:7px;flex-wrap:wrap;align-items:center}
+.alliance-label{font-size:.62rem;color:var(--muted);text-transform:uppercase;
+  letter-spacing:.07em;font-weight:600;flex-shrink:0;margin-right:2px}
+.alliance-chip{display:flex;align-items:center;gap:8px;padding:5px 12px;
+  border-radius:6px;cursor:pointer;border:1px solid transparent;
+  transition:all .15s;font-size:.8rem}
+.alliance-chip:hover{opacity:.85}
+.alliance-chip.active{border-color:#fff4;box-shadow:0 0 0 2px #fff3}
+.ac-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.ac-name{font-weight:600}
+.ac-seats{font-size:.92rem;font-weight:700;margin-left:2px}
+.ac-parties{font-size:.62rem;opacity:.7;margin-left:2px}
+.alliance-divider{width:1px;height:20px;background:var(--border);flex-shrink:0}
+.post-coalition{font-size:.7rem;color:var(--muted);padding:3px 10px;
+  background:var(--surface);border:1px solid var(--border);border-radius:99px;
+  white-space:nowrap}
+.post-coalition.win{color:var(--green);border-color:#3fb95040;background:#3fb95010}
+
+/* ── Change detection badge ──────── */
+.changed-badge{font-size:.6rem;padding:1px 5px;border-radius:3px;
+  background:#3fb95020;color:var(--green);border:1px solid #3fb95040;
+  font-weight:700;white-space:nowrap;animation:fadeIn .4s ease}
+.changed-badge.leader{background:#f8514920;color:var(--red);border-color:#f8514940}
+@keyframes fadeIn{from{opacity:0;transform:translateY(-2px)}to{opacity:1;transform:none}}
+#change-toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);
+  background:#1e3a5f;border:1px solid var(--blue);color:var(--text);
+  padding:8px 16px;border-radius:8px;font-size:.82rem;z-index:1000;
+  display:none;box-shadow:0 4px 16px #0008;animation:fadeIn .3s ease}
+
+/* ── Modal ───────────────────────── */
+#modal-overlay{position:fixed;inset:0;background:#0008;z-index:500;
+  display:none;align-items:center;justify-content:center;padding:20px}
+#modal-overlay.open{display:flex}
+#modal-box{background:#1a1d27;border:1px solid var(--border);border-radius:12px;
+  width:100%;max-width:540px;max-height:90vh;overflow-y:auto;
+  box-shadow:0 8px 32px #0008}
+.modal-head{display:flex;justify-content:space-between;align-items:flex-start;
+  padding:16px 18px 10px;border-bottom:1px solid var(--border)}
+.modal-head h2{font-size:1rem;font-weight:700}
+.modal-close{background:none;border:none;color:var(--muted);cursor:pointer;
+  font-size:1.2rem;padding:0 4px;line-height:1}
+.modal-close:hover{color:var(--text)}
+.modal-body{padding:14px 18px}
+.modal-row{display:flex;justify-content:space-between;align-items:flex-start;
+  padding:7px 0;border-bottom:1px solid #21262d;font-size:.83rem}
+.modal-row:last-child{border:none}
+.modal-row .ml{color:var(--muted);font-size:.72rem;flex-shrink:0;width:120px}
+.modal-row .mv{font-weight:500;text-align:right}
+.cand-block{background:var(--surface);border:1px solid var(--border);
+  border-radius:8px;padding:10px 12px;margin-top:6px}
+.cand-block-title{font-size:.62rem;color:var(--muted);text-transform:uppercase;
+  letter-spacing:.06em;margin-bottom:8px;font-weight:600}
+.cand-entry{display:flex;align-items:center;gap:8px;padding:5px 0;
+  border-bottom:1px solid #21262d}
+.cand-entry:last-child{border:none}
+.ce-rank{font-size:.72rem;color:var(--muted);width:18px;flex-shrink:0}
+.ce-name{flex:1;font-weight:500;font-size:.82rem}
+.ce-party{font-size:.65rem;padding:1px 6px;border-radius:3px;
+  font-weight:700;color:#fff;text-shadow:0 1px 2px #0005;flex-shrink:0}
+.ce-votes{font-variant-numeric:tabular-nums;font-weight:700;flex-shrink:0;
+  min-width:70px;text-align:right}
+.ce-est{font-size:.6rem;color:var(--muted)}
+.modal-actions{padding:10px 18px;border-top:1px solid var(--border);
+  display:flex;gap:8px;flex-wrap:wrap}
+
+/* ── Search suggestions ──────────── */
+.search-wrap{position:relative}
+.search-sugg{position:absolute;top:100%;left:0;right:0;z-index:300;
+  background:#1e2736;border:1px solid var(--border);border-radius:0 0 7px 7px;
+  box-shadow:0 4px 14px #0008;display:none;overflow:hidden}
+.search-sugg.open{display:block}
+.sugg-item{padding:7px 12px;font-size:.82rem;cursor:pointer;
+  display:flex;align-items:center;gap:7px;border-bottom:1px solid #21262d30}
+.sugg-item:last-child{border:none}
+.sugg-item:hover{background:var(--surface2)}
+.sugg-item .si-no{font-size:.65rem;color:var(--muted);width:22px;flex-shrink:0}
+.sugg-item .si-name{flex:1;font-weight:500}
+.sugg-item .si-party{font-size:.65rem}
+
+/* ── Share / Export buttons ──────── */
+.btn-share{background:#1a3a2a;color:var(--green);border:1px solid #3fb95040;
+  padding:5px 10px;border-radius:6px;cursor:pointer;font-size:.75rem;
+  font-weight:600;display:flex;align-items:center;gap:4px;white-space:nowrap}
+.btn-share:hover{background:#1e4a34;border-color:var(--green)}
+.btn-export{background:var(--surface);color:var(--muted);border:1px solid var(--border);
+  padding:5px 10px;border-radius:6px;cursor:pointer;font-size:.75rem;
+  font-weight:600;display:flex;align-items:center;gap:4px;white-space:nowrap}
+.btn-export:hover{border-color:var(--blue);color:var(--text)}
+
+/* ── Load progress ───────────────── */
+.load-steps-detail{font-size:.72rem;color:var(--muted);margin-top:4px;
+  text-align:center;max-width:300px}
+
+/* ── Mobile improvements ─────────── */
+@media(max-width:700px){
+  .h-right{gap:5px}
+  .vt-btn .vt-hint{display:none}
+  .btn-share span,.btn-export span{display:none}
+  .ww-grid{grid-template-columns:1fr}
+  .alliance-row{gap:5px}
+  .alliance-chip .ac-parties{display:none}
+  .summary{gap:5px}
+  .stat{min-width:90px;padding:7px 10px}
+  .stat .v{font-size:1.1rem}
+  .controls{gap:5px}
+  .search-wrap{min-width:160px}
+  select{font-size:.75rem;padding:5px 6px}
+}
+@media(max-width:480px){
+  .h-title h1{font-size:.9rem}
+  .h-right .btn-analyse{display:none}
+  .ww-mid,.ww-right{display:none}
+  .wn-progress{display:none}
+}
+
 /* ── Watch Next section ──────────── */
 #watch-next{padding:10px 20px 12px;border-bottom:1px solid var(--border);
   background:#0d1117}
@@ -500,6 +618,28 @@ footer a:hover{text-decoration:underline}
 <body>
 
 <div class="tip" id="tip"></div>
+<div id="change-toast"></div>
+
+<!-- Constituency detail modal -->
+<div id="modal-overlay" onclick="if(event.target===this)closeModal()">
+  <div id="modal-box">
+    <div class="modal-head">
+      <div>
+        <div style="font-size:.65rem;color:var(--muted)" id="modal-ac-no"></div>
+        <h2 id="modal-title">Constituency Details</h2>
+      </div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body" id="modal-body"></div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" style="font-size:.75rem" onclick="closeModal()">Close</button>
+      <a id="modal-eci-link" href="#" target="_blank" rel="noopener"
+         style="font-size:.75rem;color:var(--blue);text-decoration:none;padding:5px 0">
+        View on ECI ↗
+      </a>
+    </div>
+  </div>
+</div>
 
 <!-- Header -->
 <header>
@@ -534,6 +674,12 @@ footer a:hover{text-decoration:underline}
       </button>
     </div>
 
+    <button class="btn-share" onclick="copyShareText()" title="Copy results for WhatsApp/chat">
+      📤 <span>Share</span>
+    </button>
+    <button class="btn-export" onclick="downloadCSV()" title="Download as CSV">
+      ⬇ <span>CSV</span>
+    </button>
     <button class="btn-analyse" id="btn-analyse" onclick="toggleAnalysis()">
       🔍 Analyse
     </button>
@@ -666,6 +812,11 @@ footer a:hover{text-decoration:underline}
     </div>
   </div>
 
+  <!-- Alliance blocs -->
+  <div class="alliance-section">
+    <div class="alliance-row" id="alliance-row"></div>
+  </div>
+
   <!-- Watch These Next -->
   <div id="watch-next">
     <div class="wn-header">
@@ -730,11 +881,14 @@ footer a:hover{text-decoration:underline}
     <span style="font-size:.65rem;color:var(--muted);text-transform:uppercase;
       letter-spacing:.06em;font-weight:600;flex-shrink:0">Filter:</span>
     <div class="search-wrap">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+           style="position:absolute;left:9px;top:50%;transform:translateY(-50%);
+                  width:13px;height:13px;color:var(--muted);pointer-events:none">
         <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
       </svg>
       <input type="search" id="search" placeholder="Search constituency, candidate, party…"
-             oninput="renderAll()">
+             oninput="onSearchInput()" onfocus="onSearchInput()" autocomplete="off">
+      <div class="search-sugg" id="search-sugg"></div>
     </div>
     <select id="filter-status" onchange="renderAll()">
       <option value="">All Status</option>
@@ -763,6 +917,15 @@ footer a:hover{text-decoration:underline}
       <option value="">All Seats</option>
       <option value="flip">⚡ Flip Risk Only</option>
       <option value="safe">🟢 Safe Only (10K+)</option>
+    </select>
+    <select id="filter-region" onchange="renderAll()">
+      <option value="">All Regions</option>
+      <option value="1-40">Chennai Metro</option>
+      <option value="41-90">Northern TN</option>
+      <option value="91-135">Central TN</option>
+      <option value="136-180">Cauvery Delta</option>
+      <option value="181-210">Western TN</option>
+      <option value="211-234">Southern TN</option>
     </select>
     <span style="width:1px;height:22px;background:var(--border);flex-shrink:0;align-self:center;margin:0 2px"></span>
     <button class="btn btn-ghost" onclick="clearFilters()">✕ Clear</button>
@@ -834,7 +997,7 @@ const PC = {
 let ALL=[], TALLY=[], TOTALS={}, VOTE_SHARE=[], GRAND_VOTES=0;
 let VIEW='table', CARD_SIZE='normal';
 let SORT_KEY='ac_no', SORT_DIR=1;
-let SEL_PARTY='', HIST_FILTER='';
+let SEL_PARTY='', HIST_FILTER='', SEL_REGION='';
 let countdown=RFRSH, fetching=false, ready=false;
 
 /* ── Fetch utils ───────────────────────────────── */
@@ -948,16 +1111,21 @@ async function fetchVoteShare(){
 }
 
 async function fetchAll(){
-  setStep('Fetching live JSON + party tally…');
+  setStep('1/4 · Fetching party tally + live JSON…');
   const [live,tally]=await Promise.all([fetchLiveJson(),fetchTally()]);
 
-  setStep(`Fetching statewise pages + vote data…`);
-  const [pages,voteMap,voteShare]=await Promise.all([
-    Promise.all(
-      Array.from({length:PAGES},(_,i)=>
-        getText(`${BASE}/statewiseS22${i+1}.htm`).then(parseStatewise).catch(()=>[])
-      )
-    ),
+  setStep(`2/4 · Fetching 12 constituency pages…`);
+  let pgDone=0;
+  const pages=await Promise.all(
+    Array.from({length:PAGES},(_,i)=>
+      getText(`${BASE}/statewiseS22${i+1}.htm`)
+        .then(html=>{ pgDone++; setStep(`2/4 · Constituency pages (${pgDone}/${PAGES})…`); return parseStatewise(html); })
+        .catch(()=>{ pgDone++; return []; })
+    )
+  );
+
+  setStep('3/4 · Fetching vote totals + vote share…');
+  const [voteMap,voteShare]=await Promise.all([
     fetchConstituencyVotes(tally),
     fetchVoteShare(),
   ]);
@@ -975,6 +1143,7 @@ async function fetchAll(){
   const declared=all.filter(r=>/declared|won/i.test(r.status)).length;
   const counting=all.filter(r=>/progress|counting/i.test(r.status)).length;
   const grandVotes=all.reduce((s,r)=>s+(r.total_votes||0),0);
+  setStep(`4/4 · Building dashboard…`);
   return {all,tally,voteShare,grandVotes,totals:{declared,counting,pending:all.length-declared-counting}};
 }
 
@@ -1005,6 +1174,15 @@ function filtered(){
     if(sf==='declared'&&!/declared|won/.test(s)) return false;
     if(sf==='pending'&&(s.includes('progress')||s.includes('counting')||/declared|won/.test(s))) return false;
     if(SEL_PARTY){const c=(r.leader_code||r.leader_party||'').toUpperCase();if(!c.includes(SEL_PARTY))return false;}
+    if(SEL_ALLIANCE){
+      const code=r.leader_code||partyCode('',r.leader_party)||'';
+      const a=partyAlliance(code);
+      if(!a||a.name!==SEL_ALLIANCE)return false;
+    }
+    if(SEL_REGION){
+      const[lo,hi]=SEL_REGION.split('-').map(Number);
+      if(r.ac_no<lo||r.ac_no>hi)return false;
+    }
     if(ff==='flip'&&!isFlipRisk(r))return false;
     if(ff==='safe'&&r.margin<10000)return false;
     const activeMarginFilter=mf||HIST_FILTER;
@@ -1274,7 +1452,8 @@ function renderCards(list){
       <div class="c-head">
         <div>
           <div class="c-no">#${r.ac_no}</div>
-          <div class="c-name">${r.name}</div>
+          <div class="c-name" style="cursor:pointer" onclick="openModal(${r.ac_no})"
+               title="Click for details">${r.name}</div>
         </div>
         ${badge(r.status)}
       </div>
@@ -1307,6 +1486,7 @@ function renderCards(list){
       <div class="c-footer">
         <span class="c-round">${roundBar(r.round,false)}</span>
         ${isFlipRisk(r)?`<span class="flip-tag">⚡ flip risk</span>`:''}
+        ${changeBadge(r)}
         <span style="font-size:.65rem;color:var(--muted)">#${r.ac_no}</span>
       </div>
     </div>`;
@@ -1337,7 +1517,8 @@ function renderTableBody(list){
     return `
     <tr>
       <td class="ac-no">${r.ac_no}</td>
-      <td><b>${r.name}</b></td>
+      <td><b style="cursor:pointer;color:var(--blue)" onclick="openModal(${r.ac_no})"
+             title="Click for details">${r.name}</b></td>
       <td>
         <div class="cand-lead">${r.leader||'—'}</div>
         ${r.runner?`<div class="cand-trail">vs ${r.runner}</div>`:''}
@@ -1351,7 +1532,7 @@ function renderTableBody(list){
       </td>
       <td class="round-cell hide-m" style="color:var(--text)">${r.total_votes>0?fmt(r.total_votes):'—'}</td>
       <td class="round-cell hide-m">${roundBar(r.round,true)}</td>
-      <td>${badge(r.status)}${isFlipRisk(r)?` <span class="flip-tag">⚡ flip risk</span>`:''}</td>
+      <td>${badge(r.status)}${isFlipRisk(r)?` <span class="flip-tag">⚡ flip risk</span>`:''}${changeBadge(r)}</td>
     </tr>`;
   }).join('');
 }
@@ -1362,10 +1543,16 @@ function renderAll(){
   const rc=document.getElementById('row-count');
   if(rc) rc.textContent=`${list.length} of 234`;
   renderPartyGrid();
+  renderAllianceSection();
   renderSeatMap();
   if(VIEW!=='table') renderCards(list);
   if(VIEW!=='cards') renderTableBody(list);
 }
+
+/* sync region filter dropdown → SEL_REGION */
+document.addEventListener('change',e=>{
+  if(e.target.id==='filter-region') SEL_REGION=e.target.value;
+});
 
 /* ── View mode ─────────────────────────────────── */
 function setView(v){
@@ -1430,7 +1617,8 @@ function clearFilters(){
   const f=document.getElementById('filter-status');if(f)f.value='';
   const m=document.getElementById('filter-margin');if(m)m.value='';
   const fl=document.getElementById('filter-flip');if(fl)fl.value='';
-  SEL_PARTY='';HIST_FILTER='';
+  const fr=document.getElementById('filter-region');if(fr)fr.value='';
+  SEL_PARTY='';HIST_FILTER='';SEL_ALLIANCE='';SEL_REGION='';
   renderHistogram();
   renderPartyGrid();
   renderSeatMap();
@@ -1641,8 +1829,10 @@ async function refresh(){
   if(fetching)return;
   fetching=true;countdown=RFRSH;
   try{
+    snapshotCurrent(); // capture state BEFORE fetch for change detection
     const{all,tally,voteShare,grandVotes,totals}=await fetchAll();
     ALL=all;TALLY=tally;TOTALS=totals;VOTE_SHARE=voteShare||[];GRAND_VOTES=grandVotes||0;
+    detectChanges();   // compare new state to snapshot
     bootstrap();
     updateStats();
     renderWhoWins();
@@ -2337,6 +2527,346 @@ function jumpTo(acNo){
 
 /* ── Keep analysis live on refresh ────────────── */
 const _origRefreshDone = () => { if(ANALYSIS_OPEN) renderAnalysis(); };
+
+/* ══════════════════════════════════════════════════
+   ALLIANCE / BLOC TRACKING
+   ══════════════════════════════════════════════════ */
+
+// May 2026 TN election alliance configuration
+// Adjust parties[] if alliances differ from reported pre-election setup
+const ALLIANCE_CFG = [
+  { name:'TVK Alliance',   short:'TVK Alliance', color:'#c020b0',
+    parties:['TVK','AMMK','MNMK','DMDK'],
+    note:'Tamilaga Vettri Kazhagam-led front' },
+  { name:'INDIA Bloc',     short:'INDIA Bloc',   color:'#0a8a4a',
+    parties:['DMK','INC','CPI','CPI(M)','VCK','IUML','MDMK','AIFB'],
+    note:'DMK-led Secular Progressive Alliance' },
+  { name:'NDA',            short:'NDA',          color:'#c47820',
+    parties:['ADMK','PMK','BJP','NTK'],
+    note:'ADMK-led National Democratic Alliance' },
+];
+
+let SEL_ALLIANCE = '';
+
+function partyAlliance(code){
+  for(const a of ALLIANCE_CFG)
+    if(a.parties.some(p=>code.toUpperCase().includes(p.toUpperCase()))) return a;
+  return null;
+}
+
+function renderAllianceSection(){
+  const el=document.getElementById('alliance-row');
+  if(!el||!TALLY.length) return;
+
+  // Compute bloc totals from TALLY
+  const blocs=ALLIANCE_CFG.map(a=>{
+    const total=TALLY
+      .filter(t=>a.parties.some(p=>t.code.toUpperCase().includes(p.toUpperCase())))
+      .reduce((s,t)=>s+t.total,0);
+    const parties=TALLY
+      .filter(t=>a.parties.some(p=>t.code.toUpperCase().includes(p.toUpperCase())))
+      .map(t=>t.code).join('+');
+    return{...a,total,parties};
+  });
+  const others=234-blocs.reduce((s,b)=>s+b.total,0);
+
+  // Post-election coalition scenarios (combinations ≥ 118)
+  const coalitions=[];
+  for(let i=0;i<blocs.length;i++)
+    for(let j=i+1;j<blocs.length;j++){
+      const seats=blocs[i].total+blocs[j].total;
+      if(seats>=118) coalitions.push({label:`${blocs[i].short}+${blocs[j].short}`,seats});
+    }
+
+  el.innerHTML=`
+    <span class="alliance-label">Blocs:</span>
+    ${blocs.map(b=>`
+      <div class="alliance-chip ${SEL_ALLIANCE===b.name?'active':''}"
+           style="background:${b.color}22;border-color:${b.color}44"
+           onclick="toggleAlliance('${b.name}')" title="${b.note}">
+        <span class="ac-dot" style="background:${b.color}"></span>
+        <span class="ac-name" style="color:${b.color}">${b.short}</span>
+        <span class="ac-seats" style="color:${b.color}">${b.total}</span>
+        <span class="ac-parties" style="color:${b.color}60">${b.parties}</span>
+      </div>`).join('')}
+    <div class="alliance-divider"></div>
+    ${coalitions.map(c=>`
+      <span class="post-coalition win" title="Post-election coalition scenario">
+        ${c.label} = ${c.seats} 🏆
+      </span>`).join('')}
+    ${others>0?`<span class="post-coalition">Others: ${others}</span>`:''}`;
+}
+
+function toggleAlliance(name){
+  SEL_ALLIANCE=SEL_ALLIANCE===name?'':name;
+  SEL_PARTY=''; // clear individual party filter
+  renderAllianceSection();
+  renderPartyGrid();
+  renderSeatMap();
+  renderAll();
+}
+
+/* ══════════════════════════════════════════════════
+   LIVE CHANGE DETECTION
+   ══════════════════════════════════════════════════ */
+
+let PREV_SNAP={};    // ac_no → {leader_code, margin, status}
+let CHANGED=new Set(); // ac_nos changed this refresh
+
+function snapshotCurrent(){
+  PREV_SNAP={};
+  for(const r of ALL)
+    PREV_SNAP[r.ac_no]={
+      leader_code:r.leader_code,
+      leader:r.leader,
+      margin:r.margin,
+      status:r.status
+    };
+}
+
+function detectChanges(){
+  CHANGED.clear();
+  if(!Object.keys(PREV_SNAP).length) return; // first load
+  for(const r of ALL){
+    const prev=PREV_SNAP[r.ac_no];
+    if(!prev) continue;
+    // Leader flipped OR margin changed by more than 500 OR status changed
+    const leaderFlipped=prev.leader&&r.leader&&prev.leader!==r.leader;
+    const bigMarginChange=Math.abs((r.margin||0)-(prev.margin||0))>500;
+    const statusChange=prev.status!==r.status;
+    if(leaderFlipped||bigMarginChange||statusChange){
+      CHANGED.add(r.ac_no);
+      r._changeType=leaderFlipped?'leader':statusChange?'status':'margin';
+    }
+  }
+  if(CHANGED.size>0) showChangeToast(CHANGED.size);
+}
+
+function showChangeToast(n){
+  const t=document.getElementById('change-toast');
+  if(!t) return;
+  t.textContent=`⚡ ${n} seat${n>1?'s':''} updated since last refresh`;
+  t.style.display='block';
+  clearTimeout(t._timer);
+  t._timer=setTimeout(()=>t.style.display='none',5000);
+}
+
+function changeBadge(r){
+  if(!CHANGED.has(r.ac_no)) return '';
+  const isLeader=r._changeType==='leader';
+  return `<span class="changed-badge ${isLeader?'leader':''}">${isLeader?'👑 leader changed':'↑ updated'}</span>`;
+}
+
+/* ══════════════════════════════════════════════════
+   WHATSAPP SHARE + CSV EXPORT
+   ══════════════════════════════════════════════════ */
+
+function copyShareText(){
+  const leader=TALLY[0];
+  const knife=ALL.filter(r=>r.margin>0&&r.margin<500);
+  const battles=[...ALL].filter(r=>r.margin>0).sort((a,b)=>a.margin-b.margin).slice(0,3);
+  const ts=new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
+  const seatsLine=TALLY.slice(0,5).map(p=>`${p.code} ${p.total}`).join(' · ');
+
+  // Alliance totals
+  const blocs=ALLIANCE_CFG.map(a=>{
+    const t=TALLY.filter(p=>a.parties.some(ap=>p.code.toUpperCase().includes(ap))).reduce((s,p)=>s+p.total,0);
+    return t>0?`${a.short} ${t}`:'';
+  }).filter(Boolean).join(' | ');
+
+  const lines=[
+    `🗳️ TN Elections 2026 — Live (${ts})`,
+    ``,
+    seatsLine,
+    blocs?`Blocs: ${blocs}`:'',
+    ``,
+    leader?`📊 ${leader.code} leads: ${leader.total}/118 seats${leader.total>=118?' ✓ MAJORITY':` (needs ${118-leader.total} more)`}`:'',
+    knife.length?`⚠️ ${knife.length} seat${knife.length>1?'s':''} on knife-edge (<500 votes)`:'',
+    ``,
+    battles.length?`Closest contests:`:'',...battles.map(r=>`  #${r.ac_no} ${r.name}: +${fmt(r.margin)} votes`),
+    ``,
+    `📱 results.eci.gov.in`,
+  ].filter(l=>l!==null&&l!==undefined);
+
+  const text=lines.join('\n').replace(/\n{3,}/g,'\n\n');
+  navigator.clipboard.writeText(text).then(()=>{
+    const btn=document.querySelector('.btn-share');
+    if(btn){const orig=btn.innerHTML;btn.innerHTML='✓ Copied!';setTimeout(()=>btn.innerHTML=orig,2000);}
+  }).catch(()=>{
+    // Fallback: show in alert
+    prompt('Copy this text (Ctrl+C):',text);
+  });
+}
+
+function downloadCSV(){
+  const headers=['AC#','Constituency','Leader','Leader Party','Runner-up',
+    'Runner Party','Margin','Total Votes','Round','Counting %','Status','Region'];
+  const rows=ALL.map(r=>{
+    const region=TN_REGIONS.find(rg=>r.ac_no>=rg.lo&&r.ac_no<=rg.hi)?.name||'';
+    const rp=roundProgress(r.round);
+    return[r.ac_no,r.name,r.leader||'',r.leader_party||'',r.runner||'',
+      r.runner_party||'',r.margin||0,r.total_votes||0,r.round||'',
+      rp?rp.pct+'%':'',r.status||'',region];
+  });
+  const csv=[headers,...rows].map(row=>row.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
+  const ts=new Date().toISOString().slice(0,16).replace('T','_').replace(':','');
+  _download(`TN_Results_${ts}.csv`,csv,'text/csv');
+}
+
+function _download(name,content,type){
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([content],{type}));
+  a.download=name;a.click();
+  setTimeout(()=>URL.revokeObjectURL(a.href),5000);
+}
+
+/* ══════════════════════════════════════════════════
+   CONSTITUENCY DETAIL MODAL
+   ══════════════════════════════════════════════════ */
+
+function openModal(acNo){
+  const r=ALL.find(x=>x.ac_no===acNo);
+  if(!r) return;
+
+  const overlay=document.getElementById('modal-overlay');
+  document.getElementById('modal-ac-no').textContent=`Constituency #${r.ac_no}`;
+  document.getElementById('modal-title').textContent=r.name;
+
+  const region=TN_REGIONS.find(rg=>r.ac_no>=rg.lo&&r.ac_no<=rg.hi)?.name||'—';
+  const rp=roundProgress(r.round);
+  const color=r.color||pColor(r.leader_code||r.leader_party);
+  const lpc=partyCode(r.leader_code,r.leader_party);
+  const rpc=partyCode('',r.runner_party);
+  const rcolor=pColor(rpc||r.runner_party);
+
+  // Estimate individual vote counts
+  let leaderEst=0,runnerEst=0;
+  if(r.total_votes>0&&r.margin>0){
+    leaderEst=Math.round((r.total_votes+r.margin)/2);
+    runnerEst=Math.round((r.total_votes-r.margin)/2);
+  }
+
+  const statusColor=/declared|won/i.test(r.status||'')?'var(--green)'
+    :/progress/i.test(r.status||'')?'var(--yellow)':'var(--muted)';
+
+  document.getElementById('modal-body').innerHTML=`
+    <div class="modal-row">
+      <span class="ml">Region</span>
+      <span class="mv">${region}</span>
+    </div>
+    <div class="modal-row">
+      <span class="ml">Status</span>
+      <span class="mv" style="color:${statusColor}">${r.status||'—'}</span>
+    </div>
+    <div class="modal-row">
+      <span class="ml">Counting Progress</span>
+      <span class="mv">${rp?`${rp.done}/${rp.total} rounds (${rp.pct}%)`:'—'}</span>
+    </div>
+    <div class="modal-row">
+      <span class="ml">Total Votes Counted</span>
+      <span class="mv">${r.total_votes>0?fmt(r.total_votes):'—'}</span>
+    </div>
+    <div class="modal-row">
+      <span class="ml">Lead Margin</span>
+      <span class="mv" style="color:${marginColor(r.margin)}">${r.margin>0?fmt(r.margin)+' votes':' —'}</span>
+    </div>
+    ${isFlipRisk(r)?`<div class="modal-row">
+      <span class="ml">Flip Risk</span>
+      <span class="mv" style="color:var(--red)">⚡ Yes — result may change next round</span>
+    </div>`:''}
+    <div class="cand-block" style="margin-top:10px">
+      <div class="cand-block-title">Candidates (estimated votes)</div>
+      <div class="cand-entry">
+        <span class="ce-rank">1</span>
+        <span class="ce-name">${r.leader||'—'}</span>
+        <span class="ce-party" style="background:${color}">${lpc}</span>
+        <span class="ce-votes" style="color:var(--green)">
+          ${leaderEst>0?fmt(leaderEst):'—'}
+          ${leaderEst>0?'<span class="ce-est">est.</span>':''}
+        </span>
+      </div>
+      ${r.runner?`<div class="cand-entry">
+        <span class="ce-rank">2</span>
+        <span class="ce-name">${r.runner}</span>
+        <span class="ce-party" style="background:${rcolor}">${rpc}</span>
+        <span class="ce-votes" style="color:var(--yellow)">
+          ${runnerEst>0?fmt(runnerEst):'—'}
+          ${runnerEst>0?'<span class="ce-est">est.</span>':''}
+        </span>
+      </div>`:''}
+      ${r.total_votes>0&&leaderEst>0?`<div style="font-size:.62rem;color:var(--muted);
+        margin-top:6px;padding-top:5px;border-top:1px solid var(--border)">
+        Estimates based on leader_votes ≈ (total_votes + margin) / 2.
+        For full candidate list visit ECI ↗
+      </div>`:''}
+    </div>`;
+
+  const eciLink=document.getElementById('modal-eci-link');
+  if(eciLink) eciLink.href=`https://results.eci.gov.in/ResultAcGenMay2026/candidateswise-S22${acNo}.htm`;
+
+  overlay.classList.add('open');
+  document.addEventListener('keydown',_modalEsc);
+}
+
+function closeModal(){
+  document.getElementById('modal-overlay').classList.remove('open');
+  document.removeEventListener('keydown',_modalEsc);
+}
+
+function _modalEsc(e){ if(e.key==='Escape') closeModal(); }
+
+/* ══════════════════════════════════════════════════
+   SEARCH SUGGESTIONS
+   ══════════════════════════════════════════════════ */
+
+function onSearchInput(){
+  renderAll();
+  updateSearchSugg();
+}
+
+function updateSearchSugg(){
+  const sugg=document.getElementById('search-sugg');
+  const q=(document.getElementById('search')?.value||'').toLowerCase().trim();
+  if(!sugg) return;
+  if(!q||q.length<2){sugg.classList.remove('open');return;}
+
+  const matches=ALL.filter(r=>
+    r.name.toLowerCase().includes(q)||
+    (r.leader||'').toLowerCase().includes(q)||
+    (r.leader_party||'').toLowerCase().includes(q)
+  ).slice(0,6);
+
+  if(!matches.length){sugg.classList.remove('open');return;}
+
+  sugg.innerHTML=matches.map(r=>{
+    const color=r.color||pColor(r.leader_code||r.leader_party);
+    const lpc=partyCode(r.leader_code,r.leader_party);
+    return `<div class="sugg-item" onclick="pickSugg('${r.name.replace(/'/g,"\\'")}')">
+      <span class="si-no">#${r.ac_no}</span>
+      <span class="si-name">${r.name}</span>
+      <span class="si-party" style="color:${color}">${lpc}</span>
+      <span style="font-size:.65rem;color:var(--muted)">${r.margin>0?'+'+fmt(r.margin):''}</span>
+    </div>`;
+  }).join('');
+  sugg.classList.add('open');
+}
+
+function pickSugg(name){
+  const s=document.getElementById('search');
+  if(s) s.value=name;
+  const sugg=document.getElementById('search-sugg');
+  if(sugg) sugg.classList.remove('open');
+  renderAll();
+}
+
+// Close suggestions when clicking outside
+document.addEventListener('click',e=>{
+  const sw=document.querySelector('.search-wrap');
+  if(sw&&!sw.contains(e.target)){
+    const sugg=document.getElementById('search-sugg');
+    if(sugg) sugg.classList.remove('open');
+  }
+});
 
 /* ── Start ─────────────────────────────────────── */
 refresh();
