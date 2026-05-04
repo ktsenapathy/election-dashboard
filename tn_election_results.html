@@ -2,7 +2,10 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0d1117">
 <title>Tamil Nadu Live Election Results 2026</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
@@ -13,7 +16,7 @@
   --red:#f85149;--purple:#bc8cff;
   --radius:8px;
 }
-html{scroll-behavior:smooth}
+html{scroll-behavior:smooth}  /* iOS 15+ only; older versions just ignore */
 body{background:var(--bg);color:var(--text);
   font-family:'Segoe UI',system-ui,-apple-system,sans-serif;
   font-size:14px;line-height:1.5;min-height:100vh}
@@ -23,7 +26,7 @@ header{
   background:linear-gradient(135deg,#0d2137,#0d1117);
   padding:12px 20px;border-bottom:1px solid var(--border);
   display:flex;justify-content:space-between;align-items:center;
-  flex-wrap:wrap;gap:10px;position:sticky;top:0;z-index:200;
+  flex-wrap:wrap;gap:10px;position:-webkit-sticky;position:sticky;top:0;z-index:200;
 }
 .h-title h1{font-size:1.1rem;font-weight:700}
 .h-title h1 em{color:var(--blue);font-style:normal}
@@ -155,7 +158,7 @@ select:focus{border-color:var(--blue)}
 /* ── Table panel ─────────────────── */
 #table-panel{flex:1;min-width:0;overflow-x:auto;padding-bottom:20px}
 table{width:100%;border-collapse:collapse;font-size:.8rem;min-width:620px}
-thead{position:sticky;top:0;z-index:5}
+thead{position:-webkit-sticky;position:sticky;top:0;z-index:5}
 thead th{text-align:left;padding:7px 9px;color:var(--muted);font-weight:600;
   font-size:.63rem;text-transform:uppercase;letter-spacing:.05em;
   border-bottom:2px solid var(--border);white-space:nowrap;cursor:pointer;
@@ -339,7 +342,7 @@ tbody tr:hover td{background:#161b22}
   display:none;box-shadow:0 4px 16px #0008;animation:fadeIn .3s ease}
 
 /* ── Modal ───────────────────────── */
-#modal-overlay{position:fixed;inset:0;background:#0008;z-index:500;
+#modal-overlay{position:fixed;top:0;right:0;bottom:0;left:0;background:#0008;z-index:500;
   display:none;align-items:center;justify-content:center;padding:20px}
 #modal-overlay.open{display:flex}
 #modal-box{background:#1a1d27;border:1px solid var(--border);border-radius:12px;
@@ -607,7 +610,7 @@ tbody tr:hover td{background:#161b22}
 
 /* ── Verdict strip (sticky, below header) ──── */
 #verdict-strip{
-  position:sticky;top:54px;z-index:190;
+  position:-webkit-sticky;position:sticky;top:54px;z-index:190;
   background:#0d1f33;border-bottom:1px solid #1f3a5f;
   padding:5px 20px;display:none;align-items:center;
   gap:0;font-size:.75rem;flex-wrap:wrap;line-height:1.8;
@@ -671,6 +674,58 @@ footer a:hover{text-decoration:underline}
   .summary{gap:5px}
   .stat .v{font-size:1.1rem}
   .hide-m{display:none}
+}
+
+/* ══════════════════════════════════
+   iOS / Safari compatibility fixes
+   ══════════════════════════════════ */
+
+/* 1. Prevent iOS Safari from zooming into form fields.
+      iOS zooms when input font-size < 16px — override here.   */
+@supports (-webkit-touch-callout: none){
+  input[type=search], select{
+    font-size:16px !important;
+  }
+}
+
+/* 2. Faster tap response — remove 300ms tap delay on all
+      interactive elements.                                      */
+a,button,.btn,.vt-btn,.btn-analyse,.btn-share,.btn-export,
+.party-chip,.alliance-chip,.acc-header,.cs-btn,
+select,input,.wn-seat,.bz-row,.sugg-item{
+  touch-action:manipulation;
+  -webkit-tap-highlight-color:transparent;
+}
+
+/* 3. iOS click-event propagation: tapping non-interactive areas
+      (e.g. body background) must fire click to close dropdowns.
+      Setting cursor:pointer on html achieves this in Safari.    */
+html{ cursor:pointer }
+body{ cursor:auto }   /* reset for text areas */
+
+/* 4. Smooth scrolling on iOS (momentum scrolling in overflow) */
+#table-panel, #card-panel, #modal-box{
+  -webkit-overflow-scrolling:touch;
+}
+
+/* 5. Modal box: full-width on small phones, prevent overflow  */
+#modal-box{
+  width:calc(100% - 32px);
+  max-width:540px;
+}
+
+/* 6. Fix sticky inside overflow:auto containers on iOS       */
+.acc-body{
+  -webkit-overflow-scrolling:touch;
+}
+
+/* 7. Safe-area insets (iPhone notch / Dynamic Island)        */
+header{
+  padding-left:max(20px, env(safe-area-inset-left));
+  padding-right:max(20px, env(safe-area-inset-right));
+}
+footer{
+  padding-bottom:max(12px, env(safe-area-inset-bottom));
 }
 </style>
 </head>
@@ -2826,13 +2881,37 @@ function copyShareText(){
   ].filter(l=>l!==null&&l!==undefined);
 
   const text=lines.join('\n').replace(/\n{3,}/g,'\n\n');
-  navigator.clipboard.writeText(text).then(()=>{
-    const btn=document.querySelector('.btn-share');
-    if(btn){const orig=btn.innerHTML;btn.innerHTML='✓ Copied!';setTimeout(()=>btn.innerHTML=orig,2000);}
-  }).catch(()=>{
-    // Fallback: show in alert
-    prompt('Copy this text (Ctrl+C):',text);
-  });
+  // Clipboard API needs HTTPS — graceful fallback for file:// and older iOS
+  const tryClipboard = navigator.clipboard?.writeText(text);
+  if(tryClipboard){
+    tryClipboard.then(()=>{
+      const btn=document.querySelector('.btn-share');
+      if(btn){const orig=btn.innerHTML;btn.innerHTML='✓ Copied!';setTimeout(()=>btn.innerHTML=orig,2000);}
+    }).catch(()=>showShareFallback(text));
+  } else {
+    showShareFallback(text);
+  }
+}
+
+function showShareFallback(text){
+  // iOS-safe fallback: show a selectable textarea in the modal
+  const overlay=document.getElementById('modal-overlay');
+  const body=document.getElementById('modal-body');
+  document.getElementById('modal-ac-no').textContent='Share Results';
+  document.getElementById('modal-title').textContent='Copy and share';
+  body.innerHTML=`
+    <p style="font-size:.8rem;color:var(--muted);margin-bottom:8px">
+      Select all and copy (tap → Select All → Copy):
+    </p>
+    <textarea readonly style="width:100%;height:220px;background:var(--surface);
+      color:var(--text);border:1px solid var(--border);border-radius:6px;
+      padding:10px;font-size:13px;font-family:monospace;resize:none;
+      -webkit-user-select:text;user-select:text"
+    >${text.replace(/</g,'&lt;')}</textarea>`;
+  overlay.classList.add('open');
+  document.addEventListener('keydown',_modalEsc);
+  // Auto-select on iOS
+  setTimeout(()=>{const ta=body.querySelector('textarea');if(ta){ta.focus();ta.select();}},100);
 }
 
 function downloadCSV(){
@@ -2851,10 +2930,15 @@ function downloadCSV(){
 }
 
 function _download(name,content,type){
+  // iOS Safari doesn't support <a download> — open in new tab as fallback
+  const url=URL.createObjectURL(new Blob([content],{type}));
   const a=document.createElement('a');
-  a.href=URL.createObjectURL(new Blob([content],{type}));
-  a.download=name;a.click();
-  setTimeout(()=>URL.revokeObjectURL(a.href),5000);
+  a.href=url;a.download=name;
+  // iOS-compatible: must be in the DOM and triggered via user gesture
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(()=>URL.revokeObjectURL(url),5000);
 }
 
 /* ══════════════════════════════════════════════════
