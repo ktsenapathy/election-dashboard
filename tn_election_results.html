@@ -257,6 +257,110 @@ tbody tr:hover td{background:#161b22}
   border-radius:6px;padding:7px 10px;font-size:.75rem;pointer-events:none;
   z-index:9999;max-width:200px;line-height:1.5;display:none;box-shadow:0 4px 14px #0008}
 
+/* ── Analysis panel ──────────────── */
+#analysis-panel{
+  display:none;border-bottom:1px solid var(--border);
+  background:linear-gradient(180deg,#0f1a2a,var(--bg));
+}
+#analysis-panel.open{display:block}
+.ap-header{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:12px 20px 0;
+}
+.ap-title{font-size:.85rem;font-weight:700;display:flex;align-items:center;gap:8px}
+.ap-title .ai-icon{font-size:1rem}
+.ap-close{background:none;border:none;color:var(--muted);cursor:pointer;
+  font-size:1rem;padding:2px 6px;border-radius:4px}
+.ap-close:hover{color:var(--text);background:var(--surface2)}
+.ap-verdict{
+  margin:10px 20px;padding:10px 14px;border-radius:8px;
+  background:var(--surface);border:1px solid var(--border);
+  font-size:.82rem;line-height:1.7;
+}
+.ap-verdict .vd-label{font-size:.62rem;color:var(--muted);text-transform:uppercase;
+  letter-spacing:.07em;margin-bottom:4px;font-weight:600}
+.ap-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(280px,1fr));
+  gap:10px;padding:0 20px 16px;
+}
+.ap-card{background:var(--surface);border:1px solid var(--border);
+  border-radius:8px;padding:12px}
+.ap-card-title{font-size:.65rem;color:var(--muted);text-transform:uppercase;
+  letter-spacing:.07em;font-weight:600;margin-bottom:10px;
+  display:flex;align-items:center;gap:6px}
+.ap-card-title .icon{font-size:.9rem}
+
+/* Majority race */
+.maj-row{display:flex;align-items:center;gap:8px;margin-bottom:7px}
+.maj-party{width:52px;font-size:.72rem;font-weight:700;flex-shrink:0;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.maj-track{flex:1;background:var(--surface2);border-radius:4px;height:14px;
+  position:relative;overflow:visible}
+.maj-bar{height:100%;border-radius:4px;transition:width .5s ease;
+  display:flex;align-items:center;padding-left:6px;
+  font-size:.62rem;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden}
+.maj-marker{position:absolute;top:-3px;bottom:-3px;width:2px;
+  background:#fff6;border-radius:2px}
+.maj-info{font-size:.7rem;white-space:nowrap;flex-shrink:0;width:80px;text-align:right}
+.maj-need{color:var(--yellow);font-weight:600}
+.maj-done{color:var(--green);font-weight:700}
+
+/* Risk zones */
+.risk-band{display:flex;align-items:center;gap:8px;margin-bottom:6px;
+  padding:7px 10px;border-radius:6px;cursor:pointer;transition:background .15s}
+.risk-band:hover{background:var(--surface2)}
+.risk-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.risk-label{flex:1;font-size:.78rem}
+.risk-label .rl-sub{font-size:.67rem;color:var(--muted)}
+.risk-count{font-size:1.1rem;font-weight:700;flex-shrink:0}
+.risk-parties{display:flex;gap:4px;flex-wrap:wrap;margin-top:3px}
+.rp-chip{font-size:.6rem;padding:1px 5px;border-radius:3px;
+  font-weight:700;color:#fff;text-shadow:0 1px 2px #0005}
+
+/* Swing scenario */
+.swing-row{display:flex;align-items:center;justify-content:space-between;
+  font-size:.78rem;padding:5px 0;border-bottom:1px solid var(--border)}
+.swing-row:last-child{border:none}
+.sw-party{font-weight:600;display:flex;align-items:center;gap:5px}
+.sw-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.sw-now{color:var(--muted);font-size:.72rem}
+.sw-arrow{color:var(--yellow);margin:0 4px}
+.sw-new{font-weight:700}
+.sw-delta{font-size:.7rem;font-weight:600}
+.sw-up{color:var(--green)}.sw-dn{color:var(--red)}
+
+/* Battle zones */
+.bz-row{display:flex;align-items:center;gap:7px;padding:5px 0;
+  border-bottom:1px solid var(--border);cursor:pointer}
+.bz-row:hover{background:var(--surface2);margin:0 -8px;padding:5px 8px;border-radius:5px}
+.bz-row:last-child{border:none}
+.bz-no{font-size:.65rem;color:var(--muted);width:24px;flex-shrink:0;font-variant-numeric:tabular-nums}
+.bz-name{flex:1;font-size:.78rem;font-weight:600;overflow:hidden;
+  text-overflow:ellipsis;white-space:nowrap}
+.bz-margin{font-size:.8rem;font-weight:700;flex-shrink:0;
+  font-variant-numeric:tabular-nums;min-width:50px;text-align:right}
+.bz-badge{font-size:.6rem;padding:1px 5px;border-radius:99px;font-weight:700;flex-shrink:0}
+
+/* Round progress */
+.rp-row{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.rp-label{font-size:.72rem;color:var(--muted);width:120px;flex-shrink:0}
+.rp-track{flex:1;background:var(--surface2);border-radius:3px;height:8px;overflow:hidden}
+.rp-fill{height:100%;border-radius:3px;background:var(--blue)}
+.rp-val{font-size:.7rem;color:var(--text);font-weight:600;flex-shrink:0;width:32px;text-align:right}
+
+/* Btn analysis */
+.btn-analyse{
+  background:linear-gradient(135deg,#1f3a5f,#1a2d4a);
+  color:#79c0ff;border:1px solid #1f6feb60;
+  padding:5px 12px;border-radius:6px;cursor:pointer;
+  font-size:.78rem;font-weight:700;display:flex;align-items:center;gap:5px;
+  white-space:nowrap;transition:background .15s;
+}
+.btn-analyse:hover{background:linear-gradient(135deg,#1f6feb,#1a4a8a);color:#fff}
+.btn-analyse.on{background:linear-gradient(135deg,#1f6feb,#1a4a8a);color:#fff;
+  border-color:var(--blue)}
+
 /* ── Footer ──────────────────────── */
 footer{padding:12px 20px;border-top:1px solid var(--border);
   text-align:center;font-size:.68rem;color:var(--muted)}
@@ -309,6 +413,9 @@ footer a:hover{text-decoration:underline}
       </button>
     </div>
 
+    <button class="btn-analyse" id="btn-analyse" onclick="toggleAnalysis()">
+      🔍 Analyse
+    </button>
     <button class="btn btn-ghost" onclick="forceRefresh()">
       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
         <polyline points="23 4 23 10 17 10"/>
@@ -327,6 +434,62 @@ footer a:hover{text-decoration:underline}
   <code>python3 -m http.server 8080</code> → open
   <code>http://localhost:8080/tn_election_results.html</code>
   <span id="error-detail"></span>
+</div>
+
+<!-- Analysis panel (always in DOM, toggled) -->
+<div id="analysis-panel">
+  <div class="ap-header">
+    <div class="ap-title"><span class="ai-icon">🔍</span> Intelligent Analysis</div>
+    <button class="ap-close" onclick="toggleAnalysis()">✕</button>
+  </div>
+  <div class="ap-verdict" id="ap-verdict">
+    <div class="vd-label">Smart Verdict</div>
+    <div id="ap-verdict-text">Loading analysis…</div>
+  </div>
+  <div class="ap-grid">
+
+    <!-- Majority race -->
+    <div class="ap-card">
+      <div class="ap-card-title"><span class="icon">🏁</span> Majority Race (Need 118)</div>
+      <div id="ap-majority"></div>
+    </div>
+
+    <!-- Narrow margins -->
+    <div class="ap-card">
+      <div class="ap-card-title"><span class="icon">⚠️</span> Risk Zones by Margin</div>
+      <div id="ap-risk"></div>
+      <div style="font-size:.65rem;color:var(--muted);margin-top:8px">
+        Click a band to filter constituencies
+      </div>
+    </div>
+
+    <!-- Swing scenario -->
+    <div class="ap-card">
+      <div class="ap-card-title"><span class="icon">🔄</span> Swing Scenario</div>
+      <div style="font-size:.68rem;color:var(--muted);margin-bottom:8px"
+           id="ap-swing-label">If all &lt;500-margin seats flip to runner-up:</div>
+      <div id="ap-swing"></div>
+    </div>
+
+    <!-- Battle zones -->
+    <div class="ap-card">
+      <div class="ap-card-title"><span class="icon">⚔️</span> Battle Zones — Top 12 Closest</div>
+      <div id="ap-battles"></div>
+    </div>
+
+    <!-- Round progress -->
+    <div class="ap-card">
+      <div class="ap-card-title"><span class="icon">⏱️</span> Counting Progress</div>
+      <div id="ap-rounds"></div>
+    </div>
+
+    <!-- Safe seats -->
+    <div class="ap-card">
+      <div class="ap-card-title"><span class="icon">🛡️</span> Safe Seats (Margin &gt; 10K)</div>
+      <div id="ap-safe"></div>
+    </div>
+
+  </div>
 </div>
 
 <!-- Loading -->
@@ -1006,6 +1169,7 @@ async function refresh(){
     const ts=new Date().toLocaleTimeString('en-IN');
     setMeta(`results.eci.gov.in · Updated ${ts} · ${ALL.length} constituencies · Auto-refresh ${RFRSH}s`);
     document.getElementById('error-banner').style.display='none';
+    if(ANALYSIS_OPEN) renderAnalysis();
   }catch(err){
     console.error(err);
     document.getElementById('error-banner').style.display='block';
@@ -1049,6 +1213,323 @@ document.addEventListener('mousemove',e=>{
     tip.style.top =(e.clientY-10)+'px';
   }
 });
+
+/* ══════════════════════════════════════════════════
+   INTELLIGENT ANALYSER
+   ══════════════════════════════════════════════════ */
+
+const MAJORITY = 118;
+let ANALYSIS_OPEN = false;
+
+function toggleAnalysis(){
+  ANALYSIS_OPEN = !ANALYSIS_OPEN;
+  document.getElementById('analysis-panel').classList.toggle('open', ANALYSIS_OPEN);
+  document.getElementById('btn-analyse').classList.toggle('on', ANALYSIS_OPEN);
+  if(ANALYSIS_OPEN && ALL.length) renderAnalysis();
+}
+
+/* ── Core analysis engine ──────────────────────── */
+function computeAnalysis(){
+  const active = ALL.filter(r => r.margin > 0);
+
+  const bands = {
+    knife: active.filter(r => r.margin < 500),
+    close: active.filter(r => r.margin >= 500  && r.margin < 2000),
+    comfy: active.filter(r => r.margin >= 2000 && r.margin < 10000),
+    safe:  active.filter(r => r.margin >= 10000),
+  };
+
+  const partySeats = {};
+  for(const t of TALLY) partySeats[t.code] = t;
+
+  function partyBreakdown(list){
+    const pb = {};
+    for(const r of list){
+      const code = r.leader_code || partyCode('', r.leader_party);
+      if(!pb[code]) pb[code] = { count: 0, color: r.color || pColor(code) };
+      pb[code].count++;
+    }
+    return Object.entries(pb).sort((a,b)=>b[1].count-a[1].count);
+  }
+
+  // Swing: knife-edge seats only
+  const swingDelta = {};
+  for(const r of bands.knife){
+    const lc = r.leader_code || partyCode('', r.leader_party);
+    const rc = partyCode('', r.runner_party);
+    swingDelta[lc] = (swingDelta[lc]||0) - 1;
+    if(rc) swingDelta[rc] = (swingDelta[rc]||0) + 1;
+  }
+
+  // Swing: all contested (<2K)
+  const swingDeltaAll = {};
+  for(const r of [...bands.knife, ...bands.close]){
+    const lc = r.leader_code || partyCode('', r.leader_party);
+    const rc = partyCode('', r.runner_party);
+    swingDeltaAll[lc] = (swingDeltaAll[lc]||0) - 1;
+    if(rc) swingDeltaAll[rc] = (swingDeltaAll[rc]||0) + 1;
+  }
+
+  // Round progress
+  const withRound = ALL.filter(r => r.round && r.round.includes('/'));
+  const roundPcts = withRound.map(r => {
+    const [done, total] = r.round.split('/').map(Number);
+    return { done, total, pct: total > 0 ? done / total : 0, r };
+  });
+  const avgPct = roundPcts.length
+    ? roundPcts.reduce((s,x) => s + x.pct, 0) / roundPcts.length : 0;
+  const nearDone = roundPcts.filter(x => x.total > 0 && (x.total - x.done) <= 2).length;
+
+  function buildVerdict(){
+    const leader = TALLY[0];
+    if(!leader) return 'Waiting for data…';
+    const need = MAJORITY - leader.total;
+    const lines = [];
+
+    if(leader.total >= MAJORITY){
+      lines.push(`🎉 <b>${leader.code}</b> has crossed the majority mark with <b>${leader.total} seats</b>.`);
+    } else {
+      lines.push(`📊 <b>${leader.code}</b> leads with <b>${leader.total} seats</b> — needs <b>${need} more</b> for majority.`);
+    }
+
+    if(bands.knife.length){
+      lines.push(`⚠️ <b>${bands.knife.length} seat${bands.knife.length>1?'s':''}</b> are on a knife-edge (< 500 votes) and could flip with any counting round.`);
+    } else {
+      lines.push(`✅ No seats on a knife-edge margin — all leads are above 500 votes.`);
+    }
+
+    const contested = bands.knife.length + bands.close.length;
+    if(contested > 0){
+      lines.push(`🔔 <b>${contested} seats</b> within a 2,000-vote margin remain in play.`);
+    }
+
+    const leaderKnife = bands.knife.filter(r =>
+      (r.leader_code || partyCode('', r.leader_party)) === leader.code
+    ).length;
+    if(leaderKnife > 0 && leader.total < MAJORITY){
+      const worst = leader.total - leaderKnife;
+      lines.push(`🔄 Worst case for <b>${leader.code}</b>: losing all ${leaderKnife} knife-edge seat${leaderKnife!==1?'s':''} → <b>${worst} seats</b>.`);
+    }
+
+    const tvk = partySeats['TVK']?.total || 0;
+    const dmk = partySeats['DMK']?.total || 0;
+    if(tvk > 0 && dmk > 0 && tvk !== dmk){
+      lines.push(`🤝 TVK + DMK combined: <b>${tvk + dmk} seats</b>${tvk + dmk >= MAJORITY ? ' — already a majority.' : '.'}`);
+    }
+
+    lines.push(`⏱️ Counting <b>${Math.round(avgPct * 100)}%</b> complete. <b>${nearDone}</b> seat${nearDone!==1?'s':''} finishing imminently.`);
+    return lines.join('<br>');
+  }
+
+  return { bands, partyBreakdown, partySeats, swingDelta, swingDeltaAll, roundPcts, avgPct, nearDone, buildVerdict };
+}
+
+/* ── Render analysis sections ──────────────────── */
+function renderAnalysis(){
+  if(!ALL.length || !TALLY.length) return;
+  const A = computeAnalysis();
+
+  document.getElementById('ap-verdict-text').innerHTML = A.buildVerdict();
+
+  // Majority race
+  const majEl = document.getElementById('ap-majority');
+  majEl.innerHTML = TALLY.slice(0,6).map(p => {
+    const pct  = Math.min((p.total / MAJORITY) * 100, 100);
+    const need = MAJORITY - p.total;
+    return `
+    <div class="maj-row">
+      <div class="maj-party" style="color:${p.color}" title="${p.party}">${p.code}</div>
+      <div class="maj-track">
+        <div class="maj-bar" style="width:${pct.toFixed(1)}%;background:${p.color}">
+          ${p.total >= 15 ? p.total : ''}
+        </div>
+      </div>
+      <div class="maj-info">
+        ${p.total >= MAJORITY
+          ? `<span class="maj-done">✓ ${p.total}</span>`
+          : `<span class="maj-need">${need} short</span>`}
+      </div>
+    </div>`;
+  }).join('') +
+  `<div style="font-size:.62rem;color:var(--muted);margin-top:6px;border-top:1px solid var(--border);padding-top:6px">
+    Full bar = 118 seats (majority mark)
+  </div>`;
+
+  // Risk zones
+  const riskEl = document.getElementById('ap-risk');
+  const rBands = [
+    { key:'knife', label:'Knife Edge',       sub:'< 500 votes — could flip any round', list:A.bands.knife, color:'var(--red)' },
+    { key:'close', label:'Closely Contested',sub:'500 – 2,000 votes',                  list:A.bands.close, color:'var(--yellow)' },
+    { key:'comfy', label:'Comfortable',      sub:'2,000 – 10,000 votes',               list:A.bands.comfy, color:'var(--blue)' },
+    { key:'safe',  label:'Safe',             sub:'> 10,000 votes',                     list:A.bands.safe,  color:'var(--green)' },
+  ];
+  riskEl.innerHTML = rBands.map(b => {
+    const chips = A.partyBreakdown(b.list).slice(0,5).map(([code, info]) =>
+      `<span class="rp-chip" style="background:${info.color}">${code} ${info.count}</span>`
+    ).join('');
+    return `
+    <div class="risk-band" onclick="applyMarginFilter('${b.key}')">
+      <div class="risk-dot" style="background:${b.color}"></div>
+      <div class="risk-label">
+        <b>${b.label}</b>
+        <div class="rl-sub">${b.sub}</div>
+        <div class="risk-parties">${chips}</div>
+      </div>
+      <div class="risk-count" style="color:${b.color}">${b.list.length}</div>
+    </div>`;
+  }).join('');
+
+  // Swing scenario
+  const swingEl  = document.getElementById('ap-swing');
+  const swingLbl = document.getElementById('ap-swing-label');
+  const kc = A.bands.knife.length;
+  swingLbl.textContent = `If all ${kc} knife-edge seat${kc!==1?'s':''} (< 500 votes) flip to runner-up:`;
+
+  const affected = Object.keys(A.swingDelta).filter(c => A.swingDelta[c] !== 0);
+  const swingRows = TALLY.filter(p => affected.includes(p.code)).map(p => {
+    const delta = A.swingDelta[p.code] || 0;
+    return { p, delta, newTotal: p.total + delta };
+  }).sort((a,b) => Math.abs(b.delta) - Math.abs(a.delta));
+
+  if(!swingRows.length){
+    swingEl.innerHTML = `<div style="color:var(--muted);font-size:.78rem;padding:8px 0">
+      No knife-edge seats yet — all current leads exceed 500 votes.</div>`;
+  } else {
+    swingEl.innerHTML = swingRows.map(({p, delta, newTotal}) => {
+      const cls  = delta > 0 ? 'sw-up' : 'sw-dn';
+      const sign = delta > 0 ? '+' : '';
+      const nowM = p.total >= MAJORITY ? ' 🏆' : '';
+      const newM = newTotal >= MAJORITY ? ' 🏆' : '';
+      return `
+      <div class="swing-row">
+        <span class="sw-party">
+          <span class="sw-dot" style="background:${p.color}"></span>${p.code}
+        </span>
+        <span>
+          <span class="sw-now">${p.total}${nowM}</span>
+          <span class="sw-arrow">→</span>
+          <span class="sw-new">${newTotal}${newM}</span>
+          <span class="sw-delta ${cls}">(${sign}${delta})</span>
+        </span>
+      </div>`;
+    }).join('');
+
+    // Broad swing (all <2K)
+    const broadAffected = TALLY.filter(p => A.swingDeltaAll[p.code]);
+    if(broadAffected.length){
+      swingEl.innerHTML += `<div style="font-size:.63rem;color:var(--muted);margin-top:8px;
+        padding-top:6px;border-top:1px solid var(--border)">
+        If ALL contested (&lt;2K) flip: ${
+          broadAffected.map(p => {
+            const d = A.swingDeltaAll[p.code]||0;
+            return `<b>${p.code}</b> <span style="color:${d>0?'var(--green)':'var(--red)'}">${p.total+d}</span>`;
+          }).join(' · ')
+        }
+      </div>`;
+    }
+  }
+
+  // Battle zones
+  const bzEl = document.getElementById('ap-battles');
+  const battles = [...ALL].filter(r=>r.margin>0).sort((a,b)=>a.margin-b.margin).slice(0,12);
+  bzEl.innerHTML = battles.map((r,i) => {
+    const color  = r.color || pColor(r.leader_code || r.leader_party);
+    const lpc    = partyCode(r.leader_code, r.leader_party);
+    const rpc    = partyCode('', r.runner_party);
+    const mcolor = marginColor(r.margin);
+    const sev    = r.margin < 500
+      ? `<span class="bz-badge" style="background:#f8514930;color:var(--red)">🔴</span>`
+      : r.margin < 2000
+        ? `<span class="bz-badge" style="background:#d2992230;color:var(--yellow)">🟡</span>`
+        : '';
+    return `
+    <div class="bz-row" onclick="jumpTo(${r.ac_no})" title="Click to find in table/cards">
+      <div class="bz-no">${i+1}</div>
+      <div style="flex:1;min-width:0">
+        <div class="bz-name">${r.name}</div>
+        <div style="font-size:.63rem;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">
+          <span style="color:${color};font-weight:700">${lpc}</span> ${r.leader}
+          <span style="opacity:.6"> vs ${rpc} ${r.runner}</span>
+        </div>
+        <div style="font-size:.6rem;color:var(--muted)">Round ${r.round||'?'}</div>
+      </div>
+      <div style="text-align:right;flex-shrink:0">
+        <div class="bz-margin" style="color:${mcolor}">${fmt(r.margin)}</div>
+        ${sev}
+      </div>
+    </div>`;
+  }).join('');
+
+  // Counting progress
+  const rpEl = document.getElementById('ap-rounds');
+  const overall = Math.round(A.avgPct * 100);
+  const prByParty = {};
+  for(const {done, total, r} of A.roundPcts){
+    const code = r.leader_code || partyCode('', r.leader_party);
+    if(!prByParty[code]) prByParty[code] = [];
+    prByParty[code].push(done/total);
+  }
+  rpEl.innerHTML = `
+  <div class="rp-row">
+    <div class="rp-label">All constituencies</div>
+    <div class="rp-track"><div class="rp-fill" style="width:${overall}%"></div></div>
+    <div class="rp-val">${overall}%</div>
+  </div>` +
+  TALLY.slice(0,5).map(p => {
+    const pcts = prByParty[p.code] || [];
+    const avg  = pcts.length ? Math.round(pcts.reduce((s,x)=>s+x,0)/pcts.length*100) : 0;
+    return `
+    <div class="rp-row">
+      <div class="rp-label" style="color:${p.color}">${p.code} seats</div>
+      <div class="rp-track">
+        <div class="rp-fill" style="width:${avg}%;background:${p.color}"></div>
+      </div>
+      <div class="rp-val">${avg}%</div>
+    </div>`;
+  }).join('') +
+  `<div style="font-size:.65rem;color:var(--muted);margin-top:8px">
+    ${TOTALS.declared||0} declared · ${TOTALS.counting||0} counting · ${A.nearDone} finishing soon
+  </div>`;
+
+  // Safe seats
+  const safeEl = document.getElementById('ap-safe');
+  const safeBD  = A.partyBreakdown(A.bands.safe);
+  const maxSafe = safeBD[0]?.[1]?.count || 1;
+  safeEl.innerHTML = (safeBD.length
+    ? safeBD.map(([code, info]) => `
+      <div class="rp-row">
+        <div class="rp-label" style="color:${info.color};font-weight:700">${code}</div>
+        <div class="rp-track">
+          <div class="rp-fill" style="width:${Math.round(info.count/maxSafe*100)}%;background:${info.color}"></div>
+        </div>
+        <div class="rp-val">${info.count}</div>
+      </div>`).join('')
+    : `<div style="color:var(--muted);font-size:.78rem;padding:6px 0">No safe seats counted yet.</div>`
+  ) + `<div style="font-size:.65rem;color:var(--muted);margin-top:6px">
+    ${A.bands.safe.length} of ${ALL.filter(r=>r.margin>0).length} seats have margin > 10,000
+  </div>`;
+}
+
+/* ── Filter helpers for analysis panel ─────────── */
+function applyMarginFilter(band){
+  const MAP = { knife:'0-500', close:'500-2000', comfy:'2000-10000', safe:'10000-' };
+  const mf = document.getElementById('filter-margin');
+  if(mf){ mf.value = (mf.value===MAP[band]) ? '' : (MAP[band]||''); }
+  HIST_FILTER = '';
+  renderHistogram();
+  renderAll();
+}
+
+function jumpTo(acNo){
+  const r = ALL.find(x => x.ac_no === acNo);
+  if(!r) return;
+  const s = document.getElementById('search');
+  if(s){ s.value = r.name; renderAll(); }
+  document.getElementById('content-area')?.scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+/* ── Keep analysis live on refresh ────────────── */
+const _origRefreshDone = () => { if(ANALYSIS_OPEN) renderAnalysis(); };
 
 /* ── Start ─────────────────────────────────────── */
 refresh();
