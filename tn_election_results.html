@@ -856,8 +856,7 @@ footer{
   <span id="error-detail"></span>
 </div>
 
-<!-- Analysis panel (always visible) -->
-<div id="analysis-panel">
+<div id="analysis-panel" style="display:none">
   <div class="ap-header">
     <div class="ap-title"><span class="ai-icon">🔍</span> Intelligent Analysis</div>
   </div>
@@ -3632,7 +3631,7 @@ async function showHomeScreen(){
   // Hide verdict strip and analysis panel on home screen
   const vs=document.getElementById('verdict-strip');
   if(vs){vs.classList.remove('visible');vs.textContent='';}
-  document.getElementById('analysis-panel').classList.remove('open');
+  document.getElementById('analysis-panel').style.display='none';
   // Show loading state then fetch summaries
   document.getElementById('app').innerHTML=
     '<div id="loading"><div class="spinner"></div><div class="load-step" id="load-steps">Loading state summaries…</div></div>';
@@ -3645,7 +3644,7 @@ function goToState(code){
   // Show state-specific header controls, back button, and analysis panel
   document.getElementById('state-controls').style.display='contents';
   document.getElementById('back-to-home').style.display='';
-  document.getElementById('analysis-panel').classList.add('open');
+  document.getElementById('analysis-panel').style.display='block';
   switchState(code);
 }
 
